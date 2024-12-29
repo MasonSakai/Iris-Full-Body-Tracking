@@ -167,8 +167,43 @@ CameraData* FindCameraData(USBDeviceAddress &address) {
 	return nullptr;
 }
 
+CameraPrefab* FindCameraPrefab(USBDeviceAddress& address) {
+	if (cameraPrefabs != nullptr) {
+		for (int i = 0; i < cameraPrefabs->size(); i++)
+		{
+			CameraPrefab* data = &cameraPrefabs->at(i);
+			if (data->address.serialString == address.serialString) {
+				return data;
+			}
+		}
+	}
+	return nullptr;
+}
 
 void RegisterCamera(CameraData data) {
 	//do existance check?
 	cameraData->push_back(data);
+}
+void RegisterCamera(CameraEnum* data, string prefabName) {
+	return RegisterCamera(data, GetAddressFromDevicePath(data->devicePath), prefabName);
+}
+void RegisterCamera(CameraEnum* data, CameraPrefab* prefab) {
+	return RegisterCamera(data, GetAddressFromDevicePath(data->devicePath), prefab);
+}
+void RegisterCamera(CameraEnum* data, USBDeviceAddress addr, string prefabName) {
+	CameraPrefab* prefab = FindCameraPrefab(addr);
+	if (prefab != 0) return RegisterCamera(data, addr, prefab);
+
+	CameraData cam;
+	cam.address = addr;
+	cam.cameraName = data->description;
+	return RegisterCamera(cam);
+}
+void RegisterCamera(CameraEnum* data, USBDeviceAddress addr, CameraPrefab* prefab) {
+	CameraData cam;
+	cam.address = addr;
+	cam.cameraName = data->description;
+	//apply prefab
+
+	return RegisterCamera(cam);
 }

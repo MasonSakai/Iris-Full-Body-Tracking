@@ -1,2 +1,13 @@
 {
+    "CameraData": [
+        {
+            "name": "USB2.0 HD UVC WebCam",
+            "prefab": "",
+            "address": {
+                "vendor": 5075,
+                "product": 22118,
+                "serialString": "6&2f2fc667&0&0000"
+            }
+        }
+    ]
 }

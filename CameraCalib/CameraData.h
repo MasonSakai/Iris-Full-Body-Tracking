@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include "CameraEnum.h"
 
 using namespace std;
 
@@ -38,4 +39,10 @@ bool SaveCameraData(string path);
 USBDeviceAddress GetAddressFromDevicePath(string path);
 CameraData* FindCameraData(USBDeviceAddress &address);
 
+CameraPrefab* FindCameraPrefab(USBDeviceAddress& address);
+
 void RegisterCamera(CameraData data);
+void RegisterCamera(CameraEnum* data, string prefabName = "");
+void RegisterCamera(CameraEnum* data, CameraPrefab* prefab);
+void RegisterCamera(CameraEnum* data, USBDeviceAddress addr, string prefabName = "");
+void RegisterCamera(CameraEnum* data, USBDeviceAddress addr, CameraPrefab* prefab);

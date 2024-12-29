@@ -140,12 +140,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CameraCalib.cpp" />
+    <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraData.cpp" />
     <ClCompile Include="CameraEnum.cpp" />
+    <ClCompile Include="ConsoleApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CameraCalibration.h" />
     <ClInclude Include="CameraData.h" />
     <ClInclude Include="CameraEnum.h" />
+    <ClInclude Include="ConsoleApplication.h" />
+    <ClInclude Include="ConsoleMacros.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
