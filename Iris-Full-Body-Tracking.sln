@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Iris_FBT", "Iris_FBT\Iris_F
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCV-Test", "OpenCV-Test\OpenCV-Test.vcxproj", "{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraCalib", "CameraCalib\CameraCalib.vcxproj", "{F8FEB13C-21B5-4DD9-9384-050914310A0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,18 @@ Global
 		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Release|x64.Build.0 = Release|x64
 		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Release|x86.ActiveCfg = Release|Win32
 		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Release|x86.Build.0 = Release|Win32
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Debug|Any CPU.Build.0 = Debug|x64
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Debug|x64.ActiveCfg = Debug|x64
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Debug|x64.Build.0 = Debug|x64
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Debug|x86.ActiveCfg = Debug|Win32
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Debug|x86.Build.0 = Debug|Win32
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Release|Any CPU.ActiveCfg = Release|x64
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Release|Any CPU.Build.0 = Release|x64
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Release|x64.ActiveCfg = Release|x64
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Release|x64.Build.0 = Release|x64
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Release|x86.ActiveCfg = Release|Win32
+		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,31 @@
+{
+    "CameraData": [
+        {
+            "name": "Global Shutter Camera",
+            "prefab": "",
+            "address": {
+                "vendor": 13028,
+                "product": 564,
+                "serialString": "6&325db0ba&0&0000"
+            }
+        },
+        {
+            "name": "USB2.0 HD UVC WebCam",
+            "prefab": "",
+            "address": {
+                "vendor": 5075,
+                "product": 22118,
+                "serialString": "6&2f2fc667&0&0000"
+            }
+        },
+        {
+            "name": "Global Shutter Camera",
+            "prefab": "",
+            "address": {
+                "vendor": 13028,
+                "product": 564,
+                "serialString": "6&3f0604e&0&0000"
+            }
+        }
+    ]
+}
