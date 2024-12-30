@@ -144,6 +144,7 @@
     <ClCompile Include="CameraData.cpp" />
     <ClCompile Include="CameraEnum.cpp" />
     <ClCompile Include="ConsoleApplication.cpp" />
+    <ClCompile Include="SAMPLE_Calib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraCalibration.h" />

@@ -24,7 +24,7 @@ bool PerformCalibration(Settings& s) {
 	
 	float grid_width = s.squareSize * (s.boardSize.width - 2);
 
-	Dictionary dictionary = aruco::getPredefinedDictionary(s.dictionaryId);
+	Dictionary dictionary = aruco::getPredefinedDictionary(s.arucoDictID);
 	CharucoBoard ch_board({ s.boardSize.width, s.boardSize.height }, s.squareSize, s.markerSize, dictionary);
 	CharucoDetector ch_detector(ch_board);
 	vector<int> markerIds;
@@ -193,7 +193,7 @@ void App_CalibrateCamera(int camIndex, CameraData* camData) {
 
 	Settings s;
 	//s.read();
-	s.calibData = camData->calibration;
+	//s.calibData = camData->calibration;
 
 	Mat frame;
 	//--- GRAB AND WRITE LOOP
@@ -251,7 +251,7 @@ resetConsole:
 exit:
 	destroyWindow("Calibration");
 
-	camData->calibration = s.calibData;
+	//camData->calibration = s.calibData;
 }
 
 

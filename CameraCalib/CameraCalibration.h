@@ -19,7 +19,7 @@ public:
 			<< "BoardSize_Height" << boardSize.height
 			<< "Square_Size" << squareSize
 			<< "Marker_Size" << markerSize
-			<< "Dictionary_ID" << dictionaryId
+			<< "ArUco_Dict" << arucoDictID
 			<< "Calibrate_FixAspectRatio" << aspectRatio
 			<< "Calibrate_AssumeZeroTangentialDistortion" << calibZeroTangentDist
 			<< "Calibrate_FixPrincipalPointAtTheCenter" << calibFixPrincipalPoint
@@ -39,7 +39,7 @@ public:
 		node["BoardSize_Height"] >> boardSize.height;
 		node["Square_Size"] >> squareSize;
 		node["Marker_Size"] >> markerSize;
-		node["Dictionary_ID"] >> dictionaryId;
+		node["ArUco_Dict"] >> arucoDictID;
 		node["Calibrate_FixAspectRatio"] >> aspectRatio;
 		node["Write_DetectedFeaturePoints"] >> writePoints;
 		node["Write_extrinsicParameters"] >> writeExtrinsics;
@@ -108,7 +108,7 @@ public:
 	cv::Size boardSize = { 5, 7 };   // The size of the board -> Number of items by width and height
 	float squareSize = 30;       // The size of a square in your defined unit (point, millimeter,etc).
 	float markerSize = 15;       // The size of a marker in your defined unit (point, millimeter,etc).
-	int dictionaryId = 10;       // ID of preexisting dictionary
+	int arucoDictID = 10;        // ID of preexisting dictionary
 	float aspectRatio;           // The aspect ratio
 	bool writePoints;            // Write detected feature points
 	bool writeExtrinsics;        // Write extrinsic parameters

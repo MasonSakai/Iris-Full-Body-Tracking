@@ -131,12 +131,12 @@ input:
 	case 'c': {
 		USBDeviceAddress addr = GetAddressFromDevicePath(cams->at(selectedCam).devicePath);
 		CameraData* data = FindCameraData(addr);
-		if (data == nullptr) {
+		/*if (data == nullptr) {
 			PrintCommands();
 			cout << endl << endl;
 			cout << COL("31") "Camera is not registered" COLD CRP;
 			break;
-		}
+		}*/
 		App_CalibrateCamera(selectedCam, data);
 		PrintCommands();
 		cout << endl << endl;

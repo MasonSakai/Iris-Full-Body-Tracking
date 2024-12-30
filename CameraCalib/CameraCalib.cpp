@@ -8,7 +8,7 @@
 using namespace std;
 
 
-int main(int argc, char* argv[])
+int main2(int argc, char* argv[])
 {
 	cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
 
