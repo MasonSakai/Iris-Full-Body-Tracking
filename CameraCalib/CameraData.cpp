@@ -1,5 +1,4 @@
 #include "CameraData.h"
-#include <opencv2/core/persistence.hpp>
 #include <iostream>
 
 using namespace cv;
@@ -18,27 +17,40 @@ void StringSplit(string str, string delimiter, vector<string>* split) {
 static vector<CameraData>* cameraData;
 static vector<CameraPrefab>* cameraPrefabs;
 
-
-
-static void ReadAddress(FileNode node, USBDeviceAddress* address) {
+void operator>>(const cv::FileNode& node, CalibrationData& cd) {
 	if (node.empty()) return;
 
-	address->VendorID = (int)node["vendor"];
-	address->ProductID = (int)node["product"];
+	cd.valid = (int)node["valid"];
+
+}
+FileStorage& operator<<(FileStorage& fs, CalibrationData& cd) {
+	fs << "{";
+	fs << "valid" << cd.valid;
+
+	fs << "}";
+	return fs;
+}
+
+static void operator>>(const FileNode& node, USBDeviceAddress& address) {
+	if (node.empty()) return;
+
+	address.VendorID = (int)node["vendor"];
+	address.ProductID = (int)node["product"];
 
 	FileNode interfaceNum = node["interfaceNum"];
-	if (interfaceNum.isInt()) address->interfaceNum = (int)interfaceNum;
+	if (interfaceNum.isInt()) address.interfaceNum = (int)interfaceNum;
 
 	FileNode serialString = node["serialString"];
-	if (!serialString.isNone()) address->serialString = serialString;
+	if (!serialString.isNone()) address.serialString = serialString;
 }
-static void WriteAddress(FileStorage& fs, USBDeviceAddress& address) {
+static FileStorage& operator<<(FileStorage& fs, USBDeviceAddress& address) {
 	fs << "{";
 	fs << "vendor" << address.VendorID;
 	fs << "product" << address.ProductID;
 	if (address.interfaceNum != 0) fs << "interfaceNum" << (uint16_t)address.interfaceNum;
 	if (!address.serialString.empty()) fs << "serialString" << address.serialString;
 	fs << "}";
+	return fs;
 }
 
 static void ReadCameraData(FileStorage& fs) {
@@ -55,8 +67,9 @@ static void ReadCameraData(FileStorage& fs) {
 		FileNode prefabName = cd["prefab"];
 		if (prefabName.isString()) data.prefabName = prefabName.string();
 
-		ReadAddress(cd["address"], &data.address);
+		cd["address"] >> data.address;
 
+		cd["calibration"] >> data.calibration;
 
 		cameraData->at(i) = data;
 	}
@@ -69,9 +82,9 @@ static void WriteCameraData(FileStorage& fs) {
 		CameraData& data = cameraData->at(i);
 		fs << "{";
 		fs << "name" << data.cameraName;
-		fs << "prefab" << data.prefabName;
-		fs << "address";
-		WriteAddress(fs, data.address);
+		if (!data.prefabName.empty()) fs << "prefab" << data.prefabName;
+		fs << "address" << data.address;
+		if (data.calibration.valid) fs << "calibration" << data.calibration;
 		fs << "}";
 	}
 	fs << "]";
@@ -88,7 +101,7 @@ static void ReadCameraPrefabs(FileStorage& fs) {
 
 		data.prefabName = cd["name"].string();
 
-		ReadAddress(cd["address"], &data.address);
+		cd["address"] >> data.address;
 
 
 		cameraPrefabs->at(i) = data;
@@ -102,8 +115,7 @@ static void WriteCameraPrefabs(FileStorage& fs) {
 		CameraPrefab& data = cameraPrefabs->at(i);
 		fs << "{";
 		fs << "name" << data.prefabName;
-		fs << "address";
-		WriteAddress(fs, data.address);
+		fs << "address" << data.address;
 		fs << "}";
 	}
 	fs << "]";
@@ -146,10 +158,10 @@ USBDeviceAddress GetAddressFromDevicePath(string path) {
 	split.clear();
 	StringSplit(str, "&", &split);
 
-	addr.VendorID = stoul(split.at(0).substr(4, 4), nullptr, 16);
-	addr.ProductID = stoul(split.at(1).substr(4, 4), nullptr, 16);
+	addr.VendorID = (uint16_t)stoul(split.at(0).substr(4, 4), nullptr, 16);
+	addr.ProductID = (uint16_t)stoul(split.at(1).substr(4, 4), nullptr, 16);
 
-	if (split.size() == 3) addr.interfaceNum = stoul(split.at(2).substr(3, 2), nullptr, 16);
+	if (split.size() == 3) addr.interfaceNum = (uint8_t)stoul(split.at(2).substr(3, 2), nullptr, 16);
 
 	return addr;
 }

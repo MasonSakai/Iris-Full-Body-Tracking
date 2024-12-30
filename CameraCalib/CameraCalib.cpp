@@ -3,25 +3,28 @@
 #include "ConsoleApplication.h"
 #include <iostream>
 #include <opencv2/core/utils/logger.hpp>
+#include "CameraCalibration.h"
 
 using namespace std;
 
 
 int main(int argc, char* argv[])
 {
-    cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+	cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
 
 	bool fSuccess = EnableVTMode();
-    if (!fSuccess)
-    {
-        cout << "Unable to enter VT processing mode. Quitting." << endl;
-        return -1;
-    }
+	if (!fSuccess)
+	{
+		cout << "Unable to enter VT processing mode. Quitting." << endl;
+		return -1;
+	}
 
-	string cdpath = string(argc > 1 ? argv[1] : "C:\\Users\\User\\source\\repos\\Iris-Full-Body-Tracking\\_persistance") + "\\CameraData.json";
+	string basePath = string(argc > 1 ? argv[1] : "C:\\Users\\User\\source\\repos\\Iris-Full-Body-Tracking\\_persistance");
+
+	string cdpath = basePath + "\\CameraData.json";
 	LoadCameraData(cdpath);
 
-    StartConsoleApplication();
+	StartConsoleApplication();
 
 	SaveCameraData(cdpath);
 }

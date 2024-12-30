@@ -3,8 +3,18 @@
 #include <vector>
 #include <string>
 #include "CameraEnum.h"
+#include <opencv2/core/persistence.hpp>
+
 
 using namespace std;
+
+
+struct CalibrationData {
+	bool valid = false;
+};
+
+cv::FileStorage& operator<<(cv::FileStorage& fs, CalibrationData& cd);
+void operator>>(const cv::FileNode& node, CalibrationData& cd);
 
 struct USBDeviceAddress {
 	uint16_t VendorID = 0;
@@ -16,11 +26,13 @@ struct USBDeviceAddress {
 struct CameraPrefab {
 	string prefabName;
 	USBDeviceAddress address;
+	CalibrationData calibration;
 };
 struct CameraData {
 	string cameraName;
 	string prefabName;
 	USBDeviceAddress address;
+	CalibrationData calibration;
 };
 
 //move elsewhere?

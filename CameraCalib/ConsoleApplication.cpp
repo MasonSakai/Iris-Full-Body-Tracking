@@ -137,7 +137,7 @@ input:
 			cout << COL("31") "Camera is not registered" COLD CRP;
 			break;
 		}
-		CalibrateCamera(selectedCam, data);
+		App_CalibrateCamera(selectedCam, data);
 		PrintCommands();
 		cout << endl << endl;
 		cout << "Exited Calibration" CRP;
