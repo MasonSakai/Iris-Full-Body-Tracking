@@ -4,4 +4,4 @@ from ultralytics import YOLO
 model = YOLO("yolo11n-pose.pt")  # load an official model
 
 # Export the model
-model.export(format="onnx")
+model.export(format="onnx", imgsz=640)
