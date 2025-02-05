@@ -18,9 +18,13 @@ while True:
 
     for r in res:
         points = r.keypoints
-        for p in points.xyn[0]:
-            # print(p)
-            cv.circle(img, (int(p[0]*r.orig_shape[1]), int(p[1]*r.orig_shape[0])), 5, (0,0,255), thickness=3)
+        l = len(points.xyn) - 1
+        t = 0
+        for i, data in enumerate(points.data):
+            if l > 0:
+                t = i / l
+            for p in data:
+                cv.circle(img, (int(p[0]), int(p[1])), 5, (255*t, 0,255*(1-t)), thickness=int(5*p[2]))
 
     cv.imshow("res", img)
 
