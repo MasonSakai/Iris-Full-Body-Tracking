@@ -1,3 +1,6 @@
 [submodule "lib/openvr"]
 	path = lib/openvr
 	url = https://github.com/ValveSoftware/openvr
+[submodule "lib/YOLOs-CPP"]
+	path = lib/YOLOs-CPP
+	url = https://github.com/Geekgineer/YOLOs-CPP.git
