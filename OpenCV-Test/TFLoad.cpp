@@ -4,50 +4,24 @@
 #include <opencv2/highgui.hpp>
 #include <iostream>
 
+#include <YOLO11.hpp>
+
 using namespace std;
 using namespace cv;
 using namespace dnn;
 
-Net net;
+YOLO11Detector* detector;
 
-void GetModel(bool is_cuda) {
-	// Load the model
-	net = readNet("C:\\Users\\User\\source\\repos\\Iris-Full-Body-Tracking\\Models\\onnx\\yolo11n-pose.onnx");
-	
-	if (is_cuda)
-	{
-		cout << "Using CUDA\n";
-		net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
-		net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA_FP16);
-	}
-	else
-	{
-		cout << "CPU Mode\n";
-		net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
-		net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
-	}
+void GetModel(bool isGPU) {
+	cout << "Getting Detector" << endl;
+	auto modelPath = "C:\\Users\\User\\source\\repos\\Iris-Full-Body-Tracking\\Models\\onnx\\yolo11n-pose.onnx";
+	detector = new YOLO11Detector(modelPath, "", isGPU);
+	cout << "Started Detector" << endl;
 }
 
 void RunModel(Mat image) {
 
-	// Prepare the input
-	Mat blob = blobFromImage(image, 1./255., cv::Size(640, 640), cv::Scalar(), true);
+	vector<Detection> detections = detector->detect(image);
 
-	// Set the input blob
-	net.setInput(blob);
 
-	// Forward pass
-	Mat output = net.forward();
-	cout << output.size << endl; //1 x 56 x 8400
-	output = output.reshape(1, 8400);
-	cout << output.size << endl; //8400 x 56
-	cout << output << endl;
-	
-	
-
-	/*int classId;
-	double confidence;
-	minMaxIdx(output, NULL, &confidence, NULL, &classId);
-
-	std::cout << "Class ID: " << classId << ", Confidence: " << confidence << std::endl;*/
 }
