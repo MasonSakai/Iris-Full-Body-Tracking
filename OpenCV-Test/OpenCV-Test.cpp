@@ -44,6 +44,7 @@ int main(int argc, char** argv)
         // show live and wait for a key with timeout long enough to show images
         imshow("Live", frame);
         RunModel(frame);
+        break;
         if (pollKey() >= 0)
             break;
     }

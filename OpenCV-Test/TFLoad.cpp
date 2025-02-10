@@ -38,6 +38,12 @@ void RunModel(Mat image) {
 
 	// Forward pass
 	Mat output = net.forward();
+	cout << output.size << endl; //1 x 56 x 8400
+	output = output.reshape(1, 8400);
+	cout << output.size << endl; //8400 x 56
+	cout << output << endl;
+	
+	
 
 	/*int classId;
 	double confidence;
