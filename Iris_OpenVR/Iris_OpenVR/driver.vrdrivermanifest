@@ -1,6 +1,6 @@
 {
   "alwaysActivate": true,
-  "name": "Iris_FBT",
+  "name": "Iris_OpenVR",
   "directory": "",
   "resourceOnly": false,
   "hmd_presence": []
