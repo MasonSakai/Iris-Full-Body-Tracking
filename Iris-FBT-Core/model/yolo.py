@@ -2,7 +2,7 @@ import os
 import cv2 as cv
 from config import Config
 from ultralytics import YOLO
-from app.model import Model, ModelConfig
+from model import Model, ModelConfig
 
 
 class YoloModelConfig(ModelConfig):

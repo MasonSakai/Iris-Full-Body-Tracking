@@ -1,7 +1,7 @@
 from config import Config
 
 from app import create_app, db
-from app.model.yolo import YOLOModel
+from model.yolo import YOLOModel
 
 import sqlalchemy as sqla
 import sqlalchemy.orm as sqlo
@@ -26,17 +26,18 @@ def test_model():
         ret, img = cap.read()
         if not ret:
             print("failed to grab frame")
-        else:
-            res = m.forward(img)
-            for person in res:
-                for key in person:
-                    data = person[key]
-                    print(f'{key}: {data}')
-                    cv.circle(img, (int(data.x), int(data.y)), 5, (0, 0,255), int(2.5*data.conf))
-                    cv.putText(img, key, (int(data.x), int(data.y)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0,255), int(data.conf), cv.LINE_AA)
+            return
+
+        res = m.forward(img)
+        for person in res:
+            for key in person:
+                data = person[key]
+                print(f'{key}: {data}')
+                cv.circle(img, (int(data.x), int(data.y)), 5, (0, 0,255), int(2.5*data.conf))
+                cv.putText(img, key, (int(data.x), int(data.y)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0,255), int(data.conf), cv.LINE_AA)
             
-            cv.imshow("res", img)
-            cv.waitKey()
+        cv.imshow("res", img)
+        cv.waitKey()
         
 if __name__ == "__main__":
     test_model()

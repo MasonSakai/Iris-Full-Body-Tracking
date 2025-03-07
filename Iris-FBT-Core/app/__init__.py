@@ -1,6 +1,6 @@
 from flask import Flask
 from config import Config
-from app.model import Model
+from model import Model
 from flask_sqlalchemy import SQLAlchemy
 
 
