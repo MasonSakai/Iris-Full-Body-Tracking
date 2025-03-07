@@ -1,5 +1,8 @@
 opencv-python==4.11.0.86
-ultralytics==8.3.85
+ultralytics==8.3.40
+lapx>=0.5.2
+onnx
+onnxruntime
 Flask==3.0.3
 Flask-Bootstrap==3.3.7.1
 Flask-SQLAlchemy==3.1.1

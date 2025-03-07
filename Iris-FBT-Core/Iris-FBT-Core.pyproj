@@ -22,7 +22,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app\model\yolo.py" />
+    <Compile Include="app\__init__.py" />
     <Compile Include="Iris_FBT_Core.py" />
+    <Compile Include="config.py" />
+    <Compile Include="app\model\__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="venv\">
@@ -37,6 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="app\model\" />
+    <Folder Include="app\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
