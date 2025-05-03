@@ -2,11 +2,11 @@ import { Console } from 'console';
 import http from 'http';
 import fs from 'fs';
 import { Server } from 'socket.io';
-import open, { apps }  from 'open';
+import open, { apps } from 'open';
 
 let config = JSON.parse(fs.readFileSync("config.json"));
 let openBrowsers = config.autostart;
-let opened = 0;
+let connectedCount = 0;
 
 let hostname = config.hostname;
 let port = config.port;
@@ -47,13 +47,13 @@ function serverGet(req, res) {
 			let data = {};
 			try {
 				data = JSON.parse(doc);
-				data = data.windowConfigs[opened];
-				data.id = opened;
+				data = data.windowConfigs[connectedCount];
+				data.id = connectedCount;
 				data.status = "ok";
 				data.port = config.hostport
 			} catch (err) {
 				data = {
-					id: opened,
+					id: connectedCount,
 					status: "no-config"
 				};
 			}
@@ -125,17 +125,81 @@ function serverPUT(req, res) {
 	}
 }
 
-const server = http.createServer((req, res) => {
+async function configHandler(req, res) {
+	var index = -1
 	switch (req.method) {
-		case "GET":
-			serverGet(req,res);
+		case 'GET':
+			var body = await readRequest(req)
+			if (body) index = parseInt(index)
+			var data = config.windowConfigs
+			if (index == -1) {
+				index = connectedCount
+				connectedCount++
+				if (connectedCount >= data.length) connectedCount = data.length - 1;
+				if (connectedCount < 0) connectedCount = 0;
+			}
+			if (index == -2) {
+				connectedCount = data.length
+			}
+			if (index < data.length) {
+				data = data[index]
+				data["status"] = "ok"
+				data["id"] = index
+				res.end(JSON.stringify(data))
+			}
+			else {
+
+			}
 			break;
-		case "PUT":
-			serverPUT(req, res);
+		case 'PUT':
+			var body = await readRequest(req)
+			var data = JSON.parse(body)
+
+			let id = data.id;
+			try {
+				data.id = undefined;
+				data.status = undefined;
+				data.port = undefined;
+				config.windowConfigs[id] = data;
+				fs.writeFile("config.json", JSON.stringify(config, null, '\t'), (err) => {
+					if (err) {
+						console.log(err);
+						res.statusCode = 400;
+						res.setHeader('Content-Type', 'text/plain');
+						res.end(`error (is ID ${id} invalid?)`);
+					} else {
+						res.statusCode = 200;
+						res.end();
+					}
+				});
+			} catch (err) {
+				console.log(err);
+				res.statusCode = 400;
+				res.setHeader('Content-Type', 'text/plain');
+				res.end(`error (is ID ${id} invalid?)`);
+			}
 			break;
+	}
+}
+
+const server = http.createServer((req, res) => {
+	switch (req.url) {
+		case "/config":
+			configHandler(req, res);
+			return;
 		default:
-			console.log("Defaulted on http method: " + req.method);
-			break;
+			switch (req.method) {
+				case "GET":
+					serverGet(req, res);
+					break;
+				case "PUT":
+					serverPUT(req, res);
+					break;
+				default:
+					console.log("Defaulted on http method: " + req.method);
+					break
+			}
+		break;
 	}
 });
 
@@ -155,13 +219,13 @@ function startBrowser() {
 function onBrowserInit(msg) {
 	if (openBrowsers) {
 		if (msg == "successful") {
-			console.log(`Successfully opened ${opened} windows`)
-			if (opened < config.windowConfigs.length) {
+			console.log(`Successfully opened ${connectedCount} windows`)
+			if (connectedCount < config.windowConfigs.length) {
 				startBrowser();
 			} else {
 				console.log("Successfully opened all windows");
 				openBrowsers = false;
-				opened = 0;
+				connectedCount = 0;
 			}
 		} else {
 			console.log("Stopping browser open, latest failed to initialize")
