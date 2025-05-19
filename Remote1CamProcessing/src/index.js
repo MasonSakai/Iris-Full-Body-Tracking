@@ -36,6 +36,7 @@ lblState.innerHTML = "<i>Loading...</i>";
 const DefaultConfig = {
 	id: -1,
 	cameraName: "",
+	cameraID: "",
 	autostart: false,
 	confidenceThreshold: 0.3
 };
@@ -93,14 +94,15 @@ function applyConfigChange() {
 		config.autostart = configUpdate.autostart;
 		cbxAutostart.checked = config.autostart;
 	}
-	if ("cameraName" in configUpdate) {
+	if ("cameraID" in configUpdate) {
 		madeChange = true;
+		config.cameraID = configUpdate.cameraID;
 		config.cameraName = configUpdate.cameraName;
-		if (configUpdate.cameraName != "") {
+		if (configUpdate.cameraID != "") {
 			camSelect.value = configUpdate.cameraID;
 			if (activeState) {
-				camera.getCameraStream(camSelect.value).then((camera) => {
-					video.srcObject = camera;
+				camera.getCameraStream(configUpdate.cameraID).then((cam) => {
+					video.srcObject = cam;
 					resizeCanvas();
 				});
 			}
@@ -108,6 +110,7 @@ function applyConfigChange() {
 			video.srcObject = undefined;
 		}
 	}
+	return madeChange
 }
 
 btnApply.onclick = () => {
@@ -161,7 +164,8 @@ btnReset.onclick = () => {
 btnCancel.onclick = () => {
 	configUpdate = {};
 	cbxAutostart.checked = config.autostart;
-	camera.getCameraIDByName(config.cameraName).then((id) => { camSelect.value = id; });
+	if ('cameraID' in config) camSelect.value = config.cameraID;
+	else camera.getCameraIDByName(config.cameraName).then((id) => { camSelect.value = id; });
 };
 
 btnStart.onclick = () => {
@@ -243,7 +247,6 @@ function resizeCanvas() {
 	let rect = video.getBoundingClientRect();
 	canvas.width = rect.width;
 	canvas.height = rect.height;
-	poseDetector.width = rect.width;
 	if (poseDetector) poseDetector.width = rect.width;
 }
 resizeCanvas();
@@ -287,10 +290,9 @@ async function startAILoop() {
 	try {
 		activeState = true;
 
-		if (!video.srcObject) {
-			let camid = await camera.getCameraIDByName(config.cameraName);
-			video.srcObject = await camera.getCameraStream(camid);
-		}
+		if (!('cameraID' in config) || config.cameraID == "") config.cameraID = await camera.getCameraIDByName(config.cameraName);
+		video.srcObject = await camera.getCameraStream(config.cameraID);
+		
 		if (!poseDetector.detector) await poseDetector.createDetector();
 
 		resizeCanvas();
@@ -364,7 +366,9 @@ async function SwitchConfig(fetchID) {
 		}
 	}
 	configSelect.value = config.id;
-	let camid = await camera.getCameraIDByName(data.cameraName);
+	let camid = "";
+	if ('cameraID' in data) camid = data.cameraID
+	else camID = await camera.getCameraIDByName(data.cameraName);
 	camSelect.value = camid;
 	//camSelect.dispatchEvent(new Event('change'));
 

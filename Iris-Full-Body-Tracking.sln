@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.10.35027.167
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Remote1CamProcessing", "Remote1CamProcessing\Remote1CamProcessing.njsproj", "{0B9832EA-4285-46E5-A4AA-5404E83F367C}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VR_AI_FBT_Core", "VR_AI_FBT_Core\VR_AI_FBT_Core.vcxproj", "{0FD964C1-7B82-410E-8B59-AE820DE5B00F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VR_Button_Testing", "VR_Button_Testing\VR_Button_Testing.vcxproj", "{BFAE7095-BE71-4795-A443-3E85FDF8C07F}"
@@ -14,6 +12,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCV-Test", "OpenCV-Test\OpenCV-Test.vcxproj", "{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraCalib", "CameraCalib\CameraCalib.vcxproj", "{F8FEB13C-21B5-4DD9-9384-050914310A0A}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Remote1CamProcessing", "Remote1CamProcessing\Remote1CamProcessing.esproj", "{37B8C923-5215-2410-75C7-FCFBE257CBA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,18 +25,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Debug|x64.Build.0 = Debug|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Debug|x86.Build.0 = Debug|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Release|x64.ActiveCfg = Release|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Release|x64.Build.0 = Release|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Release|x86.ActiveCfg = Release|Any CPU
-		{0B9832EA-4285-46E5-A4AA-5404E83F367C}.Release|x86.Build.0 = Release|Any CPU
 		{0FD964C1-7B82-410E-8B59-AE820DE5B00F}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{0FD964C1-7B82-410E-8B59-AE820DE5B00F}.Debug|x64.ActiveCfg = Debug|x64
 		{0FD964C1-7B82-410E-8B59-AE820DE5B00F}.Debug|x64.Build.0 = Debug|x64
@@ -91,6 +79,24 @@ Global
 		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Release|x64.Build.0 = Release|x64
 		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Release|x86.ActiveCfg = Release|Win32
 		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Release|x86.Build.0 = Release|Win32
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Debug|x64.Build.0 = Debug|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Debug|x86.Build.0 = Debug|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|x64.ActiveCfg = Release|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|x64.Build.0 = Release|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|x64.Deploy.0 = Release|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|x86.ActiveCfg = Release|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|x86.Build.0 = Release|Any CPU
+		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,42 +1,45 @@
 {
-    "PlayspaceMover": {
-        "buttons": {
-            "maskRaw": 2,
-            "oculusax": false,
-            "oculusbumper": false,
-            "oculusby": true,
-            "oculustrigger": false
-        },
-        "doubleButtonReset": true,
-        "enabled": true
-    },
-    "ShibaMode": true,
-    "buttons": {
-        "maskRaw": 130,
-        "oculusax": true,
-        "oculusbumper": false,
-        "oculusby": true,
-        "oculustrigger": false
-    },
-    "port": 2674,
-    "trackerDampening": 0.5,
-    "trackers": {
-        "ankle": true,
-        "elbow": false,
-        "hip": true,
-        "knee": false,
-        "chest": false
-    },
-    "windowConfigs": [
-        {
-            "autostart": false,
-            "cameraName": "USB2.0 HD UVC WebCam (13d3:5666)",
-            "confidenceThreshold": 0.3
-        },
-        {
-            "autostart": false,
-            "cameraName": "DroidCam Source 2",
-            "confidenceThreshold": 0.3
-        }
-    ]
+	"PlayspaceMover": {
+		"buttons": {
+			"maskRaw": 2,
+			"oculusax": false,
+			"oculusbumper": false,
+			"oculusby": true,
+			"oculustrigger": false
+		},
+		"doubleButtonReset": true,
+		"enabled": true
+	},
+	"ShibaMode": true,
+	"buttons": {
+		"maskRaw": 130,
+		"oculusax": true,
+		"oculusbumper": false,
+		"oculusby": true,
+		"oculustrigger": false
+	},
+	"port": 2674,
+	"trackerDampening": 0.5,
+	"trackers": {
+		"ankle": true,
+		"elbow": false,
+		"hip": true,
+		"knee": false,
+		"chest": false
+	},
+	"windowConfigs": [
+		{
+			"autostart": false,
+			"cameraName": "USB2.0 HD UVC WebCam (13d3:5666)",
+			"confidenceThreshold": 0.3,
+			"status": "ok",
+			"id": 0
+		},
+		{
+			"autostart": false,
+			"cameraName": "Global Shutter Camera (32e4:0234)",
+			"confidenceThreshold": 0.3,
+			"cameraID": "1f2e0c1a97e36c753dbac784485fa046eace71f88bb5e8a6bdfce87b2db313f8"
+		}
+	]
 }
