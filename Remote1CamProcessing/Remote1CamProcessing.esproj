@@ -3,6 +3,8 @@
     <!--Command to run on project build-->
     <BuildCommand>npm run build</BuildCommand>
     <!--Command to run on project clean-->
-    <CleanCommand> </CleanCommand>
+    <CleanCommand>
+    </CleanCommand>
+    <StartupCommand>npm server.mjs</StartupCommand>
   </PropertyGroup>
 </Project>
