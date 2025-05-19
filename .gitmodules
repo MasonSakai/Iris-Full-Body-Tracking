@@ -1,3 +1,15 @@
 [submodule "lib/openvr"]
 	path = lib/openvr
 	url = https://github.com/ValveSoftware/openvr
+[submodule "lib/cpp-httplib"]
+	path = lib/cpp-httplib
+	url = https://github.com/yhirose/cpp-httplib.git
+[submodule "lib/OpenCV/opencv"]
+	path = lib/OpenCV/opencv
+	url = https://github.com/opencv/opencv.git
+[submodule "lib/OpenCV/opencv_extra"]
+	path = lib/OpenCV/opencv_extra
+	url = https://github.com/opencv/opencv_extra.git
+[submodule "lib/OpenCV/opencv_contrib"]
+	path = lib/OpenCV/opencv_contrib
+	url = https://github.com/opencv/opencv_contrib.git

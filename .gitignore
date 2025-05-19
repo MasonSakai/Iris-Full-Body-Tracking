@@ -9,7 +9,8 @@
 *.user
 *.userosscache
 *.sln.docstates
-venv/
+*/venv
+lib/OpenCV/build/*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -316,7 +317,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-*/venv
 
 # Cake - Uncomment if you are using it
 # tools/**
