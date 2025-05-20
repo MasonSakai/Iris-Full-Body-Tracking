@@ -15,21 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\controller_device.cpp">
+    <ClCompile Include="device_data_refs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\device_provider.cpp">
+    <ClCompile Include="device_provider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\hmd_driver_factory.cpp">
+    <ClCompile Include="hmd_driver_factory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iris_tracker_device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\controller_device.h">
+    <ClInclude Include="device_data_refs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\device_provider.h">
+    <ClInclude Include="device_provider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iris_tracker_device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

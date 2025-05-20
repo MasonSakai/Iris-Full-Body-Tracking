@@ -92,13 +92,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>openvr_api.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,13 +132,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>openvr_api.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -152,7 +152,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,13 +167,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\controller_device.cpp" />
-    <ClCompile Include="src\device_provider.cpp" />
-    <ClCompile Include="src\hmd_driver_factory.cpp" />
+    <ClCompile Include="device_data_refs.cpp" />
+    <ClCompile Include="device_provider.cpp" />
+    <ClCompile Include="hmd_driver_factory.cpp" />
+    <ClCompile Include="iris_tracker_device.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\controller_device.h" />
-    <ClInclude Include="src\device_provider.h" />
+    <ClInclude Include="device_data_refs.h" />
+    <ClInclude Include="device_provider.h" />
+    <ClInclude Include="iris_tracker_device.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
