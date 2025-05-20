@@ -30,16 +30,15 @@
 	"windowConfigs": [
 		{
 			"autostart": false,
-			"cameraName": "USB2.0 HD UVC WebCam (13d3:5666)",
+			"cameraName": "Global Shutter Camera (32e4:0234)",
 			"confidenceThreshold": 0.3,
-			"status": "ok",
-			"id": 0
+			"cameraID": "0cba091d5fad572d6763ba16444bf7e54ee2c1ab757cd6ed94f4271cbd5a10b3"
 		},
 		{
 			"autostart": false,
 			"cameraName": "Global Shutter Camera (32e4:0234)",
 			"confidenceThreshold": 0.3,
-			"cameraID": "1f2e0c1a97e36c753dbac784485fa046eace71f88bb5e8a6bdfce87b2db313f8"
+			"cameraID": "d557cba15309e7de8bcd6b79ea19461355d520df5a93038c70c16d9ee7b1d7e7"
 		}
 	]
 }
