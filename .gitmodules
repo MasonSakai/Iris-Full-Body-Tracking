@@ -13,3 +13,6 @@
 [submodule "lib/OpenCV/opencv_contrib"]
 	path = lib/OpenCV/opencv_contrib
 	url = https://github.com/opencv/opencv_contrib.git
+[submodule "lib/json"]
+	path = lib/json
+	url = https://github.com/nlohmann/json.git
