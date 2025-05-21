@@ -1,21 +1,27 @@
 #include "iris_tracker_device.h"
+#include "device_provider.h"
 #include "../../lib/openvr/samples/drivers/utils/vrmath/vrmath.h"
+using namespace IrisFBT;
 
-IrisTrackerDevice::IrisTrackerDevice(vr::ETrackedControllerRole role) : role_(role), device_id_(vr::k_unTrackedDeviceIndexInvalid) {};
+IrisTrackerDevice::IrisTrackerDevice(IrisTrackerIndex index) : device_id_(vr::k_unTrackedDeviceIndexInvalid), device_index_(index) {};
+
+void IrisTrackerDevice::Register() {
+	vr::VRServerDriverHost()->TrackedDeviceAdded(iris_tracker_serial,
+		vr::TrackedDeviceClass_GenericTracker, this);
+}
 
 vr::EVRInitError IrisTrackerDevice::Activate(uint32_t unObjectId) {
     const vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(unObjectId);
-    vr::VRProperties()->SetInt32Property(container, vr::Prop_ControllerRoleHint_Int32, role_);
     vr::VRProperties()->SetStringProperty(container, vr::Prop_ModelNumber_String, iris_tracker_model);
     device_id_ = unObjectId;
     return vr::VRInitError_None;
 }
 
-void IrisTrackerDevice::RunFrame() {
-	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, GetPose(), sizeof(vr::DriverPose_t));
+void IrisTrackerDevice::Deactivate() {
 }
 
-void IrisTrackerDevice::Deactivate() {
+void IrisTrackerDevice::RunFrame() {
+	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, GetPose(), sizeof(vr::DriverPose_t));
 }
 
 void IrisTrackerDevice::EnterStandby() {
@@ -50,12 +56,7 @@ vr::DriverPose_t IrisTrackerDevice::GetPose() {
 	const vr::HmdQuaternion_t hmd_orientation = HmdQuaternion_FromMatrix(hmd_pose.mDeviceToAbsoluteTracking);
 	pose.qRotation = hmd_orientation;
 
-	pose.vecPosition[0] = role_ == vr::TrackedControllerRole_OptOut
-		? hmd_pose.mDeviceToAbsoluteTracking.m[0][3]
-		: role_ == vr::TrackedControllerRole_LeftHand
-			? hmd_pose.mDeviceToAbsoluteTracking.m[0][3] - 0.2f
-			: hmd_pose.mDeviceToAbsoluteTracking.m[0][3] + 0.2f;
-
+	pose.vecPosition[0] = hmd_pose.mDeviceToAbsoluteTracking.m[0][3];
 	pose.vecPosition[1] = hmd_pose.mDeviceToAbsoluteTracking.m[1][3] - 0.5f;
 	pose.vecPosition[2] = hmd_pose.mDeviceToAbsoluteTracking.m[2][3] - 0.25f;
 
