@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,7 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,7 +152,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -170,6 +170,7 @@
     <ClCompile Include="device_data_refs.cpp" />
     <ClCompile Include="device_provider.cpp" />
     <ClCompile Include="hmd_driver_factory.cpp" />
+    <ClCompile Include="IrisWebClient.cpp" />
     <ClCompile Include="IrisWebServer.cpp" />
     <ClCompile Include="iris_tracker_device.cpp" />
     <ClCompile Include="PathUtil.cpp" />
@@ -177,11 +178,22 @@
   <ItemGroup>
     <ClInclude Include="device_data_refs.h" />
     <ClInclude Include="device_provider.h" />
+    <ClInclude Include="IrisWebClient.h" />
     <ClInclude Include="IrisWebServer.h" />
     <ClInclude Include="iris_tracker_device.h" />
     <ClInclude Include="PathUtil.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets" Condition="Exists('..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets'))" />
+  </Target>
 </Project>

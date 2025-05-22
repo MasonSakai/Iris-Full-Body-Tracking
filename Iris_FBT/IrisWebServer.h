@@ -4,7 +4,22 @@
 #include <nlohmann/json.hpp>
 #include <mutex>
 
+#define IRIS_MAX_CLIENTS 32
+
 namespace IrisFBT {
+
+	typedef enum {
+		IrisServer_PreInit,
+		IrisServer_Starting,
+		IrisServer_Ready,
+		IrisServer_Start,
+		IrisServer_Online,
+		IrisServer_Closing,
+		IrisServer_Closed,
+		IrisServer_Error
+	} IrisServerState;
+
+	class IrisWebClient;
 
 	class IrisWebServer
 	{
@@ -18,8 +33,10 @@ namespace IrisFBT {
 		nlohmann::json server_config;
 
 		std::mutex server_thread_mutex;
-		bool run;
-		SOCKET svr;
+		IrisServerState server_state;
+		SOCKET server_socket;
+
+		std::unique_ptr<IrisWebClient> clients[IRIS_MAX_CLIENTS];
 	private:
 		HANDLE server_thread_handle_;
 		DWORD server_thread_id_;
