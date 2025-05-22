@@ -11,11 +11,11 @@
 #endif
 
 //Global, single interface of our device provider.
-IrisFBT::DeviceProvider device_provider;
+IrisFBT::DeviceProvider my_device_provider;
 
 HMD_DLL_EXPORT void* HmdDriverFactory(const char* pInterfaceName, int* pReturnCode) {
 	if (0 == strcmp(vr::IServerTrackedDeviceProvider_Version, pInterfaceName)) {
-		return &device_provider;
+		return &my_device_provider;
 	}
 
 	if (pReturnCode) {

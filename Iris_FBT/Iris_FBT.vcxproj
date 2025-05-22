@@ -98,7 +98,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -120,7 +120,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib</AdditionalDependencies>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -138,7 +138,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -160,7 +160,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib</AdditionalDependencies>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -170,12 +170,16 @@
     <ClCompile Include="device_data_refs.cpp" />
     <ClCompile Include="device_provider.cpp" />
     <ClCompile Include="hmd_driver_factory.cpp" />
+    <ClCompile Include="IrisWebServer.cpp" />
     <ClCompile Include="iris_tracker_device.cpp" />
+    <ClCompile Include="PathUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="device_data_refs.h" />
     <ClInclude Include="device_provider.h" />
+    <ClInclude Include="IrisWebServer.h" />
     <ClInclude Include="iris_tracker_device.h" />
+    <ClInclude Include="PathUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

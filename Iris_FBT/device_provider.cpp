@@ -3,12 +3,17 @@
 #include <sstream>
 using namespace IrisFBT;
 
-DeviceProvider* device_provider_ = nullptr;
+namespace IrisFBT {
+    DeviceProvider* device_provider = nullptr;
+}
 
 vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
     VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
 
     vr::VRDriverLog()->Log("Hello world!");
+
+    device_provider = this;
+    new IrisWebServer();
 
     //TrackedDeviceClass_GenericTracker
     //TrackedDeviceClass_TrackingReference
@@ -28,7 +33,8 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
 void DeviceProvider::Cleanup() {
     vr::VRDriverLog()->Log("Goodbye world!");
-
+    if (web_server != nullptr)
+        web_server->Close();
     VR_CLEANUP_SERVER_DRIVER_CONTEXT();
 }
 

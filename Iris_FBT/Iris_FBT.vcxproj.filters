@@ -13,29 +13,50 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="VRDriver">
+      <UniqueIdentifier>{1f36638d-5248-4ef6-8527-0b5d1806e6d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VRDriver\Header Files">
+      <UniqueIdentifier>{84f92250-db13-4b45-8a87-b78680680809}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VRDriver\Source Files">
+      <UniqueIdentifier>{2139455b-76d6-45a7-a373-e70e94ec3663}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="iris_tracker_device.cpp">
+      <Filter>VRDriver\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="device_data_refs.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>VRDriver\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="device_provider.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>VRDriver\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="hmd_driver_factory.cpp">
+      <Filter>VRDriver\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IrisWebServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="iris_tracker_device.cpp">
+    <ClCompile Include="PathUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="iris_tracker_device.h">
+      <Filter>VRDriver\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="device_data_refs.h">
-      <Filter>Header Files</Filter>
+      <Filter>VRDriver\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="device_provider.h">
+      <Filter>VRDriver\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IrisWebServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="iris_tracker_device.h">
+    <ClInclude Include="PathUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

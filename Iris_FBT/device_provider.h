@@ -3,6 +3,7 @@
 #include <mutex>
 
 #include "openvr_driver.h"
+#include "IrisWebServer.h"
 #include "iris_tracker_device.h"
 
 namespace IrisFBT {
@@ -25,6 +26,6 @@ namespace IrisFBT {
     };
 
 
-    extern DeviceProvider* device_provider_;
+    extern DeviceProvider* device_provider;
 
 }

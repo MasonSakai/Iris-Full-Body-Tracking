@@ -4,6 +4,7 @@
 #include "device_data_refs.h"
 
 namespace IrisFBT {
+
     class IrisTrackerDevice : public vr::ITrackedDeviceServerDriver {
     public:
         IrisTrackerDevice(IrisTrackerIndex index);
