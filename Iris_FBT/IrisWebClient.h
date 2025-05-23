@@ -1,12 +1,13 @@
 #pragma once
 #include "IrisWebServer.h"
+#include <sockpp/tcp_socket.h>
 
 namespace IrisFBT {
 
 	class IrisWebClient
 	{
 	public:
-		IrisWebClient(IrisWebServer* server, SOCKET client_socket, int client_index);
+		IrisWebClient(IrisWebServer* server, sockpp::tcp_socket client_socket, int client_index);
 		~IrisWebClient();
 		void Close();
 
@@ -14,7 +15,7 @@ namespace IrisFBT {
 
 		bool close;
 		std::mutex client_thread_mutex;
-		SOCKET client_socket;
+		sockpp::tcp_socket client_socket;
 		int client_index;
 
 	private:

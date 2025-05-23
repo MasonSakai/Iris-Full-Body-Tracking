@@ -92,13 +92,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/sockpp/include;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;sockpp.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -112,7 +113,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/sockpp/include;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,13 +134,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/sockpp/include;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;sockpp.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -152,7 +155,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/sockpp/include;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -183,17 +187,6 @@
     <ClInclude Include="iris_tracker_device.h" />
     <ClInclude Include="PathUtil.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets" Condition="Exists('..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets'))" />
-  </Target>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

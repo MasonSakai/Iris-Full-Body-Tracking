@@ -16,3 +16,6 @@
 [submodule "lib/json"]
 	path = lib/json
 	url = https://github.com/nlohmann/json.git
+[submodule "lib/sockpp"]
+	path = lib/sockpp
+	url = https://github.com/fpagliughi/sockpp.git
