@@ -1,231 +1,172 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Camera = void 0;
-var ai_manager_1 = require("./ai-manager");
-var Camera = /** @class */ (function () {
-    function Camera(deviceID) {
-        this.flip_horizontal = false;
-        this.threshold = 0.3;
+export class Camera {
+    el_div;
+    el_canvas;
+    el_video;
+    span_fps;
+    deviceID;
+    flip_horizontal = false;
+    threshold = 0.3;
+    ai_worker;
+    ctx;
+    constructor(deviceID) {
         this.deviceID = deviceID;
     }
-    Camera.prototype.createElement = function (videoReadyCallback) {
-        var _this = this;
-        if (videoReadyCallback === void 0) { videoReadyCallback = undefined; }
+    createElement(videoReadyCallback = undefined) {
         this.el_div = document.createElement("div");
         this.el_div.id = this.deviceID;
         this.el_div.className = "camera-card";
         var div_label = document.createElement("div");
         div_label.className = "camera-label";
-        Camera.GetCameraByID(this.deviceID).then(function (v) {
-            return div_label.innerText = v == undefined ? "ERROR GETTING NAME" : Camera.GetMixedName(v);
-        });
+        Camera.GetCameraByID(this.deviceID).then(v => div_label.innerText = v == undefined ? "ERROR GETTING NAME" : Camera.GetMixedName(v));
         this.el_div.appendChild(div_label);
         var div_camera = document.createElement("div");
         div_camera.className = "camera-display";
         this.el_video = document.createElement("video");
         Camera.GetCameraStream(this.deviceID)
-            .then(function (stream) {
-            _this.el_video.srcObject = stream;
-            _this.el_video.play()
-                .then(function () {
-                _this.el_canvas.width = _this.el_video.videoWidth;
-                _this.el_canvas.height = _this.el_video.videoHeight;
+            .then(stream => {
+            this.el_video.srcObject = stream;
+            this.el_video.play()
+                .then(() => {
+                this.el_canvas.width = this.el_video.videoWidth;
+                this.el_canvas.height = this.el_video.videoHeight;
                 if (videoReadyCallback != undefined)
-                    videoReadyCallback(_this);
+                    videoReadyCallback(this);
             });
         });
         div_camera.appendChild(this.el_video);
         this.el_canvas = document.createElement("canvas");
+        this.ctx = this.el_canvas.getContext("2d");
         div_camera.appendChild(this.el_canvas);
         this.el_div.appendChild(div_camera);
         var div_controls = document.createElement("div");
         div_controls.classList = "camera-controls";
-        div_controls.innerText = "a";
+        this.span_fps = document.createElement("span");
+        this.span_fps.classList = "fps";
+        div_controls.appendChild(this.span_fps);
         this.el_div.appendChild(div_controls);
         return this.el_div;
-    };
-    Camera.prototype.processPose = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var data, ctx, _i, data_1, pose, key, spl, point, circle;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, (0, ai_manager_1.GetFilteredPose)(this.el_video, this.detector, this.threshold, this.flip_horizontal)
-                        //console.timeLog("detector", "Got poses!", data)
-                    ];
-                    case 1:
-                        data = _a.sent();
-                        ctx = this.el_canvas.getContext("2d");
-                        ctx.clearRect(0, 0, this.el_canvas.width, this.el_canvas.height);
-                        ctx.strokeStyle = 'White';
-                        ctx.lineWidth = 1;
-                        for (_i = 0, data_1 = data; _i < data_1.length; _i++) {
-                            pose = data_1[_i];
-                            //console.log("pose: ", pose)
-                            for (key in pose) {
-                                spl = key.split("_");
-                                if (spl[0] == "right")
-                                    ctx.fillStyle = "red";
-                                else if (spl[0] == "left")
-                                    ctx.fillStyle = "green";
-                                else
-                                    ctx.fillStyle = "blue";
-                                point = pose[key];
-                                circle = new Path2D();
-                                circle.arc(point.x, point.y, 5, 0, 2 * Math.PI);
-                                ctx.fill(circle);
-                                ctx.stroke(circle);
-                            }
+    }
+    processPose(canvas, ctx) {
+        canvas.width = this.el_video.videoWidth;
+        canvas.height = this.el_video.videoHeight;
+        ctx.drawImage(this.el_video, 0, 0, this.el_video.videoWidth, this.el_video.videoHeight);
+        this.ai_worker.postMessage({
+            type: "video",
+            image: ctx.getImageData(0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
+        });
+    }
+    startWorker() {
+        if (typeof (Worker) === "undefined") {
+            Camera.GetCameraByID(this.deviceID).then(v => {
+                console.log(`Camera worker ${Camera.GetMixedName(v)} failed`);
+            });
+            return;
+        }
+        this.ai_worker = new Worker("CameraWorker.js", { type: "module" });
+        this.ai_worker.onmessage = async (ev) => {
+            var data = ev.data;
+            switch (data.type) {
+                case "debug":
+                    console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))}`, data.message);
+                    break;
+                case "error":
+                    console.error(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} error`, data.error);
+                    break;
+                case "pose":
+                    this.span_fps.innerText = `${Math.floor(1000 / data.delta)}fps (${data.delta.toFixed(1)}ms)`;
+                    this.ctx.clearRect(0, 0, this.el_canvas.width, this.el_canvas.height);
+                    this.ctx.strokeStyle = 'White';
+                    this.ctx.lineWidth = 1;
+                    for (var pose of data.pose) {
+                        for (var key in pose) {
+                            let spl = key.split("_");
+                            if (spl[0] == "right")
+                                this.ctx.fillStyle = "red";
+                            else if (spl[0] == "left")
+                                this.ctx.fillStyle = "green";
+                            else
+                                this.ctx.fillStyle = "blue";
+                            let point = pose[key];
+                            const circle = new Path2D();
+                            circle.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+                            this.ctx.fill(circle);
+                            this.ctx.stroke(circle);
                         }
-                        return [2 /*return*/];
-                }
-            });
+                    }
+                    break;
+            }
+        };
+        this.ai_worker.onerror = async (ev) => {
+            console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} onerror`, ev);
+        };
+        this.ai_worker.onmessageerror = async (ev) => {
+            console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} onmessageerror`, ev);
+        };
+        this.ai_worker.postMessage({ type: "config", flip_horizontal: this.flip_horizontal, threshold: this.threshold });
+        this.ai_worker.postMessage({ type: "start" });
+    }
+    close() {
+        this.ai_worker.terminate();
+        this.ai_worker = undefined;
+    }
+    static async GetCameraStream(deviceID = "") {
+        if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
+            let properties = {
+                video: {} /*{
+                    width: {
+                        ideal: 640
+                    },
+                    height: {
+                        ideal: 480
+                    }
+                }*/
+            };
+            if (deviceID)
+                properties.video["deviceId"] = { exact: deviceID };
+            return await navigator.mediaDevices.getUserMedia(properties);
+        }
+        return undefined;
+    }
+    static async GetCamerasByName(deviceName) {
+        var cameras = await Camera.GetCameras();
+        if (!cameras)
+            return undefined;
+        return cameras.filter(v => v.label == deviceName);
+    }
+    static async GetCameraByID(deviceID) {
+        var cameras = await Camera.GetCameras();
+        if (cameras == undefined)
+            return undefined;
+        return cameras.find(v => v.id == deviceID);
+    }
+    static async GetCameras() {
+        if (!('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices))
+            return undefined;
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        if (videoDevices[0].deviceId == '') {
+            await Camera.GetCameraStream();
+            return await Camera.GetCameras();
+        }
+        return videoDevices.map((videoDevice) => {
+            return {
+                label: videoDevice.label,
+                id: videoDevice.deviceId
+            };
         });
-    };
-    Camera.GetCameraStream = function () {
-        return __awaiter(this, arguments, void 0, function (deviceID) {
-            var properties;
-            if (deviceID === void 0) { deviceID = ""; }
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices)) return [3 /*break*/, 2];
-                        properties = {
-                            video: {} /*{
-                                width: {
-                                    ideal: 640
-                                },
-                                height: {
-                                    ideal: 480
-                                }
-                            }*/
-                        };
-                        if (deviceID)
-                            properties.video["deviceId"] = { exact: deviceID };
-                        return [4 /*yield*/, navigator.mediaDevices.getUserMedia(properties)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                    case 2: return [2 /*return*/, undefined];
-                }
-            });
+    }
+    static async UpdateCameraSelector(camSelect) {
+        let cameras = await Camera.GetCameras();
+        if (cameras == undefined)
+            return;
+        cameras = cameras.filter(v => document.getElementById(v.id) == undefined);
+        camSelect.innerHTML = `<option value="">Select camera</option>`;
+        cameras.forEach((camera) => {
+            camSelect.innerHTML += `\n<option value=${camera.id}>${Camera.GetMixedName(camera)}</option>`;
         });
-    };
-    Camera.GetCamerasByName = function (deviceName) {
-        return __awaiter(this, void 0, void 0, function () {
-            var cameras;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, Camera.GetCameras()];
-                    case 1:
-                        cameras = _a.sent();
-                        if (!cameras)
-                            return [2 /*return*/, undefined];
-                        return [2 /*return*/, cameras.filter(function (v) { return v.label == deviceName; })];
-                }
-            });
-        });
-    };
-    Camera.GetCameraByID = function (deviceID) {
-        return __awaiter(this, void 0, void 0, function () {
-            var cameras;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, Camera.GetCameras()];
-                    case 1:
-                        cameras = _a.sent();
-                        if (cameras == undefined)
-                            return [2 /*return*/, undefined];
-                        return [2 /*return*/, cameras.find(function (v) { return v.id == deviceID; })];
-                }
-            });
-        });
-    };
-    Camera.GetCameras = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var devices, videoDevices;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices))
-                            return [2 /*return*/, undefined];
-                        return [4 /*yield*/, navigator.mediaDevices.enumerateDevices()];
-                    case 1:
-                        devices = _a.sent();
-                        videoDevices = devices.filter(function (device) { return device.kind === 'videoinput'; });
-                        if (!(videoDevices[0].deviceId == '')) return [3 /*break*/, 4];
-                        return [4 /*yield*/, Camera.GetCameraStream()];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, Camera.GetCameras()];
-                    case 3: return [2 /*return*/, _a.sent()];
-                    case 4: return [2 /*return*/, videoDevices.map(function (videoDevice) {
-                            return {
-                                label: videoDevice.label,
-                                id: videoDevice.deviceId
-                            };
-                        })];
-                }
-            });
-        });
-    };
-    Camera.UpdateCameraSelector = function (camSelect) {
-        return __awaiter(this, void 0, void 0, function () {
-            var cameras;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, Camera.GetCameras()];
-                    case 1:
-                        cameras = _a.sent();
-                        if (cameras == undefined)
-                            return [2 /*return*/];
-                        cameras = cameras.filter(function (v) { return document.getElementById(v.id) == undefined; });
-                        camSelect.innerHTML = "<option value=\"\">Select camera</option>";
-                        cameras.forEach(function (camera) {
-                            camSelect.innerHTML += "\n<option value=".concat(camera.id, ">").concat(Camera.GetMixedName(camera), "</option>");
-                        });
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    Camera.GetMixedName = function (info) {
-        return "".concat(info.label.split(" (")[0], " (").concat(info.id.substring(0, 6), ")");
-    };
-    return Camera;
-}());
-exports.Camera = Camera;
+    }
+    static GetMixedName(info) {
+        return `${info.label.split(" (")[0]} (${info.id.substring(0, 6)})`;
+    }
+}
 //# sourceMappingURL=camera-manager.js.map

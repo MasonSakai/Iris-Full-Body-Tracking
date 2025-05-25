@@ -1,64 +1,45 @@
-
+import { setBackend } from "./pose-detector-factory";
 import { Camera } from "./camera-manager";
-import { PoseDetectorFactory } from "./ai-manager";
 
 
 let span_fps = document.getElementById("fps")
 let div_cameras = document.getElementById("camera-display")
 let select_camera = document.getElementById("camera-select") as HTMLSelectElement
-
-let poseDetector = new PoseDetectorFactory();
+let hidden_canvas = document.getElementById("hidden-canvas") as HTMLCanvasElement
+let ctx_hidden_canvas = hidden_canvas.getContext("2d", { willReadFrequently: true })
 
 let cameras = []
 
 Camera.UpdateCameraSelector(select_camera)
 
-/*Camera.GetCameras()
-	.then(vals => {
-		for (var val of vals) {
-			var camera = new Camera(val.id)
-			div_cameras.appendChild(camera.createElement())
+setBackend().then(() => {
+	select_camera.onchange = () => {
+		if (select_camera.value == "") return
 
-			//await new Promise(resolve => setTimeout(resolve, 2000))
+		var camera = new Camera(select_camera.value)
+		div_cameras.appendChild(camera.createElement(() => {
+			camera.startWorker()
+			cameras.push(camera)
 
-			//var context = camera.el_canvas.getContext("2d")
-			//context.drawImage(camera.el_video, 0, 0, camera.el_canvas.width, camera.el_canvas.height)
-			//console.log({ w: camera.el_canvas.width, h: camera.el_canvas.height })
+			//setInterval(() => {
+			//	var context = camera.el_canvas.getContext("2d")
+			//	context.drawImage(camera.el_video, 0, 0, camera.el_canvas.width, camera.el_canvas.height)
+			//	console.log({ w: camera.el_canvas.width, h: camera.el_canvas.height })
 
-			//window.location.href = camera.el_canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
+			//	window.location.href = camera.el_canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
+			//}, 5000)
+		}))
 
-			//await new Promise(resolve => setTimeout(resolve, 500))
-			//context.clearRect(0, 0, camera.el_canvas.width, camera.el_canvas.height)
-
-		}
+		select_camera.value = ""
 		Camera.UpdateCameraSelector(select_camera)
-})*/
+	}
+	AILoop()
+})
 
-var draw = false;
-
-select_camera.onchange = () => {
-	if (select_camera.value == "") return
-
-	poseDetector.createDetector()
-		.then(detector => {
-			var camera = new Camera(select_camera.value)
-			camera.detector = detector
-			div_cameras.appendChild(camera.createElement(() => {
-				cameras.push(camera)
-				draw = true
-
-				//setInterval(() => {
-				//	var context = camera.el_canvas.getContext("2d")
-				//	context.drawImage(camera.el_video, 0, 0, camera.el_canvas.width, camera.el_canvas.height)
-				//	console.log({ w: camera.el_canvas.width, h: camera.el_canvas.height })
-
-				//	window.location.href = camera.el_canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
-				//}, 5000)
-			}))
-
-			select_camera.value = ""
-			Camera.UpdateCameraSelector(select_camera)
-		})
+window.onclose = () => {
+	for (var cam of cameras) {
+		cam.close();
+	}
 }
 
 async function AILoop() {
@@ -67,21 +48,17 @@ async function AILoop() {
 	while (true) {
 
 		start = (performance || Date).now();
-		if (draw) {
-			for (var camera of cameras) {
-				await camera.processPose(poseDetector)
-			}
+		for (var camera of cameras) {
+			await camera.processPose(hidden_canvas, ctx_hidden_canvas)
 		}
 		end = (performance || Date).now();
 		delta = end - start;
-		span_fps.innerText = delta.toString().substr(0, 4)
+		span_fps.innerText = `${delta.toFixed(2)}ms`
 		if (delta < 16.66) {
 			await sleep(16.66 - delta);
 		}
 	}
 }
-
-AILoop()
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));

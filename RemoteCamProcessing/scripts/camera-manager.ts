@@ -1,5 +1,3 @@
-import { time } from "console";
-import { GetFilteredPose } from "./ai-manager";
 import { PoseDetector } from '@tensorflow-models/pose-detection';
 
 export class Camera {
@@ -7,10 +5,12 @@ export class Camera {
 	el_div: HTMLDivElement
 	el_canvas: HTMLCanvasElement
 	el_video: HTMLVideoElement
+	span_fps: HTMLSpanElement
 	deviceID: string
 	flip_horizontal: boolean = false
 	threshold: number = 0.3
-	detector: PoseDetector
+	ai_worker: Worker
+	ctx: CanvasRenderingContext2D
 
 	constructor(deviceID: string) {
 		this.deviceID = deviceID
@@ -47,6 +47,7 @@ export class Camera {
 		div_camera.appendChild(this.el_video)
 
 		this.el_canvas = document.createElement("canvas")
+		this.ctx = this.el_canvas.getContext("2d")
 		div_camera.appendChild(this.el_canvas)
 
 		this.el_div.appendChild(div_camera)
@@ -54,44 +55,87 @@ export class Camera {
 
 		var div_controls = document.createElement("div")
 		div_controls.classList = "camera-controls"
-		div_controls.innerText = "a"
+
+		this.span_fps = document.createElement("span")
+		this.span_fps.classList = "fps"
+		div_controls.appendChild(this.span_fps)
+
 		this.el_div.appendChild(div_controls)
 
 
 		return this.el_div
 	}
 
-
-	async processPose() {
-		//console.time("detector")
-		var data = await GetFilteredPose(this.el_video, this.detector, this.threshold, this.flip_horizontal)
-		//console.timeLog("detector", "Got poses!", data)
-		
-		var ctx = this.el_canvas.getContext("2d");
-		ctx.clearRect(0, 0, this.el_canvas.width, this.el_canvas.height)
-		ctx.strokeStyle = 'White';
-		ctx.lineWidth = 1;
-
-		for (var pose of data) {
-			//console.log("pose: ", pose)
-			for (var key in pose) {
-				//console.log(key)
-				let spl = key.split("_");
-				if (spl[0] == "right") ctx.fillStyle = "red";
-				else if (spl[0] == "left") ctx.fillStyle = "green";
-				else ctx.fillStyle = "blue";
-				let point = pose[key];
-				const circle = new Path2D();
-				circle.arc(point.x, point.y, 5, 0, 2 * Math.PI);
-				ctx.fill(circle);
-				ctx.stroke(circle);
-
-			}
-		}
-		//console.timeEnd("detector")
+	processPose(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+		canvas.width = this.el_video.videoWidth
+		canvas.height = this.el_video.videoHeight
+		ctx.drawImage(this.el_video, 0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
+		this.ai_worker.postMessage({
+			type: "video",
+			image: ctx.getImageData(0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
+		})
 	}
 
 
+	startWorker() {
+		if (typeof (Worker) === "undefined") {
+			Camera.GetCameraByID(this.deviceID).then(v => {
+				console.log(`Camera worker ${Camera.GetMixedName(v)} failed`)
+			})
+			return;
+		}
+
+		this.ai_worker = new Worker("CameraWorker.js", { type: "module" })
+		this.ai_worker.onmessage = async (ev: MessageEvent) => {
+			var data = ev.data
+
+			switch (data.type) {
+				case "debug":
+					console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))}`, data.message)
+					break;
+				case "error":
+					console.error(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} error`, data.error)
+					break;
+
+				case "pose":
+
+					this.span_fps.innerText = `${Math.floor(1000 / data.delta)}fps (${data.delta.toFixed(1)}ms)`
+
+					this.ctx.clearRect(0, 0, this.el_canvas.width, this.el_canvas.height)
+					this.ctx.strokeStyle = 'White';
+					this.ctx.lineWidth = 1;
+					for (var pose of data.pose) {
+						for (var key in pose) {
+							let spl = key.split("_");
+							if (spl[0] == "right") this.ctx.fillStyle = "red";
+							else if (spl[0] == "left") this.ctx.fillStyle = "green";
+							else this.ctx.fillStyle = "blue";
+							let point = pose[key];
+							const circle = new Path2D();
+							circle.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+							this.ctx.fill(circle);
+							this.ctx.stroke(circle);
+
+						}
+					}
+					break;
+			}
+		}
+		this.ai_worker.onerror = async (ev: ErrorEvent) => {
+			console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} onerror`, ev)
+		}
+		this.ai_worker.onmessageerror = async (ev: MessageEvent) => {
+			console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} onmessageerror`, ev)
+		}
+
+		this.ai_worker.postMessage({ type: "config", flip_horizontal: this.flip_horizontal, threshold: this.threshold })
+		this.ai_worker.postMessage({ type: "start" })
+	}
+
+	close() {
+		this.ai_worker.terminate()
+		this.ai_worker = undefined
+	}
 
 	static async GetCameraStream(deviceID: string | undefined = ""): Promise<MediaStream | undefined> {
 		if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {

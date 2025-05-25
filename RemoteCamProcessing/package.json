@@ -14,7 +14,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "tsc --build && npx webpack",
         "clean": "tsc --build --clean",
-        "lint": "eslint .",
+        "lint": "eslint . --ext .ts",
         "build-dep": "cd ../../ && yarn && yarn build",
         "link-core": "yalc link @tensorflow/tfjs-core",
         "link-webgl": "yalc link @tensorflow/tfjs-backend-webgl"
@@ -25,9 +25,11 @@
     "devDependencies": {
         "@types/node": "^18.19.50",
         "eslint": "^9.27.0",
+        "globals": "^16.2.0",
         "open": "^9.1.0",
         "socket.io": "^4.7.1",
         "typescript": "^5.8.3",
+        "typescript-eslint": "^8.32.1",
         "webpack": "^5.97.1",
         "webpack-cli": "^5.1.4"
     },
@@ -38,7 +40,8 @@
         "extends": "google",
         "rules": {
             "require-jsdoc": 0,
-            "valid-jsdoc": 0
+            "valid-jsdoc": 0,
+            "@typescript-eslint/no-require-imports": "error"
         },
         "env": {
             "es6": true
