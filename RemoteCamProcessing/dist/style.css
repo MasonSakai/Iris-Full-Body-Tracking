@@ -43,8 +43,11 @@ body {
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
-.camera-display canvas {
+.camera-display video {
 	position: absolute;
+}
+.camera-display canvas {
+	z-index: 5;
 }
 .camera-display video, .camera-display canvas {
 	width: 100%;

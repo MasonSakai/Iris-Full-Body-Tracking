@@ -1,18 +1,19 @@
 
 import { Camera } from "./camera-manager";
-import { PoseDetector } from "./ai-manager";
+import { PoseDetectorFactory } from "./ai-manager";
 
 
+let span_fps = document.getElementById("fps")
 let div_cameras = document.getElementById("camera-display")
 let select_camera = document.getElementById("camera-select") as HTMLSelectElement
 
-let poseDetector = new PoseDetector();
+let poseDetector = new PoseDetectorFactory();
 
 let cameras = []
 
 Camera.UpdateCameraSelector(select_camera)
 
-Camera.GetCameras()
+/*Camera.GetCameras()
 	.then(vals => {
 		for (var val of vals) {
 			var camera = new Camera(val.id)
@@ -31,8 +32,60 @@ Camera.GetCameras()
 
 		}
 		Camera.UpdateCameraSelector(select_camera)
-	})
+})*/
 
+var draw = false;
+
+select_camera.onchange = () => {
+	if (select_camera.value == "") return
+
+	poseDetector.createDetector()
+		.then(detector => {
+			var camera = new Camera(select_camera.value)
+			camera.detector = detector
+			div_cameras.appendChild(camera.createElement(() => {
+				cameras.push(camera)
+				draw = true
+
+				//setInterval(() => {
+				//	var context = camera.el_canvas.getContext("2d")
+				//	context.drawImage(camera.el_video, 0, 0, camera.el_canvas.width, camera.el_canvas.height)
+				//	console.log({ w: camera.el_canvas.width, h: camera.el_canvas.height })
+
+				//	window.location.href = camera.el_canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
+				//}, 5000)
+			}))
+
+			select_camera.value = ""
+			Camera.UpdateCameraSelector(select_camera)
+		})
+}
+
+async function AILoop() {
+	var start, end, delta;
+
+	while (true) {
+
+		start = (performance || Date).now();
+		if (draw) {
+			for (var camera of cameras) {
+				await camera.processPose(poseDetector)
+			}
+		}
+		end = (performance || Date).now();
+		delta = end - start;
+		span_fps.innerText = delta.toString().substr(0, 4)
+		if (delta < 16.66) {
+			await sleep(16.66 - delta);
+		}
+	}
+}
+
+AILoop()
+
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 /*
 const controlPanel = document.getElementsByClassName("control-panel")[0];

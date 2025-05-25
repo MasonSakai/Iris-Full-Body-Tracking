@@ -37,9 +37,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Camera = void 0;
+var ai_manager_1 = require("./ai-manager");
 var Camera = /** @class */ (function () {
     function Camera(deviceID) {
         this.flip_horizontal = false;
+        this.threshold = 0.3;
         this.deviceID = deviceID;
     }
     Camera.prototype.createElement = function (videoReadyCallback) {
@@ -56,9 +58,6 @@ var Camera = /** @class */ (function () {
         this.el_div.appendChild(div_label);
         var div_camera = document.createElement("div");
         div_camera.className = "camera-display";
-        this.el_canvas = document.createElement("canvas");
-        div_camera.appendChild(this.el_canvas);
-        this.el_div.appendChild(div_camera);
         this.el_video = document.createElement("video");
         Camera.GetCameraStream(this.deviceID)
             .then(function (stream) {
@@ -72,11 +71,51 @@ var Camera = /** @class */ (function () {
             });
         });
         div_camera.appendChild(this.el_video);
+        this.el_canvas = document.createElement("canvas");
+        div_camera.appendChild(this.el_canvas);
+        this.el_div.appendChild(div_camera);
         var div_controls = document.createElement("div");
         div_controls.classList = "camera-controls";
         div_controls.innerText = "a";
         this.el_div.appendChild(div_controls);
         return this.el_div;
+    };
+    Camera.prototype.processPose = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var data, ctx, _i, data_1, pose, key, spl, point, circle;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, ai_manager_1.GetFilteredPose)(this.el_video, this.detector, this.threshold, this.flip_horizontal)
+                        //console.timeLog("detector", "Got poses!", data)
+                    ];
+                    case 1:
+                        data = _a.sent();
+                        ctx = this.el_canvas.getContext("2d");
+                        ctx.clearRect(0, 0, this.el_canvas.width, this.el_canvas.height);
+                        ctx.strokeStyle = 'White';
+                        ctx.lineWidth = 1;
+                        for (_i = 0, data_1 = data; _i < data_1.length; _i++) {
+                            pose = data_1[_i];
+                            //console.log("pose: ", pose)
+                            for (key in pose) {
+                                spl = key.split("_");
+                                if (spl[0] == "right")
+                                    ctx.fillStyle = "red";
+                                else if (spl[0] == "left")
+                                    ctx.fillStyle = "green";
+                                else
+                                    ctx.fillStyle = "blue";
+                                point = pose[key];
+                                circle = new Path2D();
+                                circle.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+                                ctx.fill(circle);
+                                ctx.stroke(circle);
+                            }
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     Camera.GetCameraStream = function () {
         return __awaiter(this, arguments, void 0, function (deviceID) {

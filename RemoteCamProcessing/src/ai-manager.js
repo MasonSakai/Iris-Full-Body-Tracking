@@ -36,67 +36,72 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PoseDetector = void 0;
+exports.PoseDetectorFactory = void 0;
+exports.GetFilteredPose = GetFilteredPose;
 require("@tensorflow/tfjs-backend-webgl");
+require("@tensorflow/tfjs-backend-webgpu");
 var tf = require("@tensorflow/tfjs-core");
 var posedetection = require("@tensorflow-models/pose-detection");
-var PoseDetector = /** @class */ (function () {
-    function PoseDetector(width) {
+var PoseDetectorFactory = /** @class */ (function () {
+    function PoseDetectorFactory(width, backend) {
         if (width === void 0) { width = 640; }
-        tf.setBackend("webgl");
+        if (backend === void 0) { backend = "webgpu"; }
+        tf.setBackend("webgpu");
         this.width = width;
     }
-    PoseDetector.prototype.createDetector = function () {
+    PoseDetectorFactory.prototype.createDetector = function () {
         return __awaiter(this, arguments, void 0, function (model_type) {
-            var modelType, _a;
+            var modelType;
             if (model_type === void 0) { model_type = "SINGLEPOSE_THUNDER"; }
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0: return [4 /*yield*/, tf.ready()];
                     case 1:
-                        _b.sent();
+                        _a.sent();
                         modelType = posedetection.movenet.modelType[model_type];
-                        _a = this;
                         return [4 /*yield*/, posedetection.createDetector(posedetection.SupportedModels.MoveNet, { modelType: modelType })];
-                    case 2:
-                        _a.detector = _b.sent();
-                        return [2 /*return*/];
+                    case 2: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    PoseDetector.prototype.getFilteredPose = function (video, threshold, flipHorizontal) {
-        return __awaiter(this, void 0, void 0, function () {
-            var raw, keypoints, filtered, pose;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.detector.estimatePoses(video)];
-                    case 1:
-                        raw = _a.sent();
-                        if (raw.length == 0)
-                            return [2 /*return*/, {}];
-                        keypoints = raw[0].keypoints;
-                        filtered = keypoints.filter(function (data) {
+    return PoseDetectorFactory;
+}());
+exports.PoseDetectorFactory = PoseDetectorFactory;
+function GetFilteredPose(video_1, detector_1) {
+    return __awaiter(this, arguments, void 0, function (video, detector, threshold, flipHorizontal, maxPoses) {
+        var raw, poses, _loop_1, _i, raw_1, p;
+        if (threshold === void 0) { threshold = 0.3; }
+        if (flipHorizontal === void 0) { flipHorizontal = false; }
+        if (maxPoses === void 0) { maxPoses = 1; }
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, detector.estimatePoses(video, { maxPoses: maxPoses, flipHorizontal: flipHorizontal })];
+                case 1:
+                    raw = _a.sent();
+                    poses = [];
+                    _loop_1 = function () {
+                        var keypoints = p.keypoints;
+                        var filtered = keypoints.filter(function (data) {
                             return data.score >= threshold;
                         });
-                        pose = {};
+                        var pose = {};
                         filtered.forEach(function (data) {
                             pose[data.name] = {
-                                x: flipHorizontal ? _this.width - data.x : data.x,
+                                x: data.x,
                                 y: data.y,
                                 score: data.score
                             };
                         });
-                        return [2 /*return*/, pose];
-                }
-            });
+                        poses.push(pose);
+                    };
+                    for (_i = 0, raw_1 = raw; _i < raw_1.length; _i++) {
+                        p = raw_1[_i];
+                        _loop_1();
+                    }
+                    return [2 /*return*/, poses];
+            }
         });
-    };
-    PoseDetector.prototype.tfReady = function () {
-        return tf.ready();
-    };
-    return PoseDetector;
-}());
-exports.PoseDetector = PoseDetector;
+    });
+}
 //# sourceMappingURL=ai-manager.js.map
