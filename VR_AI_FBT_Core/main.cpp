@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE)EndProgram, true);
 
 #ifdef DEBUGDIRECTORY
-	//BaseDirectory.append("C:\\VSProjects\\VR-AI-Full-Body-Tracking\\Remote1CamProcessing\\");
+	//BaseDirectory.append("C:\\VSProjects\\VR-AI-Full-Body-Tracking\\RemoteCamProcessing\\");
 #endif
 
 

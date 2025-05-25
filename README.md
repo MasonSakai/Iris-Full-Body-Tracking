@@ -21,7 +21,7 @@ Not only works for VRChat, but has also been tested in _Source Film Maker_ with 
 This program practically requires **at least** two cameras, and requires decent placement. Details below.<br>
 The AI does not capture 3D position or orientation. That is all done by the program and is prone to issues or inaccuracies.<br>
   Hip tracking side-to-side is not great, as the AI can't capture this movement very well (sorry, no wiggles). Hip tracking is fine otherwise<br>
-This may be slow on some hardware, especially since the AI is entirely CPU based and running in a browser (if someone can get this on a better system, network details are in the Remote1CamProcessing's readme)<br>
+This may be slow on some hardware, especially since the AI is entirely CPU based and running in a browser (if someone can get this on a better system, network details are in the RemoteCamProcessing's readme)<br>
   If the markers on the camera are weirdly or inconsistently offset from the person in frame (noticed using GoPro for example), using OBS Virtual Camera with a solid background layer can make sure it keeps a consistent size (I can't do much about this, it's just part of how the AI initializes)<br>
 This has only been tested on windows with chrome, and with Qt may _only_ work on windows<br>
 The program (at the time of writing this) is only mildly tested and may be prone to issues. At the moment I don't have access to a headset so I can't do much without feedback.<br>

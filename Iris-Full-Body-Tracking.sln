@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCV-Test", "OpenCV-Test\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraCalib", "CameraCalib\CameraCalib.vcxproj", "{F8FEB13C-21B5-4DD9-9384-050914310A0A}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Remote1CamProcessing", "Remote1CamProcessing\Remote1CamProcessing.esproj", "{37B8C923-5215-2410-75C7-FCFBE257CBA3}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "RemoteCamProcessing", "RemoteCamProcessing\RemoteCamProcessing.esproj", "{37B8C923-5215-2410-75C7-FCFBE257CBA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
