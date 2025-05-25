@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": false,
+        "noEmitOnError": true,
+        "removeComments": false,
+        "sourceMap": true,
+        "allowJs": true,                                  /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
+        "checkJs": true,                                  /* Enable error reporting in type-checked JavaScript files. */
+        "target": "es5",
+        "outDir": "src"
+    },
+    "include": [
+        "scripts/**/*"
+    ]
+}
