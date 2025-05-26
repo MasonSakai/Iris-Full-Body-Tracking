@@ -27,7 +27,6 @@
         "eslint": "^9.27.0",
         "globals": "^16.2.0",
         "open": "^9.1.0",
-        "socket.io": "^4.7.1",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.32.1",
         "webpack": "^5.97.1",

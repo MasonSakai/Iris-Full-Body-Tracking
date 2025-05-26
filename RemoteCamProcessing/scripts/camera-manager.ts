@@ -77,7 +77,7 @@ export class Camera {
 	}
 
 
-	startWorker() {
+	startWorker(url: string) {
 		if (typeof (Worker) === "undefined") {
 			Camera.GetCameraByID(this.deviceID).then(v => {
 				console.log(`Camera worker ${Camera.GetMixedName(v)} failed`)
@@ -128,7 +128,7 @@ export class Camera {
 			console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} onmessageerror`, ev)
 		}
 
-		this.ai_worker.postMessage({ type: "config", flip_horizontal: this.flip_horizontal, threshold: this.threshold })
+		this.ai_worker.postMessage({ type: "config", flip_horizontal: this.flip_horizontal, threshold: this.threshold, url: url })
 		this.ai_worker.postMessage({ type: "start" })
 	}
 

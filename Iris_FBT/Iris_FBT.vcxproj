@@ -90,16 +90,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/sockpp/include;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/openssl/include;$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/Simple-WebSocket-Server;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;sockpp.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib/openssl/lib;$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -111,9 +111,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/sockpp/include;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/openssl/include;$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/Simple-WebSocket-Server;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -132,16 +132,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/sockpp/include;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/openssl/include;$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/Simple-WebSocket-Server;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;sockpp.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib/openssl/lib;$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\build\lib\Debug;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_core4110d.lib;opencv_aruco4110d.lib;opencv_dnn4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -153,9 +153,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/sockpp/include;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/openssl/include;$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/Simple-WebSocket-Server;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/opencv_contrib/modules/aruco/include;$(SolutionDir)lib/OpenCV/opencv/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>

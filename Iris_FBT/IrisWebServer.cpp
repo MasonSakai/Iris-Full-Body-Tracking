@@ -7,10 +7,15 @@
 #include <windows.h>
 #include <sstream>
 #include <io.h>
-#include <sockpp/tcp_socket.h>
 #include "PathUtil.h"
 using namespace IrisFBT;
 using json = nlohmann::json;
+template <typename T>
+using shared_ptr = std::shared_ptr<T>;
+using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
+using std::cout;
+using std::endl;
+using std::string;
 
 DWORD WINAPI ServerHttpThreadFunction(LPVOID lpParam);
 DWORD WINAPI ServerSocketThreadFunction(LPVOID lpParam);
@@ -60,9 +65,6 @@ IrisWebServer::IrisWebServer() {
 		fw.close();
 	}
 
-	ZeroMemory(clients, sizeof(clients));
-
-	server_state = IrisServer_PreInit;
 	server_socket = nullptr;
 	file_log_ = nullptr;
 
@@ -93,17 +95,16 @@ IrisWebServer::IrisWebServer() {
 		0,
 		&server_socket_thread_id_
 	);
+	
 
+	std::cout << "Setup complete!" << std::endl;
 }
 
 IrisWebServer::~IrisWebServer() { Close(); }
 void IrisWebServer::Close() {
-	server_thread_mutex.lock();
-	server_state = IrisServer_Closing;
-	server_socket.get()->close();
-	server_thread_mutex.unlock();
-
+	server_socket.get()->stop();
 	server_http.get()->stop();
+
 	DWORD result = WaitForSingleObject(server_http_thread_handle_, INFINITE);
 	if (result == WAIT_OBJECT_0)
 		std::cout << "Http thread finished execution." << std::endl;
@@ -116,12 +117,9 @@ void IrisWebServer::Close() {
 	else std::cout << "Socket thread: wait failed or timed out: " << result << std::endl;
 	CloseHandle(server_socket_thread_handle_);
 
-	for (int i = 0; i < IRIS_MAX_CLIENTS; i++) {
-		if (clients[i] != nullptr) {
-			clients[i].get()->Close();
-			clients[i] = nullptr;
-		}
-	}
+	/*for (auto& pair : clients) {
+		pair.second.Close();
+	}*/
 
 	if (file_log_ != nullptr) {
 		fflush(stdout);
@@ -146,10 +144,6 @@ DWORD WINAPI ServerHttpThreadFunction(LPVOID lpParam) {
 
 	server->server_http = std::make_unique<httplib::Server>();
 
-	server->server_http.get()->set_logger([](const httplib::Request& req, const httplib::Response& res) {
-		std::cout << "HTTP: " << req.body << " : " << res.body << std::endl;
-	});
-
 	std::wstring path = server->path_driver + L"/dist";
 	size_t len = (wcslen(path.c_str()) + 1) * sizeof(wchar_t);
 	char* buffer = new char[len];
@@ -171,100 +165,58 @@ DWORD WINAPI ServerHttpThreadFunction(LPVOID lpParam) {
 	return 0;
 }
 
-
 DWORD WINAPI ServerSocketThreadFunction(LPVOID lpParam) {
 	IrisWebServer* server = (IrisWebServer*)lpParam;
 
-	server->server_thread_mutex.lock();
-	server->server_state = IrisServer_Starting;
-	server->server_thread_mutex.unlock();
-
-	std::cout << "Server thread started, starting server..." << std::endl;
-	
-	sockpp::initialize();
-	
-	{
-		in_port_t port = 2673;
-		if (server->server_config["socket_port"].is_number_unsigned()) {
-			port = server->server_config["socket_port"].get<in_port_t>();
-		}
-		else server->server_config["socket_port"] = port;
-
-		int queueSize = 4;
-		try {
-			if (server->server_config.at("socket_queueSize").is_number_integer()) {
-				queueSize = server->server_config["socket_queueSize"].get<int>();
-			}
-		}
-		catch (...) {}
-
-		server->server_socket = std::make_unique<sockpp::tcp_acceptor>(port, queueSize);
-
-		if (!*(server->server_socket.get())) {
-			std::cout << "Failed to open socket: " << server->server_socket.get()->last_error_str() << std::endl;
-			server->server_thread_mutex.lock();
-			server->server_state = IrisServer_Error;
-			server->server_thread_mutex.unlock();
-			return 1;
-		}
-
-		std::cout << "Socket is listening on port " << port << "..." << std::endl;
+	int port = 2673;
+	if (server->server_config["socket_port"].is_number_unsigned()) {
+		port = server->server_config["socket_port"].get<int>();
 	}
+	else server->server_config["socket_port"] = port;
 
-	server->server_thread_mutex.lock();
-	server->server_state = IrisServer_Online;
-	server->server_thread_mutex.unlock();
+	server->server_socket = std::make_unique<WsServer>();
+	auto socket = server->server_socket.get();
+	socket->config.port = port;
 
-	std::cout << "Server is online!" << std::endl;
-
-	server->server_thread_mutex.lock();
-	while (server->server_state == IrisServer_Online) {
-		server->server_thread_mutex.unlock();
-
-		sockpp::tcp_socket client_socket = server->server_socket.get()->accept();
-		if (!client_socket) {
-			std::cout << "Failed to accept: " << server->server_socket.get()->last_error_str() << std::endl;
-
-			server->server_thread_mutex.lock();
-			if (!server->server_socket.get()->is_open()) {
-				server->server_state = IrisServer_Closing;
-				break;
-			}
-		}
-		else {
-			std::cout << "Got client! Finding index..." << std::endl;
-
-			int clientIndex = IRIS_MAX_CLIENTS;
-
-			while (clientIndex == IRIS_MAX_CLIENTS) {
-				server->server_thread_mutex.lock();
-				if (server->server_state != IrisServer_Online) {
-					client_socket.close();
-					goto exit;
-				}
-
-				for (clientIndex = 0; clientIndex < IRIS_MAX_CLIENTS; clientIndex++) {
-					if (server->clients[clientIndex] == nullptr)
-						break;
-				}
-				server->server_thread_mutex.unlock();
-			}
-
-			std::cout << "Binding client to: " << clientIndex << std::endl;
-			server->clients[clientIndex] = std::make_unique<IrisWebClient>(server, std::move(client_socket), clientIndex);
-
-			server->server_thread_mutex.lock();
+	try {
+		if (server->server_config.at("socket_port").is_number_unsigned()) {
+			socket->config.thread_pool_size = server->server_config["socket_port"].get<size_t>();
 		}
 	}
-exit:
-	server->server_thread_mutex.unlock();
+	catch (...) {}
 
-	server->server_thread_mutex.lock();
-	if (server->server_socket.get()->is_open()) server->server_socket.get()->close();
-	delete server->server_socket.release();
-	server->server_socket = nullptr;
-	server->server_state = IrisServer_Closed;
-	server->server_thread_mutex.unlock();
+	socket->start([server](unsigned short port) { server->ServerSocketCallback(port); });
 
 	return 0;
+}
+
+void IrisWebServer::ServerSocketCallback(unsigned short port) {
+	std::cout << "Server starting on port " << port << std::endl;
+
+	auto server = server_socket.get();
+
+	auto& pose = server->endpoint["^/?$"];
+
+
+	pose.on_open = [this](shared_ptr<WsServer::Connection> connection) {
+		intptr_t key = reinterpret_cast<intptr_t>(connection.get());
+
+		cout << "on_open: " << key << endl;
+	};
+
+	// See RFC 6455 7.4.1. for status codes
+	pose.on_close = [this](shared_ptr<WsServer::Connection> connection, int status, const std::string& reason) {
+		intptr_t key = reinterpret_cast<intptr_t>(connection.get());
+
+		cout << "on_close: " << key << endl;
+	};
+
+
+	pose.on_message = [this](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
+		intptr_t key = reinterpret_cast<intptr_t>(connection.get());
+
+		cout << "on_message: " << key << " | " << in_message.get()->string() << endl;
+	};
+
+	std::cout << "Server started!" << std::endl;
 }
