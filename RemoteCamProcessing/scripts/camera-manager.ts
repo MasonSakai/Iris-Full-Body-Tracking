@@ -1,4 +1,3 @@
-import { PoseDetector } from '@tensorflow-models/pose-detection';
 
 export class Camera {
 
@@ -90,13 +89,6 @@ export class Camera {
 			var data = ev.data
 
 			switch (data.type) {
-				case "debug":
-					console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))}`, data.message)
-					break;
-				case "error":
-					console.error(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} error`, data.error)
-					break;
-
 				case "pose":
 
 					this.span_fps.innerText = `${Math.floor(1000 / data.delta)}fps (${data.delta.toFixed(1)}ms)`
@@ -119,6 +111,18 @@ export class Camera {
 						}
 					}
 					break;
+
+				case "debug":
+					console.log(`Camera worker ${ Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID)) }`, data.message)
+					break;
+				case "error":
+					console.error(`Camera worker ${ Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID)) } error`, data.error)
+					break;
+
+				default:
+					console.log(`Camera worker ${ Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID)) } - ${ data.type }`, data)
+					break;
+
 			}
 		}
 		this.ai_worker.onerror = async (ev: ErrorEvent) => {

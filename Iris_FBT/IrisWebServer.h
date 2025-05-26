@@ -42,7 +42,7 @@ namespace IrisFBT {
 
 		FILE* file_log_;
 
-		std::unordered_map<intptr_t, IrisWebClient> clients;
+		std::unordered_map<intptr_t, std::unique_ptr<IrisWebClient>> clients;
 	};
 
 	extern IrisWebServer* web_server;

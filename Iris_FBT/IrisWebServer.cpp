@@ -102,8 +102,12 @@ IrisWebServer::IrisWebServer() {
 
 IrisWebServer::~IrisWebServer() { Close(); }
 void IrisWebServer::Close() {
-	server_socket.get()->stop();
 	server_http.get()->stop();
+	server_socket.get()->stop_accept();
+	for (auto& pair : clients) {
+		pair.second.get()->stop();
+	}
+	//server_socket.get()->stop();
 
 	DWORD result = WaitForSingleObject(server_http_thread_handle_, INFINITE);
 	if (result == WAIT_OBJECT_0)
@@ -116,10 +120,6 @@ void IrisWebServer::Close() {
 		std::cout << "Socket thread finished execution." << std::endl;
 	else std::cout << "Socket thread: wait failed or timed out: " << result << std::endl;
 	CloseHandle(server_socket_thread_handle_);
-
-	/*for (auto& pair : clients) {
-		pair.second.Close();
-	}*/
 
 	if (file_log_ != nullptr) {
 		fflush(stdout);
@@ -135,6 +135,7 @@ void IrisWebServer::Close() {
 
 DWORD WINAPI ServerHttpThreadFunction(LPVOID lpParam) {
 	IrisWebServer* server = (IrisWebServer*)lpParam;
+	cout << "HTTP server thread start" << endl;
 
 	int port = 2674;
 	if (server->server_config["http_port"].is_number_unsigned()) {
@@ -162,11 +163,13 @@ DWORD WINAPI ServerHttpThreadFunction(LPVOID lpParam) {
 	}
 	else vr::VRDriverLog()->Log("Started http server!");
 
+	cout << "HTTP server thread stop" << endl;
 	return 0;
 }
 
 DWORD WINAPI ServerSocketThreadFunction(LPVOID lpParam) {
 	IrisWebServer* server = (IrisWebServer*)lpParam;
+	cout << "Socket server thread start" << endl;
 
 	int port = 2673;
 	if (server->server_config["socket_port"].is_number_unsigned()) {
@@ -187,11 +190,12 @@ DWORD WINAPI ServerSocketThreadFunction(LPVOID lpParam) {
 
 	socket->start([server](unsigned short port) { server->ServerSocketCallback(port); });
 
+	cout << "Socket server thread stop" << endl;
 	return 0;
 }
 
 void IrisWebServer::ServerSocketCallback(unsigned short port) {
-	std::cout << "Server starting on port " << port << std::endl;
+	std::cout << "Socket server starting on port " << port << std::endl;
 
 	auto server = server_socket.get();
 
@@ -200,23 +204,20 @@ void IrisWebServer::ServerSocketCallback(unsigned short port) {
 
 	pose.on_open = [this](shared_ptr<WsServer::Connection> connection) {
 		intptr_t key = reinterpret_cast<intptr_t>(connection.get());
-
-		cout << "on_open: " << key << endl;
+		clients[key] = std::make_unique<IrisWebClient>(this, connection, key);
 	};
 
 	// See RFC 6455 7.4.1. for status codes
 	pose.on_close = [this](shared_ptr<WsServer::Connection> connection, int status, const std::string& reason) {
 		intptr_t key = reinterpret_cast<intptr_t>(connection.get());
-
-		cout << "on_close: " << key << endl;
+		clients.erase(key);
 	};
 
 
 	pose.on_message = [this](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
 		intptr_t key = reinterpret_cast<intptr_t>(connection.get());
-
-		cout << "on_message: " << key << " | " << in_message.get()->string() << endl;
+		clients[key].get()->on_message(in_message);
 	};
 
-	std::cout << "Server started!" << std::endl;
+	std::cout << "Socket server started!" << std::endl;
 }

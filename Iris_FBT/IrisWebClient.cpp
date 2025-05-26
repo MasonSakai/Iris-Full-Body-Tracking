@@ -8,6 +8,8 @@
 #include "PathUtil.h"
 using namespace IrisFBT;
 using json = nlohmann::json;
+template <typename T>
+using shared_ptr = std::shared_ptr<T>;
 using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
 using std::cout;
 using std::endl;
@@ -16,18 +18,31 @@ using std::wstring;
 using std::stringstream;
 using std::wstringstream;
 
-std::vector<std::string> split(const std::string& text, char delimiter);
-
-IrisWebClient::IrisWebClient(IrisWebServer* server, int client_index) : server(server) {
-
+IrisWebClient::IrisWebClient(IrisWebServer* server, shared_ptr<WsServer::Connection> connection, intptr_t key) : server_(server), connection_(connection), key_(key) {
+	cout << "on_open: " << key_ << endl;
 }
 
 IrisWebClient::~IrisWebClient() {
-
+	cout << "on_close: " << key_ << endl;
 }
 
-void IrisWebClient::Close() {
+void IrisWebClient::stop() {
+	cout << "stop: " << key_ << endl;
+	connection_.get()->send_close(1001, "Service closing");
+}
 
+
+void IrisWebClient::on_message(shared_ptr<WsServer::InMessage> in_message) {
+	json data = json::parse(in_message.get()->string());
+	string type = data["type"].get<string>();
+
+	if (type == "pose") {
+		json::array_t pose = data["pose"];
+		
+	}
+	else {
+		cout << "on_message: " << key_ << " (unhandled): " << data << endl;
+	}
 }
 
 std::vector<std::string> split(const std::string& text, char delimiter) {

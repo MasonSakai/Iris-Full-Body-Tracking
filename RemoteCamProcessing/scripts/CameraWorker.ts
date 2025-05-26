@@ -66,7 +66,7 @@ async function processPose() {
 }
 
 async function AILoop() {
-	var start, end;
+	var start: number, end: number;
 
 	while (!image) { }
 
@@ -84,13 +84,37 @@ async function AILoop() {
 function StartSocket() {
 	socket = new WebSocket(url)
 	socket.onopen = function (ev: Event) {
-
+		postMessage({
+			type: "socket_event",
+			func: "onopen",
+			event: {
+				type: ev.type,
+				timeStamp: ev.timeStamp
+			}
+		})
 	}
 	socket.onclose = function (ev: CloseEvent) {
-
+		postMessage({
+			type: "socket_event",
+			func: "onclose",
+			event: {
+				type: ev.type,
+				timeStamp: ev.timeStamp,
+				code: ev.code,
+				reason: ev.reason,
+				wasClean: ev.wasClean
+			}
+		})
 	}
 	socket.onerror = function (ev: Event) {
-
+		postMessage({
+			type: "socket_event",
+			func: "onerror",
+			event: {
+				type: ev.type,
+				timeStamp: ev.timeStamp
+			}
+		})
 	}
 
 	socket.onmessage = function (ev: MessageEvent) {
