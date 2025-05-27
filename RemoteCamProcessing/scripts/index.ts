@@ -51,7 +51,7 @@ async function AILoop() {
 
 		start = (performance || Date).now();
 		for (var camera of cameras) {
-			await camera.processPose(hidden_canvas, ctx_hidden_canvas)
+			await camera.processImage(hidden_canvas, ctx_hidden_canvas)
 		}
 		end = (performance || Date).now();
 		delta = end - start;

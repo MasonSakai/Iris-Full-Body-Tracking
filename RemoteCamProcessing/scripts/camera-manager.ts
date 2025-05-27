@@ -1,15 +1,18 @@
+import { IrisSocket_Key } from "./IrisWebClient_keys";
 
 export class Camera {
 
 	el_div: HTMLDivElement
 	el_canvas: HTMLCanvasElement
 	el_video: HTMLVideoElement
+	div_label: HTMLDivElement
 	span_fps: HTMLSpanElement
 	deviceID: string
 	flip_horizontal: boolean = false
 	threshold: number = 0.3
 	ai_worker: Worker
 	ctx: CanvasRenderingContext2D
+	send_frame: boolean = false
 
 	constructor(deviceID: string) {
 		this.deviceID = deviceID
@@ -21,12 +24,12 @@ export class Camera {
 		this.el_div.className = "camera-card"
 
 
-		var div_label = document.createElement("div");
-		div_label.className = "camera-label"
+		this.div_label = document.createElement("div");
+		this.div_label.className = "camera-label"
 		Camera.GetCameraByID(this.deviceID).then(v =>
-			div_label.innerText = v == undefined ? "ERROR GETTING NAME" : Camera.GetMixedName(v)
+			this.div_label.innerText = v == undefined ? "ERROR GETTING NAME" : Camera.GetMixedName(v)
 		)
-		this.el_div.appendChild(div_label)
+		this.el_div.appendChild(this.div_label)
 
 
 		var div_camera = document.createElement("div")
@@ -65,31 +68,39 @@ export class Camera {
 		return this.el_div
 	}
 
-	processPose(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+	processImage(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
 		canvas.width = this.el_video.videoWidth
 		canvas.height = this.el_video.videoHeight
 		ctx.drawImage(this.el_video, 0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
 		this.ai_worker.postMessage({
-			type: "video",
+			key: IrisSocket_Key.msg_image,
 			image: ctx.getImageData(0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
 		})
+		if (this.send_frame) {
+			this.send_frame = false
+			this.ai_worker.postMessage({
+				key: IrisSocket_Key.msg_socket,
+				message: JSON.stringify({
+					key: IrisSocket_Key.IMAGE,
+					data: canvas.toDataURL()
+				})
+			})
+		}
 	}
 
 
 	startWorker(url: string) {
 		if (typeof (Worker) === "undefined") {
-			Camera.GetCameraByID(this.deviceID).then(v => {
-				console.log(`Camera worker ${Camera.GetMixedName(v)} failed`)
-			})
+			console.log(`Camera worker ${ this.div_label.innerText } failed`)
 			return;
 		}
 
 		this.ai_worker = new Worker("CameraWorker.js", { type: "module" })
-		this.ai_worker.onmessage = async (ev: MessageEvent) => {
+		this.ai_worker.onmessage = (ev: MessageEvent) => {
 			var data = ev.data
 
-			switch (data.type) {
-				case "pose":
+			switch (data.key) {
+				case IrisSocket_Key.POSE:
 
 					this.span_fps.innerText = `${Math.floor(1000 / data.delta)}fps (${data.delta.toFixed(1)}ms)`
 
@@ -112,28 +123,32 @@ export class Camera {
 					}
 					break;
 
-				case "debug":
-					console.log(`Camera worker ${ Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID)) }`, data.message)
+				case IrisSocket_Key.IMAGE:
+					this.send_frame = true
 					break;
-				case "error":
-					console.error(`Camera worker ${ Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID)) } error`, data.error)
+
+				case IrisSocket_Key.msg_debug:
+					console.log(`Camera worker ${this.div_label.innerText }`, data.message)
+					break;
+				case IrisSocket_Key.msg_error:
+					console.error(`Camera worker ${ this.div_label.innerText } error`, data.error)
 					break;
 
 				default:
-					console.log(`Camera worker ${ Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID)) } - ${ data.type }`, data)
+					console.log(`Camera worker ${ this.div_label.innerText } - ${ data.key }`, data)
 					break;
 
 			}
 		}
-		this.ai_worker.onerror = async (ev: ErrorEvent) => {
-			console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} onerror`, ev)
+		this.ai_worker.onerror = (ev: ErrorEvent) => {
+			console.log(`Camera worker ${ this.div_label.innerText } onerror`, ev)
 		}
-		this.ai_worker.onmessageerror = async (ev: MessageEvent) => {
-			console.log(`Camera worker ${Camera.GetMixedName(await Camera.GetCameraByID(this.deviceID))} onmessageerror`, ev)
+		this.ai_worker.onmessageerror = (ev: MessageEvent) => {
+			console.log(`Camera worker ${ this.div_label.innerText } onmessageerror`, ev)
 		}
 
-		this.ai_worker.postMessage({ type: "config", flip_horizontal: this.flip_horizontal, threshold: this.threshold, url: url })
-		this.ai_worker.postMessage({ type: "start" })
+		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, flip_horizontal: this.flip_horizontal, threshold: this.threshold, url: url })
+		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_start, name: this.div_label.innerText })
 	}
 
 	close() {

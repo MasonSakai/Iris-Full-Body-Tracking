@@ -1,25 +1,27 @@
 #pragma once
 #include "IrisWebServer.h"
-using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
+#include <string>
+using std::string;
 
 namespace IrisFBT {
 
 	class IrisWebClient
 	{
 	public:
-		IrisWebClient(IrisWebServer* server, std::shared_ptr<WsServer::Connection> connection, intptr_t key);
+		IrisWebClient(IrisWebServer* server, shared_ptr<WsServer::Connection> connection, intptr_t key);
 		~IrisWebClient();
 
-		void on_message(std::shared_ptr<WsServer::InMessage> in_message);
+		void on_message(shared_ptr<WsServer::InMessage> in_message);
 
 		void stop();
 
 	private:
 
-		intptr_t key_;
+		intptr_t socket_key_;
+		string camera_key_, display_name_;
 
 		IrisWebServer* server_;
-		std::shared_ptr<WsServer::Connection> connection_;
+		shared_ptr<WsServer::Connection> connection_;
 
 	};
 

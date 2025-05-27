@@ -177,15 +177,16 @@
     <ClCompile Include="IrisWebClient.cpp" />
     <ClCompile Include="IrisWebServer.cpp" />
     <ClCompile Include="iris_tracker_device.cpp" />
-    <ClCompile Include="PathUtil.cpp" />
+    <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="device_data_refs.h" />
     <ClInclude Include="device_provider.h" />
     <ClInclude Include="IrisWebClient.h" />
+    <ClInclude Include="IrisWebClient_keys.h" />
     <ClInclude Include="IrisWebServer.h" />
     <ClInclude Include="iris_tracker_device.h" />
-    <ClInclude Include="PathUtil.h" />
+    <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

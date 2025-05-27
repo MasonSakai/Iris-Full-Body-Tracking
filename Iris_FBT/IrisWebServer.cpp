@@ -7,12 +7,9 @@
 #include <windows.h>
 #include <sstream>
 #include <io.h>
-#include "PathUtil.h"
+#include "util.h"
 using namespace IrisFBT;
 using json = nlohmann::json;
-template <typename T>
-using shared_ptr = std::shared_ptr<T>;
-using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
 using std::cout;
 using std::endl;
 using std::string;
@@ -107,7 +104,6 @@ void IrisWebServer::Close() {
 	for (auto& pair : clients) {
 		pair.second.get()->stop();
 	}
-	//server_socket.get()->stop();
 
 	DWORD result = WaitForSingleObject(server_http_thread_handle_, INFINITE);
 	if (result == WAIT_OBJECT_0)

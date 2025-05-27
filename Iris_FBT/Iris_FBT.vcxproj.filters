@@ -39,10 +39,10 @@
     <ClCompile Include="IrisWebServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PathUtil.cpp">
+    <ClCompile Include="IrisWebClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IrisWebClient.cpp">
+    <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,10 +59,13 @@
     <ClInclude Include="IrisWebServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PathUtil.h">
+    <ClInclude Include="IrisWebClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IrisWebClient.h">
+    <ClInclude Include="util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IrisWebClient_keys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

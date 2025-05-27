@@ -5,6 +5,8 @@
 #include <mutex>
 #include <wtypes.h>
 #include <unordered_map>
+using std::shared_ptr;
+using std::unique_ptr;
 using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
 
 namespace IrisFBT {
@@ -33,8 +35,8 @@ namespace IrisFBT {
 		std::wstring path_config;
 		nlohmann::json server_config;
 
-		std::unique_ptr<httplib::Server> server_http;
-		std::unique_ptr<WsServer> server_socket;
+		unique_ptr<httplib::Server> server_http;
+		unique_ptr<WsServer> server_socket;
 
 	private:
 		HANDLE server_http_thread_handle_, server_socket_thread_handle_;
@@ -42,7 +44,7 @@ namespace IrisFBT {
 
 		FILE* file_log_;
 
-		std::unordered_map<intptr_t, std::unique_ptr<IrisWebClient>> clients;
+		std::unordered_map<intptr_t, unique_ptr<IrisWebClient>> clients;
 	};
 
 	extern IrisWebServer* web_server;
