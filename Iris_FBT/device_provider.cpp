@@ -18,7 +18,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
     //TrackedDeviceClass_GenericTracker
     //TrackedDeviceClass_TrackingReference
 
-    my_devices_[IrisTracker_Chest] = std::make_unique<IrisTrackerDevice>(IrisTracker_Chest);
+    //my_devices_[IrisTracker_Chest] = std::make_unique<IrisTrackerDevice>(IrisTracker_Chest);
 
 
     for (int i = 0; i < IrisTracker_Count; i++) {
