@@ -11,8 +11,10 @@
 *.sln.docstates
 */venv
 lib/OpenCV/build/*
+lib/OpenCV/install/*
 RemoteCamProcessing/src/*
 */Iris_FBT/dist/*
+!Iris_FBT/Iris_FBT/bin/*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
