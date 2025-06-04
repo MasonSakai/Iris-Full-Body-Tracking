@@ -99,7 +99,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib/openssl/lib;$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\install\x64\vc17\lib;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110.lib</AdditionalDependencies>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -141,7 +141,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib/openssl/lib;$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\install\x64\vc17\lib;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110.lib</AdditionalDependencies>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
