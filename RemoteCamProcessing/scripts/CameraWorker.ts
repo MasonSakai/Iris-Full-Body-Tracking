@@ -35,6 +35,12 @@ self.onmessage = async function (ev: MessageEvent) {
 			case IrisSocket_Key.msg_socket:
 				socket.send(data.message)
 				break;
+			case IrisSocket_Key.msg_requestParams:
+				data.key = IrisSocket_Key.CONFIG_POST
+				data.threshold = threshold
+				data.flip_horizontal = flip_horizontal
+				socket.send(JSON.stringify(data))
+				break;
 		}
 	} catch (e) {
 		postMessage({
@@ -130,6 +136,10 @@ function StartSocket(name: string) {
 		let data = JSON.parse(ev.data)
 
 		switch (data.key) {
+			case IrisSocket_Key.CONFIG_NOTFOUND:
+				postMessage({ key: IrisSocket_Key.msg_requestParams })
+				break;
+
 			case IrisSocket_Key.IMAGE:
 				postMessage(data)
 				break;

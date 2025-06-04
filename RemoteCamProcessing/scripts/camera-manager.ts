@@ -127,6 +127,25 @@ export class Camera {
 					this.send_frame = true
 					break;
 
+				case IrisSocket_Key.msg_requestParams:
+					Camera.GetCameraByID(this.deviceID).then(async v => {
+						data.name = this.div_label.innerText
+						data.camera_name = Camera.GetMixedName(v)
+
+						data.width = this.el_video.videoWidth;
+						data.height = this.el_video.videoHeight;
+
+						var stream = await Camera.GetCameraStream(this.deviceID)
+						if (stream) {
+							var settings = stream.getVideoTracks()[0].getSettings();
+							data.cam_width = settings.width
+							data.cam_height = settings.height
+						}
+
+						this.ai_worker.postMessage(data)
+					})
+					break;
+
 				case IrisSocket_Key.msg_debug:
 					console.log(`Camera worker ${this.div_label.innerText }`, data.message)
 					break;

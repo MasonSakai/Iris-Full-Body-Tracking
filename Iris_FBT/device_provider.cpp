@@ -1,4 +1,5 @@
 #include "device_provider.h"
+#include "CameraConfig.h"
 #include <iomanip>
 #include <sstream>
 using namespace IrisFBT;
@@ -13,7 +14,8 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
     vr::VRDriverLog()->Log("Hello world!");
 
     device_provider = this;
-    new IrisWebServer();
+    web_server = std::make_unique<IrisWebServer>();
+    CameraConfig::Load();
 
     //TrackedDeviceClass_GenericTracker
     //TrackedDeviceClass_TrackingReference
@@ -34,7 +36,8 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 void DeviceProvider::Cleanup() {
     vr::VRDriverLog()->Log("Goodbye world!");
     if (web_server != nullptr)
-        web_server->Close();
+        web_server.reset();
+    CameraConfig::Save();
     VR_CLEANUP_SERVER_DRIVER_CONTEXT();
 }
 

@@ -1,5 +1,6 @@
 #include "util.h"
-#include <stdexcept>#include <Windows.h>
+#include <stdexcept>
+#include <Windows.h>
 #include <shlobj_core.h>
 #include <sstream>
 
@@ -61,6 +62,20 @@ namespace IrisFBT {
         }
         result.push_back(text.substr(start));
         return result;
+    }
+
+    bool change_key(json& object, const std::string& old_key, const std::string& new_key)
+    {
+        if (object.contains(new_key) || !object.contains(old_key)) return false;
+
+        // get iterator to old key; TODO: error handling if key is not present
+        json::iterator it = object.find(old_key);
+        // create null value for new key and swap value from old key
+        std::swap(object[new_key], it.value());
+        // delete value at old key (cheap, because the value is null after swap)
+        object.erase(it);
+
+        return true;
     }
 
     static const string base64_chars =
@@ -154,4 +169,7 @@ namespace IrisFBT {
 
         return ret;
     }
+
+
+
 }

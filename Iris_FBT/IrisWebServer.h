@@ -1,33 +1,18 @@
 #pragma once
-#include <nlohmann/json.hpp>
-#include <server_ws.hpp>
+#include "IrisWebClient.h"
 #include <httplib.h>
 #include <mutex>
 #include <wtypes.h>
 #include <unordered_map>
-using std::shared_ptr;
 using std::unique_ptr;
-using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
 
 namespace IrisFBT {
-
-	typedef enum {
-		IrisServer_PreInit,
-		IrisServer_Starting,
-		IrisServer_Online,
-		IrisServer_Closing,
-		IrisServer_Closed,
-		IrisServer_Error
-	} IrisServerState;
-
-	class IrisWebClient;
 
 	class IrisWebServer
 	{
 	public:
 		IrisWebServer();
 		~IrisWebServer();
-		void Close();
 
 		void ServerSocketCallback(unsigned short port);
 
@@ -47,6 +32,6 @@ namespace IrisFBT {
 		std::unordered_map<intptr_t, unique_ptr<IrisWebClient>> clients;
 	};
 
-	extern IrisWebServer* web_server;
+	extern unique_ptr<IrisWebServer> web_server;
 }
 

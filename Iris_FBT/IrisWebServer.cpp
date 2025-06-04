@@ -1,5 +1,4 @@
 #include "IrisWebServer.h"
-#include "IrisWebClient.h"
 #include "openvr_driver.h"
 #include <thread>
 #include <fstream>
@@ -17,13 +16,9 @@ using std::string;
 DWORD WINAPI ServerHttpThreadFunction(LPVOID lpParam);
 DWORD WINAPI ServerSocketThreadFunction(LPVOID lpParam);
 
-namespace IrisFBT {
-	IrisWebServer* web_server = nullptr;
-}
+unique_ptr<IrisWebServer> IrisFBT::web_server = nullptr;
 
 IrisWebServer::IrisWebServer() {
-
-	web_server = this;
 
 	path_driver = getDriverPath();
 	path_config = getAppdata();
@@ -97,12 +92,11 @@ IrisWebServer::IrisWebServer() {
 	std::cout << "Setup complete!" << std::endl;
 }
 
-IrisWebServer::~IrisWebServer() { Close(); }
-void IrisWebServer::Close() {
-	server_http.get()->stop();
-	server_socket.get()->stop_accept();
+IrisWebServer::~IrisWebServer() {
+	server_http->stop();
+	server_socket->stop_accept();
 	for (auto& pair : clients) {
-		pair.second.get()->stop();
+		pair.second->stop();
 	}
 
 	DWORD result = WaitForSingleObject(server_http_thread_handle_, INFINITE);
@@ -146,14 +140,14 @@ DWORD WINAPI ServerHttpThreadFunction(LPVOID lpParam) {
 	char* buffer = new char[len];
 	size_t convertedSize;
 	wcstombs_s(&convertedSize, buffer, len, path.c_str(), len);
-	auto ret = server->server_http.get()->set_mount_point("/", buffer);
+	auto ret = server->server_http->set_mount_point("/", buffer);
 
 	if (!ret) {
 		vr::VRDriverLog()->Log("We don't have our website files!");
 		return 1;
 	}
 
-	if (!server->server_http.get()->listen("localhost", port)) {
+	if (!server->server_http->listen("localhost", port)) {
 		vr::VRDriverLog()->Log("Failed to start http server!");
 		return 1;
 	}
@@ -200,7 +194,7 @@ void IrisWebServer::ServerSocketCallback(unsigned short port) {
 
 	pose.on_open = [this](shared_ptr<WsServer::Connection> connection) {
 		intptr_t key = reinterpret_cast<intptr_t>(connection.get());
-		clients[key] = std::make_unique<IrisWebClient>(this, connection, key);
+		clients[key] = std::make_unique<IrisWebClient>(connection, key);
 	};
 
 	// See RFC 6455 7.4.1. for status codes
@@ -212,7 +206,7 @@ void IrisWebServer::ServerSocketCallback(unsigned short port) {
 
 	pose.on_message = [this](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
 		intptr_t key = reinterpret_cast<intptr_t>(connection.get());
-		clients[key].get()->on_message(in_message);
+		clients[key]->on_message(in_message);
 	};
 
 	std::cout << "Socket server started!" << std::endl;
