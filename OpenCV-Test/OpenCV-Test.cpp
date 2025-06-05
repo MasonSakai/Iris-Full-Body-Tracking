@@ -8,7 +8,7 @@
 using namespace cv;
 using namespace std;
 
-const vector<int> params = { CAP_PROP_FRAME_WIDTH, 640, CAP_PROP_FRAME_HEIGHT, 480, CAP_PROP_FPS, 90 };
+const vector<int> params = { CAP_PROP_FRAME_WIDTH, 256, CAP_PROP_FRAME_HEIGHT, 256, CAP_PROP_FPS, 90 };
 
 int main(int argc, char** argv)
 {

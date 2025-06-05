@@ -9,7 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-*/venv
+venv
 lib/OpenCV/build/*
 lib/OpenCV/install/*
 RemoteCamProcessing/src/*
