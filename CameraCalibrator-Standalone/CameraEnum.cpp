@@ -4,6 +4,9 @@
 #include <dshow.h>
 #include <iostream>
 
+using std::cout;
+using std::endl;
+
 #pragma comment(lib, "strmiids")
 
 vector<CameraEnum>* CameraDescriptors = NULL;

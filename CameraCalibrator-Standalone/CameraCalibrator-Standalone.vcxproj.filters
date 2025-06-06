@@ -15,13 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OpenCV-Test.cpp">
+    <ClCompile Include="CameraCalibrator-Standalone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CameraEnum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TFLoad.cpp">
+    <ClCompile Include="CameraData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App_CalibrateCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,7 +38,19 @@
     <ClInclude Include="CameraEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TFLoad.h">
+    <ClInclude Include="CameraData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleMacros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App_CalibrateCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

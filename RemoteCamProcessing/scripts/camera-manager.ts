@@ -1,5 +1,6 @@
 import { IrisSocket_Key } from "./IrisWebClient_keys";
 
+type CameraData = { label: string, id: string }
 export class Camera {
 
 	el_div: HTMLDivElement
@@ -192,18 +193,18 @@ export class Camera {
 		}
 		return undefined
 	}
-	static async GetCamerasByName(deviceName: string): Promise<{ label: string, id: string }[] | undefined> {
+	static async GetCamerasByName(deviceName: string): Promise<CameraData[] | undefined> {
 		var cameras = await Camera.GetCameras()
 		if (!cameras) return undefined
 		return cameras.filter(v => v.label == deviceName)
 	}
-	static async GetCameraByID(deviceID: string): Promise<{ label: string, id: string } | undefined> {
+	static async GetCameraByID(deviceID: string): Promise<CameraData | undefined> {
 		var cameras = await Camera.GetCameras()
 		if (cameras == undefined) return undefined
 		return cameras.find(v => v.id == deviceID)
 	}
 
-	static async GetCameras(): Promise<{ label: string, id: string }[] | undefined> {
+	static async GetCameras(): Promise<CameraData[] | undefined> {
 		if (!('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices)) return undefined
 
 		const devices = await navigator.mediaDevices.enumerateDevices();

@@ -9,11 +9,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VR_Button_Testing", "VR_But
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Iris_FBT", "Iris_FBT\Iris_FBT.vcxproj", "{539EA4D3-8C84-411D-A39B-FB035C49F1AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCV-Test", "OpenCV-Test\OpenCV-Test.vcxproj", "{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraCalib", "CameraCalib\CameraCalib.vcxproj", "{F8FEB13C-21B5-4DD9-9384-050914310A0A}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "RemoteCamProcessing", "RemoteCamProcessing\RemoteCamProcessing.esproj", "{37B8C923-5215-2410-75C7-FCFBE257CBA3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraCalibrator-Standalone", "CameraCalibrator-Standalone\CameraCalibrator-Standalone.vcxproj", "{16141EBC-262E-45E2-B466-EF6206793F07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,18 +55,6 @@ Global
 		{539EA4D3-8C84-411D-A39B-FB035C49F1AF}.Release|x64.Build.0 = Release|x64
 		{539EA4D3-8C84-411D-A39B-FB035C49F1AF}.Release|x86.ActiveCfg = Release|Win32
 		{539EA4D3-8C84-411D-A39B-FB035C49F1AF}.Release|x86.Build.0 = Release|Win32
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Debug|Any CPU.Build.0 = Debug|x64
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Debug|x64.ActiveCfg = Debug|x64
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Debug|x64.Build.0 = Debug|x64
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Debug|x86.ActiveCfg = Debug|Win32
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Debug|x86.Build.0 = Debug|Win32
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Release|Any CPU.ActiveCfg = Release|x64
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Release|Any CPU.Build.0 = Release|x64
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Release|x64.ActiveCfg = Release|x64
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Release|x64.Build.0 = Release|x64
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Release|x86.ActiveCfg = Release|Win32
-		{83017EFE-6EDC-461B-98D7-C96ACC62CB0B}.Release|x86.Build.0 = Release|Win32
 		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Debug|Any CPU.Build.0 = Debug|x64
 		{F8FEB13C-21B5-4DD9-9384-050914310A0A}.Debug|x64.ActiveCfg = Debug|x64
@@ -97,6 +85,18 @@ Global
 		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|x86.ActiveCfg = Release|Any CPU
 		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|x86.Build.0 = Release|Any CPU
 		{37B8C923-5215-2410-75C7-FCFBE257CBA3}.Release|x86.Deploy.0 = Release|Any CPU
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Debug|Any CPU.Build.0 = Debug|x64
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Debug|x64.ActiveCfg = Debug|x64
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Debug|x64.Build.0 = Debug|x64
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Debug|x86.ActiveCfg = Debug|Win32
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Debug|x86.Build.0 = Debug|Win32
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Release|Any CPU.ActiveCfg = Release|x64
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Release|Any CPU.Build.0 = Release|x64
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Release|x64.ActiveCfg = Release|x64
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Release|x64.Build.0 = Release|x64
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Release|x86.ActiveCfg = Release|Win32
+		{16141EBC-262E-45E2-B466-EF6206793F07}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
