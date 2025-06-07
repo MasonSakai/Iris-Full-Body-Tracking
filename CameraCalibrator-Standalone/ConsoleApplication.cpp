@@ -4,6 +4,9 @@
 #include <wtypes.h>
 #include "ConsoleMacros.h"
 #include <conio.h>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
 
 using namespace std;
 
@@ -59,7 +62,7 @@ void PrintCams() {
 
 static void PrintCommands() {
 	cout << CSI "4;0f" CSI "0J";
-	cout << CUL("e") "xit, " CUL("s") "elect camera, "  CUL("r") "egister camera, " CUL("c") "alibrate camera, apply "  CUL("p") "refab, recheck " CUL("h") "ardware" << endl;
+	cout << CUL("e") "xit, " CUL("s") "elect camera, "  CUL("v") "iew camera, "  CUL("r") "egister camera, "  CUL("m") "anage camera, " CUL("c") "alibrate camera, apply "  CUL("p") "refab, recheck " CUL("h") "ardware" << endl;
 	cout << "Give command: " CSP;
 }
 
@@ -95,6 +98,23 @@ input:
 			cout << CRP;
 			break;
 		}
+		break;
+	}
+	case 'v': {
+		cv::VideoCapture cap;
+		cap.open(selectedCam, cv::CAP_ANY);
+		cv::Mat frame;
+		cap.read(frame);
+		cv::imshow("Image Review", frame);
+		cout << endl << endl << "Press any key on the window to continue";
+		cv::waitKey();
+		cv::destroyWindow("Image Review");
+		cap.release();
+
+		PrintCommands();
+		cout << endl << endl;
+		PrintCams();
+		cout << CRP;
 		break;
 	}
 	case 'r': {
@@ -137,6 +157,7 @@ input:
 			PrintCams();
 			cout << endl << endl;
 			cout << "Camera Registered: " << cam->description;
+			SaveCameraData();
 			cout << CRP;
 		}
 		else {
@@ -159,11 +180,13 @@ input:
 				cout << COL("31") "Camera is not registered" COLD CRP;
 				break;
 			}
-			App_CalibrateCamera(selectedCam, data);
+			App_CalibrateCamera(selectedCam, data->calibration);
 			PrintCommands();
 			cout << endl << endl;
 			PrintCams();
 			cout << endl << endl;
+			SaveCameraPrefabs();
+			SaveCameraData();
 			cout << "Exited Calibration" CRP;
 		}
 		else {

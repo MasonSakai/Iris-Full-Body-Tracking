@@ -1,4 +1,4 @@
 #pragma once
 #include "ConsoleApplication.h"
 
-void App_CalibrateCamera(int cameraIndex, CameraData* cameraData);
+void App_CalibrateCamera(const int cameraIndex, CalibrationData& calibData);

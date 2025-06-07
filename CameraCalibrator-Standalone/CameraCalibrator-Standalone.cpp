@@ -10,8 +10,10 @@ int main()
     }
 
     LoadCameraPrefabs();
+    LoadCameraPrefabs();
 
     StartConsoleApplication();
 
     SaveCameraPrefabs();
+    SaveCameraData();
 }

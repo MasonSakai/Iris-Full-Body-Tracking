@@ -23,10 +23,28 @@ static CalibrationData LoadCalibrationData(json& config) {
 }
 static json SaveCalibrationData(CalibrationData& data) {
 	if (!data.valid) {
-		return NULL;
+		return json();
 	}
 	else {
 		json config = json::object();
+
+		config["time"] = data.time;
+		config["nr_max"] = data.nr_max;
+
+		config["image_width"] = data.image_width;
+		config["image_height"] = data.image_height;
+		config["board_width"] = data.board_width;
+		config["board_height"] = data.board_height;
+		config["square_size"] = data.square_size;
+		config["marker_size"] = data.marker_size;
+
+		config["flags"] = data.flags;
+		config["fisheye_model"] = data.fisheye_model;
+
+		config["camera_matrix"] = SaveMat(data.camera_matrix);
+		config["distortion_coefficients"] = SaveMat(data.distortion_coefficients);
+
+		config["avg_reprojection_error"] = data.avg_reprojection_error;
 
 		return config;
 	}
@@ -85,8 +103,6 @@ bool LoadCameraPrefabs() {
 
 }
 bool SaveCameraPrefabs() {
-
-
 	std::ofstream f(path_ + L"/cameraPrefabs.json");
 	if (!f.is_open()) return false;
 
@@ -112,7 +128,25 @@ bool LoadCameraData() {
 	return false;
 }
 bool SaveCameraData() {
-	return false;
+	std::ofstream f(path_ + L"/cameraData.json");
+	if (!f.is_open()) return false;
+
+	json config_ = json::array();
+
+	for (auto& cam : cameras) {
+		json j = json::object();
+		j["name"] = cam.cameraName;
+		j["address"] = SaveUSBDeviceAddress(cam.address);
+		j["calibration"] = SaveCalibrationData(cam.calibration);
+		if (cam.prefab != nullptr) j["prefab"] = cam.prefab->prefabName;
+		config_.push_back(j);
+		//std::cout << j << std::endl;
+	}
+
+	f << std::setw(4) << config_;
+	f.close();
+
+	return true;
 }
 
 bool GetAddressFromDevicePath(string path, USBDeviceAddress& addr) {

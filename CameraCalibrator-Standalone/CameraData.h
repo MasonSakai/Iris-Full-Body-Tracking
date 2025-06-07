@@ -3,13 +3,27 @@
 #include <string>
 #include <map>
 #include "CameraEnum.h"
+#include <opencv2/core.hpp>
 
 using std::string;
 using std::map;
 using std::vector;
+using cv::Mat;
 
 struct CalibrationData {
 	bool valid = false;
+
+	string time;
+	int nr_max;
+
+	int image_width, image_height;
+	int board_width, board_height;
+	float square_size, marker_size;
+	uint32_t flags;
+	bool fisheye_model;
+	Mat camera_matrix, distortion_coefficients;
+	double avg_reprojection_error;
+	Mat extrinsic_parameters;
 };
 
 struct USBDeviceAddress {
@@ -27,13 +41,13 @@ struct USBDeviceAddress {
 };
 
 struct CameraPrefab {
-	string prefabName;
+	string prefabName = "";
 	USBDeviceAddress address;
 	CalibrationData calibration;
 };
 struct CameraData {
-	string cameraName;
-	CameraPrefab* prefab;
+	string cameraName = "";
+	CameraPrefab* prefab = nullptr;
 	USBDeviceAddress address;
 	CalibrationData calibration;
 };

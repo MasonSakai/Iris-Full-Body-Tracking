@@ -29,3 +29,26 @@ vector<string> string_split(const string& text, char delimiter) {
     result.push_back(text.substr(start));
     return result;
 }
+
+
+Mat LoadMat(json& config) {
+    return Mat();
+}
+json SaveMat(Mat& mat) {
+    json config = json::object();
+    config["rows"] = mat.rows;
+    config["cols"] = mat.cols;
+    config["type"] = mat.type();
+
+    json j_rows = json::array();
+    for (int r = 0; r < mat.rows; ++r) {
+        json j_col = json::array();
+        for (int c = 0; c < mat.cols; ++c) {
+            j_col.push_back(mat.at<double>(r, c));
+        }
+        j_rows.push_back(j_col);
+    }
+    config["data"] = j_rows;
+
+    return config;
+}
