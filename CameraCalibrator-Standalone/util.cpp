@@ -32,7 +32,19 @@ vector<string> string_split(const string& text, char delimiter) {
 
 
 Mat LoadMat(json& config) {
-    return Mat();
+    if (config.is_null()) return Mat();
+
+    Mat mat(config["rows"].get<int>(),
+            config["cols"].get<int>(),
+            config["type"].get<int>());
+
+    for (int r = 0; r < mat.rows; ++r) {
+        for (int c = 0; c < mat.cols; ++c) {
+            mat.at<double>(r, c) = config["data"][r][c].get<double>();
+        }
+    }
+
+    return mat;
 }
 json SaveMat(Mat& mat) {
     json config = json::object();

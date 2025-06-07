@@ -18,6 +18,25 @@ static CalibrationData LoadCalibrationData(json& config) {
 		CalibrationData data;
 		data.valid = true;
 
+		data.time = config["time"];
+		data.nr_max = config["nr_max"];
+
+		data.image_width = config["image_width"];
+		data.image_height = config["image_height"];
+		data.board_width = config["board_width"];
+		data.board_height = config["board_height"];
+		data.square_size = config["square_size"];
+		data.marker_size = config["marker_size"];
+
+		data.flags = config["flags"];
+		data.fisheye_model = config["fisheye_model"];
+
+		data.camera_matrix = LoadMat(config["camera_matrix"]);
+		data.distortion_coefficients = LoadMat(config["distortion_coefficients"]);
+
+		data.avg_reprojection_error = config["avg_reprojection_error"];
+
+
 		return data;
 	}
 }
@@ -83,7 +102,6 @@ bool LoadCameraPrefabs() {
 			}
 
 			for (auto& pref : config_.items()) {
-				std::cout << pref.key() << ": " << pref.value() << std::endl;
 				json config = pref.value();
 				CameraPrefab prefab;
 				prefab.prefabName = pref.key();
@@ -100,7 +118,7 @@ bool LoadCameraPrefabs() {
 		}
 	}
 
-
+	return false;
 }
 bool SaveCameraPrefabs() {
 	std::ofstream f(path_ + L"/cameraPrefabs.json");
@@ -125,6 +143,36 @@ bool SaveCameraPrefabs() {
 }
 
 bool LoadCameraData() {
+
+	if (path_.empty()) {
+		path_ = getAppdata();
+	}
+
+	std::ifstream f(path_ + L"/cameraData.json");
+	if (f.good()) {
+		try {
+			auto config_ = json::parse(f);
+			if (config_.is_null()) {
+				config_ = json::array();
+			}
+
+			for (auto& cam : config_) {
+				CameraData data;
+				data.cameraName = cam["name"];
+				data.address = LoadUSBDeviceAddress(cam["address"]);
+				data.calibration = LoadCalibrationData(cam["calibration"]);
+				if (cam.contains("prefab")) data.prefab = &prefabs[cam["prefab"]];
+				cameras.push_back(data);
+			}
+
+			return true;
+		}
+		catch (std::exception e) {
+			std::cout << "Exception reading camera config: " << e.what() << std::endl;
+			return false;
+		}
+	}
+
 	return false;
 }
 bool SaveCameraData() {
