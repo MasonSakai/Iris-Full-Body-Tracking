@@ -21,7 +21,7 @@ struct CalibrationData {
 	float square_size, marker_size;
 	uint32_t flags;
 	bool fisheye_model;
-	Mat camera_matrix, distortion_coefficients;
+	Mat camera_matrix, dist_coeffs;
 	double avg_reprojection_error;
 	Mat extrinsic_parameters;
 };

@@ -72,8 +72,9 @@ void App_CalibrateCamera(const int cameraIndex, CalibrationData& calibData) {
 
 	cv::VideoCapture cap;
 	cap.open(cameraIndex, cv::CAP_ANY);
-	cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
-	cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1440);
+
+	/*cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+	cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);*/
 
 	if (!cap.isOpened()) {
 		cout << "ERROR! Unable to open camera\n";
@@ -322,8 +323,8 @@ static void saveCameraParams(CalibrationData& calibData, Size& imageSize, Mat& c
 
 	calibData.fisheye_model = useFisheye;
 
-	calibData.camera_matrix = cameraMatrix;
-	calibData.distortion_coefficients = distCoeffs;
+	cameraMatrix.copyTo(calibData.camera_matrix);
+	distCoeffs.copyTo(calibData.dist_coeffs);
 
 	calibData.avg_reprojection_error = totalAvgErr;
 	/*if (!reprojErrs.empty())

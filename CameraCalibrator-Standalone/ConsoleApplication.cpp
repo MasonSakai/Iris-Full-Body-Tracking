@@ -1,12 +1,13 @@
 #include "ConsoleApplication.h"
 #include "App_CalibrateCamera.h"
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/calib3d.hpp>
 #include <iostream>
 #include <wtypes.h>
 #include "ConsoleMacros.h"
 #include <conio.h>
-#include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui.hpp>
 
 using namespace std;
 
@@ -103,11 +104,46 @@ input:
 	case 'v': {
 		cv::VideoCapture cap;
 		cap.open(selectedCam, cv::CAP_ANY);
-		cv::Mat frame;
+
+		/*cap.set(cv::CAP_PROP_FRAME_WIDTH, 1280);
+		cap.set(cv::CAP_PROP_FRAME_HEIGHT, 720);*/
+
+		cv::Mat frame, frameCopy;
 		cap.read(frame);
 		cv::imshow("Image Review", frame);
-		cout << endl << endl << "Press any key on the window to continue";
-		cv::waitKey();
+		cout << endl << endl << "Press any key on the window to continue " << frame.size();
+		bool undistort = false;
+		CalibrationData* calib = nullptr;
+		Mat scaled_camera_matrix;
+		{
+			USBDeviceAddress addr;
+			if (GetAddressFromDevicePath(cams->at(selectedCam).devicePath, addr)) {
+				auto cam = FindCameraData(addr);
+				calib = cam->calibration.valid ? &cam->calibration
+					  : cam->prefab != nullptr ? &cam->prefab->calibration
+					  : nullptr;
+				if (calib != nullptr) {
+					scaled_camera_matrix = cv::getOptimalNewCameraMatrix(
+						calib->camera_matrix, calib->dist_coeffs,
+						{ calib->image_width, calib->image_height },
+						1, frame.size()
+					);
+				}
+			}
+		}
+		while (true) {
+			cap.read(frame);
+			if (undistort) {
+				frame.copyTo(frameCopy);
+				cv::undistort(frameCopy, frame, scaled_camera_matrix, calib->dist_coeffs);
+			}
+			cv::imshow("Image Review", frame);
+			c = cv::pollKey();
+			if (c == 'd') {
+				undistort ^= calib != nullptr;
+			}
+			else if (c >= 0) break;
+		}
 		cv::destroyWindow("Image Review");
 		cap.release();
 

@@ -32,7 +32,7 @@ static CalibrationData LoadCalibrationData(json& config) {
 		data.fisheye_model = config["fisheye_model"];
 
 		data.camera_matrix = LoadMat(config["camera_matrix"]);
-		data.distortion_coefficients = LoadMat(config["distortion_coefficients"]);
+		data.dist_coeffs = LoadMat(config["dist_coeffs"]);
 
 		data.avg_reprojection_error = config["avg_reprojection_error"];
 
@@ -61,7 +61,7 @@ static json SaveCalibrationData(CalibrationData& data) {
 		config["fisheye_model"] = data.fisheye_model;
 
 		config["camera_matrix"] = SaveMat(data.camera_matrix);
-		config["distortion_coefficients"] = SaveMat(data.distortion_coefficients);
+		config["dist_coeffs"] = SaveMat(data.dist_coeffs);
 
 		config["avg_reprojection_error"] = data.avg_reprojection_error;
 
