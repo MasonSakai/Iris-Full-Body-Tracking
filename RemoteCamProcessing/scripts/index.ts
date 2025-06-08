@@ -1,5 +1,6 @@
 import { setBackend } from "./pose-detector-factory";
 import { Camera } from "./camera-manager";
+import { CameraConfig, PutConfig, GetConfigs, sendConnect, sendSize, DefaultConfig } from "./net";
 
 
 let span_fps = document.getElementById("fps")
@@ -9,28 +10,49 @@ let hidden_canvas = document.getElementById("hidden-canvas") as HTMLCanvasElemen
 let ctx_hidden_canvas = hidden_canvas.getContext("2d", { willReadFrequently: true })
 
 let cameras = []
+function StartCamera(config: CameraConfig) {
+	var camera = new Camera(config)
+	div_cameras.appendChild(camera.createElement(async (camera: Camera) => {
 
-var port = 2673
+		await sendConnect(config.id)
+		await sendSize(config.id, camera.el_video)
 
-Camera.UpdateCameraSelector(select_camera)
+		camera.startWorker()
+		cameras.push(camera)
+	}))
+}
 
 setBackend().then(() => {
-	select_camera.onchange = () => {
+
+	Camera.UpdateCameraSelector(select_camera).then(cameras => {
+		GetConfigs().then(v => {
+			if (cameras == undefined) return;
+
+			v.forEach(config => {
+				if (config.autostart && cameras.some(cam => cam.id == config.cameraID)) {
+					StartCamera(config)
+				}
+			})
+
+			Camera.UpdateCameraSelector(select_camera)
+		});
+	})
+
+	select_camera.onchange = async () => {
 		if (select_camera.value == "") return
 
-		var camera = new Camera(select_camera.value)
-		div_cameras.appendChild(camera.createElement(() => {
-			camera.startWorker(window.location.protocol + "//" + window.location.hostname + ":" + port)
-			cameras.push(camera)
+		var configs = await GetConfigs();
+		var config = configs.find(config => config.cameraID == select_camera.value)
 
-			//setInterval(() => {
-			//	var context = camera.el_canvas.getContext("2d")
-			//	context.drawImage(camera.el_video, 0, 0, camera.el_canvas.width, camera.el_canvas.height)
-			//	console.log({ w: camera.el_canvas.width, h: camera.el_canvas.height })
+		if (config == undefined) {
+			config = DefaultConfig
+			config.id = configs.length
+			config.cameraName = select_camera.options[select_camera.selectedIndex].text
+			config.cameraID = select_camera.value
+			await PutConfig(config)
+		}
 
-			//	window.location.href = camera.el_canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
-			//}, 5000)
-		}))
+		StartCamera(config);
 
 		select_camera.value = ""
 		Camera.UpdateCameraSelector(select_camera)
@@ -65,3 +87,4 @@ async function AILoop() {
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
+

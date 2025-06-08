@@ -1,16 +1,12 @@
 import { GetFilteredPose, CreateDetector } from "./pose-detector-factory";
 import { PoseDetector } from '@tensorflow-models/pose-detection';
 import { IrisSocket_Key } from "./IrisWebClient_keys";
+import { sendPose, CameraConfig, sendStart } from "./net"
 
-export { }
-
-var url: string
+var config: CameraConfig
 var detector: PoseDetector
-var threshold: number
-var flip_horizontal: boolean
 var image: ImageData
 var delta: number = -1
-var socket: WebSocket
 
 self.onmessage = async function (ev: MessageEvent) {
 	try {
@@ -18,28 +14,17 @@ self.onmessage = async function (ev: MessageEvent) {
 
 		switch (data.key) {
 			case IrisSocket_Key.msg_config:
-				if (data.url != undefined) url = data.url
-				if (data.threshold != undefined) threshold = data.threshold
-				if (data.flip_horizontal != undefined) flip_horizontal = data.flip_horizontal
+				config = data.config
 				break;
 			case IrisSocket_Key.msg_image:
 				image = data.image
 				break;
 			case IrisSocket_Key.msg_start:
-				StartSocket(data.name)
+				sendStart(config.id)
 				CreateDetector().then(d => {
 					detector = d
 					AILoop()
 				})
-				break;
-			case IrisSocket_Key.msg_socket:
-				socket.send(data.message)
-				break;
-			case IrisSocket_Key.msg_requestParams:
-				data.key = IrisSocket_Key.CONFIG_POST
-				data.threshold = threshold
-				data.flip_horizontal = flip_horizontal
-				socket.send(JSON.stringify(data))
 				break;
 		}
 	} catch (e) {
@@ -64,15 +49,14 @@ self.onmessageerror = (ev: MessageEvent) => {
 }
 
 async function processPose() {
+	var pose = await GetFilteredPose(image, detector, config.confidenceThreshold, config.flip_horizontal);
 	var data = {
-		key: IrisSocket_Key.POSE,
+		key: IrisSocket_Key.msg_pose,
 		delta: avgDelta(delta),
-		pose: await GetFilteredPose(image, detector, threshold, flip_horizontal)
+		pose: pose
 	}
 	postMessage(data)
-	if (socket.readyState == WebSocket.OPEN) {
-		socket.send(JSON.stringify(data))
-	}
+	await sendPose(config.id, pose)
 }
 
 async function AILoop() {
@@ -90,69 +74,6 @@ async function AILoop() {
 		//}
 	}
 }
-
-function StartSocket(name: string) {
-	socket = new WebSocket(url)
-	socket.onopen = function (ev: Event) {
-		postMessage({
-			key: IrisSocket_Key.msg_socket_event,
-			func: "onopen",
-			event: {
-				type: ev.type,
-				timeStamp: ev.timeStamp
-			}
-		})
-
-		socket.send(JSON.stringify({
-			key: IrisSocket_Key.DECLARE,
-			name: name
-		}))
-	}
-	socket.onclose = function (ev: CloseEvent) {
-		postMessage({
-			key: IrisSocket_Key.msg_socket_event,
-			func: "onclose",
-			event: {
-				type: ev.type,
-				timeStamp: ev.timeStamp,
-				code: ev.code,
-				reason: ev.reason,
-				wasClean: ev.wasClean
-			}
-		})
-	}
-	socket.onerror = function (ev: Event) {
-		postMessage({
-			key: IrisSocket_Key.msg_socket_event,
-			func: "onerror",
-			event: {
-				type: ev.type,
-				timeStamp: ev.timeStamp
-			}
-		})
-	}
-
-	socket.onmessage = function (ev: MessageEvent) {
-		let data = JSON.parse(ev.data)
-
-		switch (data.key) {
-			case IrisSocket_Key.CONFIG_NOTFOUND:
-				postMessage({ key: IrisSocket_Key.msg_requestParams })
-				break;
-
-			case IrisSocket_Key.IMAGE:
-				postMessage(data)
-				break;
-
-
-			default:
-				postMessage(data)
-				break
-		}
-	}
-
-}
-
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));

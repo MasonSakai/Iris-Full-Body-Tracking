@@ -29,16 +29,11 @@
 	},
 	"windowConfigs": [
 		{
+			"cameraName": "Global Shutter Camera (9a53cc)",
+			"cameraID": "9a53ccd0a47220d10f006d748cd0e3d36cf43ca409174796fde767fe9da7ac13",
 			"autostart": false,
-			"cameraName": "Global Shutter Camera (32e4:0234)",
 			"confidenceThreshold": 0.3,
-			"cameraID": "0cba091d5fad572d6763ba16444bf7e54ee2c1ab757cd6ed94f4271cbd5a10b3"
-		},
-		{
-			"autostart": false,
-			"cameraName": "Global Shutter Camera (32e4:0234)",
-			"confidenceThreshold": 0.3,
-			"cameraID": "d557cba15309e7de8bcd6b79ea19461355d520df5a93038c70c16d9ee7b1d7e7"
+			"flip_horizontal": false
 		}
 	]
 }

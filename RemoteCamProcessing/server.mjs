@@ -1,7 +1,6 @@
 import { Console } from 'console';
 import http from 'http';
 import fs from 'fs';
-import { Server } from 'socket.io';
 import open, { apps } from 'open';
 
 let config = JSON.parse(fs.readFileSync("config.json"));
@@ -47,10 +46,7 @@ function serverGet(req, res) {
 			let data = {};
 			try {
 				data = JSON.parse(doc);
-				data = data.windowConfigs[connectedCount];
-				data.id = connectedCount;
 				data.status = "ok";
-				data.port = config.hostport
 			} catch (err) {
 				data = {
 					id: connectedCount,
@@ -83,33 +79,12 @@ function serverGet(req, res) {
 function serverPUT(req, res) {
 	var url = req.url;
 	try {
-		if (url == "/config.json") {
-			readRequest(req).then((body) => {
-				let data = JSON.parse(body);
-				let id = data.id;
-				try {
-					data.id = undefined;
-					data.status = undefined;
-					data.port = undefined;
-					config.windowConfigs[id] = data;
-					fs.writeFile("config.json", JSON.stringify(config, null, '\t'), (err) => {
-						if (err) {
-							console.log(err);
-							res.statusCode = 400;
-							res.setHeader('Content-Type', 'text/plain');
-							res.end(`error (is ID ${id} invalid?)`);
-						} else {
-							res.statusCode = 200;
-							res.end();
-						}
-					});
-				} catch (err) {
-					console.log(err);
-					res.statusCode = 400;
-					res.setHeader('Content-Type', 'text/plain');
-					res.end(`error (is ID ${id} invalid?)`);
-				}
-			});
+		if (url == "/connect" ||
+			url == "/poseData" ||
+			url == "/cameraSize" ||
+			url == "/start") {
+			res.statusCode = 200;
+			res.end();
 			return;
 		}
 
@@ -128,29 +103,6 @@ function serverPUT(req, res) {
 async function configHandler(req, res) {
 	var index = -1
 	switch (req.method) {
-		case 'GET':
-			var body = await readRequest(req)
-			if (body) index = parseInt(index)
-			var data = config.windowConfigs
-			if (index == -1) {
-				index = connectedCount
-				connectedCount++
-				if (connectedCount >= data.length) connectedCount = data.length - 1;
-				if (connectedCount < 0) connectedCount = 0;
-			}
-			if (index == -2) {
-				connectedCount = data.length
-			}
-			if (index < data.length) {
-				data = data[index]
-				data["status"] = "ok"
-				data["id"] = index
-				res.end(JSON.stringify(data))
-			}
-			else {
-
-			}
-			break;
 		case 'PUT':
 			var body = await readRequest(req)
 			var data = JSON.parse(body)
@@ -159,7 +111,6 @@ async function configHandler(req, res) {
 			try {
 				data.id = undefined;
 				data.status = undefined;
-				data.port = undefined;
 				config.windowConfigs[id] = data;
 				fs.writeFile("config.json", JSON.stringify(config, null, '\t'), (err) => {
 					if (err) {
@@ -203,77 +154,10 @@ const server = http.createServer((req, res) => {
 	}
 });
 
-const socketServer = new Server(server);
-
-function startBrowser() {
-	let args = {
-		app:
-		{
-			name: apps.browserPrivate,
-			arguments: ["--new-window", "/new-window"]
-		}
-	};
-	open(hostname + ":" + port, args);
-}
-
-function onBrowserInit(msg) {
-	if (openBrowsers) {
-		if (msg == "successful") {
-			console.log(`Successfully opened ${connectedCount} windows`)
-			if (connectedCount < config.windowConfigs.length) {
-				startBrowser();
-			} else {
-				console.log("Successfully opened all windows");
-				openBrowsers = false;
-				connectedCount = 0;
-			}
-		} else {
-			console.log("Stopping browser open, latest failed to initialize")
-		}
-	}
-}
-
-
-socketServer.on('connection', (socket) => {
-	console.log('a user connected');
-
-	socket.on('text message', (msg) => {
-		console.log("Got Text Message: " + msg);
-		socket.send("test");
-	});
-	socket.on('message', (msg) => {
-		console.log("Got Message: " + msg);
-	});
-
-	socket.on('disconnect', () => {
-		console.log('user disconnected');
-	});
-
-	socket.on('initialized', onBrowserInit);
-});
-
 server.listen(port, hostname, () => {
 	console.log(`Server running at http://${hostname}:${port}/`);
 });
 
-async function onClose() {
-	console.log('Closing');
-
-	socketServer.emit("closing");
-
-	process.exit();
-	return;
-
-}
-
-process.on('SIGHUP', onClose);
-process.on('SIGINT', onClose);
-process.on('SIGBREAK', onClose);
-
-if (openBrowsers) {
-	console.log("Starting browser");
-	startBrowser();
-}
 
 /*
  * Server Startup:

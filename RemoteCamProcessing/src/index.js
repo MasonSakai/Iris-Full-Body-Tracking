@@ -1,28 +1,47 @@
 import { setBackend } from "./pose-detector-factory";
 import { Camera } from "./camera-manager";
+import { PutConfig, GetConfigs, sendConnect, sendSize, DefaultConfig } from "./net";
 let span_fps = document.getElementById("fps");
 let div_cameras = document.getElementById("camera-display");
 let select_camera = document.getElementById("camera-select");
 let hidden_canvas = document.getElementById("hidden-canvas");
 let ctx_hidden_canvas = hidden_canvas.getContext("2d", { willReadFrequently: true });
 let cameras = [];
-var port = 2673;
-Camera.UpdateCameraSelector(select_camera);
+function StartCamera(config) {
+    var camera = new Camera(config);
+    div_cameras.appendChild(camera.createElement(async (camera) => {
+        await sendConnect(config.id);
+        await sendSize(config.id, camera.el_video);
+        camera.startWorker();
+        cameras.push(camera);
+    }));
+}
 setBackend().then(() => {
-    select_camera.onchange = () => {
+    Camera.UpdateCameraSelector(select_camera).then(cameras => {
+        GetConfigs().then(v => {
+            if (cameras == undefined)
+                return;
+            v.forEach(config => {
+                if (config.autostart && cameras.some(cam => cam.id == config.cameraID)) {
+                    StartCamera(config);
+                }
+            });
+            Camera.UpdateCameraSelector(select_camera);
+        });
+    });
+    select_camera.onchange = async () => {
         if (select_camera.value == "")
             return;
-        var camera = new Camera(select_camera.value);
-        div_cameras.appendChild(camera.createElement(() => {
-            camera.startWorker(window.location.protocol + "//" + window.location.hostname + ":" + port);
-            cameras.push(camera);
-            //setInterval(() => {
-            //	var context = camera.el_canvas.getContext("2d")
-            //	context.drawImage(camera.el_video, 0, 0, camera.el_canvas.width, camera.el_canvas.height)
-            //	console.log({ w: camera.el_canvas.width, h: camera.el_canvas.height })
-            //	window.location.href = camera.el_canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
-            //}, 5000)
-        }));
+        var configs = await GetConfigs();
+        var config = configs.find(config => config.cameraID == select_camera.value);
+        if (config == undefined) {
+            config = DefaultConfig;
+            config.id = configs.length;
+            config.cameraName = select_camera.options[select_camera.selectedIndex].text;
+            config.cameraID = select_camera.value;
+            await PutConfig(config);
+        }
+        StartCamera(config);
         select_camera.value = "";
         Camera.UpdateCameraSelector(select_camera);
     };

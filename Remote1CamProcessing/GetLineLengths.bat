@@ -1,1 +1,0 @@
-dir /s /b > out.txt

@@ -1,6 +1,7 @@
 import { IrisSocket_Key } from "./IrisWebClient_keys";
+import { CameraConfig } from "./net";
 
-type CameraData = { label: string, id: string }
+export type CameraData = { label: string, id: string }
 export class Camera {
 
 	el_div: HTMLDivElement
@@ -8,26 +9,23 @@ export class Camera {
 	el_video: HTMLVideoElement
 	div_label: HTMLDivElement
 	span_fps: HTMLSpanElement
-	deviceID: string
-	flip_horizontal: boolean = false
-	threshold: number = 0.3
+	config: CameraConfig
 	ai_worker: Worker
 	ctx: CanvasRenderingContext2D
-	send_frame: boolean = false
 
-	constructor(deviceID: string) {
-		this.deviceID = deviceID
+	constructor(config: CameraConfig) {
+		this.config = config
 	}
 
 	createElement(videoReadyCallback: (value: Camera) => void | PromiseLike<void> | undefined = undefined): HTMLDivElement {
 		this.el_div = document.createElement("div")
-		this.el_div.id = this.deviceID
+		this.el_div.id = this.config.cameraID
 		this.el_div.className = "camera-card"
 
 
 		this.div_label = document.createElement("div");
 		this.div_label.className = "camera-label"
-		Camera.GetCameraByID(this.deviceID).then(v =>
+		Camera.GetCameraByID(this.config.cameraID).then(v =>
 			this.div_label.innerText = v == undefined ? "ERROR GETTING NAME" : Camera.GetMixedName(v)
 		)
 		this.el_div.appendChild(this.div_label)
@@ -37,7 +35,7 @@ export class Camera {
 		div_camera.className = "camera-display"
 
 		this.el_video = document.createElement("video")
-		Camera.GetCameraStream(this.deviceID)
+		Camera.GetCameraStream(this.config.cameraID)
 			.then(stream => {
 				this.el_video.srcObject = stream
 				this.el_video.play()
@@ -59,6 +57,8 @@ export class Camera {
 		var div_controls = document.createElement("div")
 		div_controls.classList = "camera-controls"
 
+
+
 		this.span_fps = document.createElement("span")
 		this.span_fps.classList = "fps"
 		div_controls.appendChild(this.span_fps)
@@ -77,20 +77,10 @@ export class Camera {
 			key: IrisSocket_Key.msg_image,
 			image: ctx.getImageData(0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
 		})
-		if (this.send_frame) {
-			this.send_frame = false
-			this.ai_worker.postMessage({
-				key: IrisSocket_Key.msg_socket,
-				message: JSON.stringify({
-					key: IrisSocket_Key.IMAGE,
-					data: canvas.toDataURL()
-				})
-			})
-		}
 	}
 
 
-	startWorker(url: string) {
+	startWorker() {
 		if (typeof (Worker) === "undefined") {
 			console.log(`Camera worker ${ this.div_label.innerText } failed`)
 			return;
@@ -101,7 +91,7 @@ export class Camera {
 			var data = ev.data
 
 			switch (data.key) {
-				case IrisSocket_Key.POSE:
+				case IrisSocket_Key.msg_pose:
 
 					this.span_fps.innerText = `${Math.floor(1000 / data.delta)}fps (${data.delta.toFixed(1)}ms)`
 
@@ -124,28 +114,6 @@ export class Camera {
 					}
 					break;
 
-				case IrisSocket_Key.IMAGE:
-					this.send_frame = true
-					break;
-
-				case IrisSocket_Key.msg_requestParams:
-					Camera.GetCameraByID(this.deviceID).then(async v => {
-						data.name = this.div_label.innerText
-						data.camera_name = Camera.GetMixedName(v)
-
-						data.width = this.el_video.videoWidth;
-						data.height = this.el_video.videoHeight;
-
-						var stream = await Camera.GetCameraStream(this.deviceID)
-						if (stream) {
-							var settings = stream.getVideoTracks()[0].getSettings();
-							data.cam_width = settings.width
-							data.cam_height = settings.height
-						}
-
-						this.ai_worker.postMessage(data)
-					})
-					break;
 
 				case IrisSocket_Key.msg_debug:
 					console.log(`Camera worker ${this.div_label.innerText }`, data.message)
@@ -167,7 +135,7 @@ export class Camera {
 			console.log(`Camera worker ${ this.div_label.innerText } onmessageerror`, ev)
 		}
 
-		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, flip_horizontal: this.flip_horizontal, threshold: this.threshold, url: url })
+		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config })
 		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_start, name: this.div_label.innerText })
 	}
 
@@ -221,7 +189,7 @@ export class Camera {
 		});
 	}
 
-	static async UpdateCameraSelector(camSelect: HTMLSelectElement) {
+	static async UpdateCameraSelector(camSelect: HTMLSelectElement): Promise<CameraData[] | undefined> {
 		let cameras = await Camera.GetCameras()
 		if (cameras == undefined) return
 
@@ -230,6 +198,8 @@ export class Camera {
 		cameras.forEach((camera) => {
 			camSelect.innerHTML += `\n<option value=${camera.id}>${Camera.GetMixedName(camera)}</option>`
 		});
+
+		return cameras;
 	}
 
 	static GetMixedName(info: { label: string, id: string }): string {
