@@ -92,7 +92,7 @@ body {
 	height: 100%;
 	background-color: rgba(0,0,0,0.50);
 	display: flex;
-	align-content: center;
+	z-index: 6;
 }
 #Window_NewConfig > div {
 	margin: auto;

@@ -1,7 +1,6 @@
 import { config } from "process";
 import { IrisSocket_Key } from "./IrisWebClient_keys";
 import { CameraConfig, PutConfig, GetConfigs } from "./net";
-import { isNullOrUndefined } from "util";
 
 export type CameraData = { label: string, id: string }
 export class Camera {
