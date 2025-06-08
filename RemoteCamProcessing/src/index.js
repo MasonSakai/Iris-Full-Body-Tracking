@@ -26,7 +26,7 @@ setBackend().then(() => {
                     StartCamera(config);
                 }
             });
-            Camera.UpdateCameraSelector(select_camera);
+            Camera.UpdateCameraSelector(select_camera, v);
         });
     });
     select_camera.onchange = async () => {

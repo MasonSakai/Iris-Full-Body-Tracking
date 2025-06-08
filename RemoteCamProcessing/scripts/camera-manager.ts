@@ -1,5 +1,5 @@
 import { IrisSocket_Key } from "./IrisWebClient_keys";
-import { CameraConfig } from "./net";
+import { CameraConfig, PutConfig, GetConfigs } from "./net";
 
 export type CameraData = { label: string, id: string }
 export class Camera {
@@ -25,9 +25,7 @@ export class Camera {
 
 		this.div_label = document.createElement("div");
 		this.div_label.className = "camera-label"
-		Camera.GetCameraByID(this.config.cameraID).then(v =>
-			this.div_label.innerText = v == undefined ? "ERROR GETTING NAME" : Camera.GetMixedName(v)
-		)
+		this.div_label.innerText = this.config.cameraName
 		this.el_div.appendChild(this.div_label)
 
 
@@ -189,14 +187,20 @@ export class Camera {
 		});
 	}
 
-	static async UpdateCameraSelector(camSelect: HTMLSelectElement): Promise<CameraData[] | undefined> {
+	static async UpdateCameraSelector(camSelect: HTMLSelectElement, configs: CameraConfig[] | undefined = undefined): Promise<CameraData[] | undefined> {
 		let cameras = await Camera.GetCameras()
 		if (cameras == undefined) return
+
+		if (configs == undefined)
+			configs = await GetConfigs()
 
 		cameras = cameras.filter(v => document.getElementById(v.id) == undefined);
 		camSelect.innerHTML = `<option value="">Select camera</option>`
 		cameras.forEach((camera) => {
-			camSelect.innerHTML += `\n<option value=${camera.id}>${Camera.GetMixedName(camera)}</option>`
+			var name = Camera.GetMixedName(camera)
+			var config = configs.find(v => v.cameraID == camera.id)
+			if (config != undefined) name = config.cameraName
+			camSelect.innerHTML += `\n<option value=${camera.id}>${name}</option>`
 		});
 
 		return cameras;

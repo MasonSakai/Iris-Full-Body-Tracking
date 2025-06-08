@@ -34,7 +34,7 @@ setBackend().then(() => {
 				}
 			})
 
-			Camera.UpdateCameraSelector(select_camera)
+			Camera.UpdateCameraSelector(select_camera, v)
 		});
 	})
 
