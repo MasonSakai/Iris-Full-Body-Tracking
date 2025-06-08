@@ -1,4 +1,6 @@
 # VR-AI-Full-Body-Tracking
+## This is in the process of being rewritten, should have a driver version (no input emulator!) by the end of June
+
 An AI driven, camera based Full Body tracking solution for VR systems
 
 This is free, besides the cost of cameras, which are fairly cheap (you can use your phone, and naturally the computer's webcam)
