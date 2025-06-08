@@ -128,14 +128,16 @@ input:
 			cv::resize(frame, frame, { 640, 480 }, 0, 0, cv::INTER_LINEAR);
 			cv::imshow("Image Review", frame);
 
-			if (imagePoints.size() >= num) {
+			c = cv::pollKey();
+
+			if (c == ' ' || imagePoints.size() >= num) {
 				PrintCommands();
 				cout << endl << endl;
 				cout << "Number of recorded frames: " << imagePoints.size() << "/" << num << endl;
 				if (runCalibrationAndSave(calibData, imageSize, cameraMatrix, distCoeffs, imagePoints)) { break; }
 			}
 
-			if (cv::pollKey() == 27) {
+			if (c == 27) {
 
 				PrintCommands();
 				cout << endl << endl;
@@ -378,9 +380,19 @@ static bool runCalibrationAndSave(CalibrationData& calibData, Size imageSize, Ma
 	bool ok = runCalibration(imageSize, cameraMatrix, distCoeffs, imagePoints, rvecs, tvecs, reprojErrs,
 		totalAvgErr, newObjPoints);
 	cout << (ok ? COL("32") "Calibration succeeded." : COL("31") "Calibration failed.")
-		<< COLD " avg re projection error = " << totalAvgErr << endl;
+		<< COLD " avg re-projection error = " << totalAvgErr << endl;
 
-	if (ok)
-	    saveCameraParams(calibData, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, reprojErrs, totalAvgErr);
+	if (ok) {
+		if (calibData.valid) {
+			if (calibData.avg_reprojection_error < totalAvgErr)
+				cout << COL("33") "Warning: new error is larger than the existing (" << calibData.avg_reprojection_error << ")" COLD << endl;
+			else
+				cout << "Previous re-projection error: " << calibData.avg_reprojection_error << endl;
+		}
+		cout << "Overwrite (y/n)?" << endl;
+		if (cv::pollKey() != 'y')
+			return true;
+		saveCameraParams(calibData, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, reprojErrs, totalAvgErr);
+	}
 	return ok;
 }
