@@ -1,0 +1,68 @@
+body {
+	margin: 0px;
+	background-color: lightgrey;
+}
+
+.d-none {
+	display: none;
+}
+.flipX {
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+}
+
+#camera-display {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: stretch;
+}
+.camera-card {
+	width: fit-content;
+	margin: 10px auto 10px auto;
+	padding: 5px;
+	border-radius: 20px;
+	border: thin solid lightgrey;
+	background-color: darkgrey;
+	display: flex;
+    flex-direction: column;
+}
+
+.camera-label {
+	text-align: center;
+	font-size: larger;
+	font-weight: bolder;
+	font-style: italic;
+}
+
+.camera-display {
+	width: 640px;
+	display: flex;
+	background-color: lightgrey;
+	position: relative;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.camera-display video {
+	position: absolute;
+}
+.camera-display canvas {
+	z-index: 5;
+}
+.camera-display video, .camera-display canvas {
+	width: 100%;
+	height: 100%;
+}
+.camera-display, .camera-display > *{
+	border-radius: 5px;
+}
+.camera-controls {
+	margin-top: auto; 
+}
+
+#controls {
+	background-color: darkgrey;
+	padding: 10px 15px 10px 15px;
+	display: flex;
+	justify-content: center;
+}

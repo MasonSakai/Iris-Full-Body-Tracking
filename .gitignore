@@ -9,6 +9,10 @@
 *.user
 *.userosscache
 *.sln.docstates
+venv
+lib
+*/Iris_FBT/dist
+
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
