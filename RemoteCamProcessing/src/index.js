@@ -1,6 +1,7 @@
 import { setBackend } from "./pose-detector-factory";
 import { Camera } from "./camera-manager";
-import { PutConfig, GetConfigs, sendConnect, sendSize, DefaultConfig } from "./net";
+import { PutConfig, GetConfigs, sendConnect, sendSize } from "./net";
+import { Window_NewConfig } from "./Window_NewConfig";
 let span_fps = document.getElementById("fps");
 let div_cameras = document.getElementById("camera-display");
 let select_camera = document.getElementById("camera-select");
@@ -35,10 +36,12 @@ setBackend().then(() => {
         var configs = await GetConfigs();
         var config = configs.find(config => config.cameraID == select_camera.value);
         if (config == undefined) {
-            config = DefaultConfig;
-            config.id = configs.length;
-            config.cameraName = select_camera.options[select_camera.selectedIndex].text;
-            config.cameraID = select_camera.value;
+            config = await Window_NewConfig(select_camera.value, configs);
+            if (config == undefined) {
+                select_camera.value = "";
+                Camera.UpdateCameraSelector(select_camera);
+                return;
+            }
             await PutConfig(config);
         }
         StartCamera(config);

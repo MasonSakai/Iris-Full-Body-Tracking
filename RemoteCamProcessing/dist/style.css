@@ -4,7 +4,7 @@ body {
 }
 
 .d-none {
-	display: none;
+	display: none !important;
 }
 .flipX {
 	-webkit-transform: scaleX(-1);
@@ -34,6 +34,16 @@ body {
 	font-weight: bolder;
 	font-style: italic;
 }
+.camera-label img {
+	height: 15px;
+	margin-left: 5px;
+	padding: 4px;
+	vertical-align: bottom;
+}
+.camera-label img:hover, .camera-label img:focus {
+	background-color: lightgrey;
+	border-radius: 5px;
+}
 
 .camera-display {
 	width: 640px;
@@ -57,7 +67,15 @@ body {
 	border-radius: 5px;
 }
 .camera-controls {
-	margin-top: auto; 
+	margin-top: auto;
+	padding-left: 10px;
+}
+.camera-controls > * {
+	margin-left: 2.5px;
+	margin-right: 2.5px;
+}
+.camera-controls > * label[for] {
+	margin: 0 3px 3px 0;
 }
 
 #controls {
@@ -65,4 +83,23 @@ body {
 	padding: 10px 15px 10px 15px;
 	display: flex;
 	justify-content: center;
+}
+
+#Window_NewConfig {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.50);
+	display: flex;
+	align-content: center;
+}
+#Window_NewConfig > div {
+	margin: auto;
+	padding: 5px;
+	border-radius: 20px;
+	border: thin solid lightgrey;
+	background-color: darkgrey;
+	display: flex;
+    flex-direction: column;
 }

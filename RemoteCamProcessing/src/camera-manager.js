@@ -1,10 +1,9 @@
 import { IrisSocket_Key } from "./IrisWebClient_keys";
-import { GetConfigs } from "./net";
+import { PutConfig, GetConfigs } from "./net";
 export class Camera {
     el_div;
     el_canvas;
     el_video;
-    div_label;
     span_fps;
     config;
     ai_worker;
@@ -16,10 +15,26 @@ export class Camera {
         this.el_div = document.createElement("div");
         this.el_div.id = this.config.cameraID;
         this.el_div.className = "camera-card";
-        this.div_label = document.createElement("div");
-        this.div_label.className = "camera-label";
-        this.div_label.innerText = this.config.cameraName;
-        this.el_div.appendChild(this.div_label);
+        var div_label = document.createElement("div");
+        div_label.className = "camera-label";
+        var span_label = document.createElement("span");
+        span_label.innerText = this.config.cameraName;
+        div_label.appendChild(span_label);
+        var btn_label = document.createElement("img");
+        btn_label.src = "edit-solid.png";
+        btn_label.tabIndex = 0;
+        div_label.appendChild(btn_label);
+        btn_label.onclick = () => {
+            var name = prompt("Rename camera", this.config.cameraName);
+            if (name == null || name === "")
+                return;
+            if (name == this.config.cameraName)
+                return;
+            this.config.cameraName = name;
+            span_label.innerText = name;
+            PutConfig(this.config);
+        };
+        this.el_div.appendChild(div_label);
         var div_camera = document.createElement("div");
         div_camera.className = "camera-display";
         this.el_video = document.createElement("video");
@@ -41,6 +56,21 @@ export class Camera {
         this.el_div.appendChild(div_camera);
         var div_controls = document.createElement("div");
         div_controls.classList = "camera-controls";
+        var span_autostart = document.createElement("span");
+        var cxb_autostart = document.createElement("input");
+        cxb_autostart.type = "checkbox";
+        cxb_autostart.name = "autostart";
+        cxb_autostart.checked = this.config.autostart;
+        span_autostart.appendChild(cxb_autostart);
+        cxb_autostart.onchange = () => {
+            this.config.autostart = cxb_autostart.checked;
+            PutConfig(this.config);
+        };
+        var lbl_autostart = document.createElement("label");
+        lbl_autostart.htmlFor = "autostart";
+        lbl_autostart.innerText = "Auto-start";
+        span_autostart.appendChild(lbl_autostart);
+        div_controls.appendChild(span_autostart);
         this.span_fps = document.createElement("span");
         this.span_fps.classList = "fps";
         div_controls.appendChild(this.span_fps);
@@ -58,7 +88,7 @@ export class Camera {
     }
     startWorker() {
         if (typeof (Worker) === "undefined") {
-            console.log(`Camera worker ${this.div_label.innerText} failed`);
+            console.log(`Camera worker ${this.config.cameraName} failed`);
             return;
         }
         this.ai_worker = new Worker("CameraWorker.js", { type: "module" });
@@ -88,24 +118,24 @@ export class Camera {
                     }
                     break;
                 case IrisSocket_Key.msg_debug:
-                    console.log(`Camera worker ${this.div_label.innerText}`, data.message);
+                    console.log(`Camera worker ${this.config.cameraName}`, data.message);
                     break;
                 case IrisSocket_Key.msg_error:
-                    console.error(`Camera worker ${this.div_label.innerText} error`, data.error);
+                    console.error(`Camera worker ${this.config.cameraName} error`, data.error);
                     break;
                 default:
-                    console.log(`Camera worker ${this.div_label.innerText} - ${data.key}`, data);
+                    console.log(`Camera worker ${this.config.cameraName} - ${data.key}`, data);
                     break;
             }
         };
         this.ai_worker.onerror = (ev) => {
-            console.log(`Camera worker ${this.div_label.innerText} onerror`, ev);
+            console.log(`Camera worker ${this.config.cameraName} onerror`, ev);
         };
         this.ai_worker.onmessageerror = (ev) => {
-            console.log(`Camera worker ${this.div_label.innerText} onmessageerror`, ev);
+            console.log(`Camera worker ${this.config.cameraName} onmessageerror`, ev);
         };
         this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config });
-        this.ai_worker.postMessage({ key: IrisSocket_Key.msg_start, name: this.div_label.innerText });
+        this.ai_worker.postMessage({ key: IrisSocket_Key.msg_start, name: this.config.cameraName });
     }
     close() {
         this.ai_worker.terminate();

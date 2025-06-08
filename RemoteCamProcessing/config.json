@@ -31,14 +31,14 @@
 		{
 			"cameraName": "Bed Camera",
 			"cameraID": "9a53ccd0a47220d10f006d748cd0e3d36cf43ca409174796fde767fe9da7ac13",
-			"autostart": false,
+			"autostart": true,
 			"confidenceThreshold": 0.3,
 			"flip_horizontal": false
 		},
 		{
 			"cameraName": "Global Shutter Camera (b27f8c)",
 			"cameraID": "b27f8cce7c76472d42233b1e2c5760a7e37b67e7ebeb6ece813ff26c7ba84baa",
-			"autostart": true,
+			"autostart": false,
 			"confidenceThreshold": 0.3,
 			"flip_horizontal": false
 		}

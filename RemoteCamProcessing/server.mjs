@@ -14,7 +14,8 @@ const ContentTypes = {
 	"html": "text/html",
 	"js": "application/javascript",
 	"css": "text/css",
-	"json": "application/json"
+	"json": "application/json",
+	"png": "image/png"
 }
 
 async function readRequest(req) {
@@ -61,7 +62,7 @@ function serverGet(req, res) {
 
 		if (url == "/") url = "dist/index.html";
 		else url = "dist" + url;
-		var data = fs.readFileSync(url, 'utf8');
+		var data = fs.readFileSync(url);
 
 		var splits = url.split('.');
 		var contentType = ContentTypes[splits[splits.length - 1]];
