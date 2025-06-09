@@ -3,7 +3,7 @@ export const DefaultConfig = {
     cameraName: "",
     cameraID: "",
     autostart: false,
-    confidenceThreshold: 0.3,
+    confidenceThreshold: 0.15,
     flip_horizontal: false
 };
 export async function fetchAsync(port) {

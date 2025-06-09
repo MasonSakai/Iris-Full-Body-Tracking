@@ -14,18 +14,25 @@ var cbx_flipHorizontal = div_window.querySelector("input#wnc-flipHorizontal");
 export function Window_NewConfig(camID, configs) {
     return new Promise(async (resolve, reject) => {
         open(camID);
-        div_window.onclick = (ev) => {
-            if (ev.target != div_window)
-                return;
-            close();
-            resolve(undefined);
+        var downOn = false;
+        div_window.onmousedown = (ev) => {
+            downOn = ev.target == div_window;
+        };
+        div_window.onmouseup = (ev) => {
+            if (downOn) {
+                if (ev.target == div_window) {
+                    close();
+                    resolve(undefined);
+                }
+            }
+            downOn = false;
         };
         btn_cancel.onclick = () => {
             close();
             resolve(undefined);
         };
         var camData = await Camera.GetCameraByID(camID);
-        populateSelector(camData, configs, resolve);
+        await populateSelector(camData, configs, resolve);
         populateNew(camData);
         btn_new.onclick = () => {
             var config = DefaultConfig;
@@ -37,6 +44,9 @@ export function Window_NewConfig(camID, configs) {
             config.confidenceThreshold = num_thresh.valueAsNumber;
             close();
             resolve(config);
+        };
+        txt_name.oninput = () => {
+            btn_new.disabled = configs.some(c => c.cameraName == txt_name.value);
         };
     });
 }
@@ -56,10 +66,8 @@ function close() {
     div_window.onkeydown = undefined;
     select_config.onchange = undefined;
 }
-function populateSelector(camera, configs, resolve) {
-    while (select_config.firstChild) {
-        select_config.removeChild(select_config.lastChild);
-    }
+async function populateSelector(camera, configs, resolve) {
+    select_config.innerHTML = "";
     configs = configs.filter(v => document.body.querySelector(`.card[config-id="${v.id}"]`) == undefined);
     var noSelectors = configs == undefined || configs.length == 0;
     select_config_btn.classList.toggle("d-none", noSelectors);
@@ -67,21 +75,45 @@ function populateSelector(camera, configs, resolve) {
         return;
     var matches = findBestMatch(Camera.GetMixedName(camera), configs.map(conf => conf.cameraName)).ratings;
     matches.sort((a, b) => b.rating - a.rating);
-    matches = matches.map(rat => rat.target);
+    var cams = await Camera.GetCameras();
     var indexesUsed = [];
-    matches.forEach(name => {
-        var index = configs.findIndex((conf, ind) => conf.cameraName == name && !indexesUsed.includes(ind));
+    matches = matches.map(rat => {
+        var index = configs.findIndex((conf, ind) => conf.cameraName == rat.target && !indexesUsed.includes(ind));
         indexesUsed.push(index);
+        return {
+            config: configs[index],
+            hasID: cams.some(v => v.id == configs[index].cameraID)
+        };
+    });
+    var seenFound = false;
+    var passedFound = false;
+    matches
+        .sort((a, b) => {
+        var va = a.hasID ? 1 : 0;
+        var vb = b.hasID ? 1 : 0;
+        return va - vb;
+    })
+        .forEach((v) => {
+        if (!v.hasID) {
+            seenFound = true;
+        }
+        else if (seenFound && !passedFound) {
+            passedFound = true;
+            var li = document.createElement("li");
+            var hr = document.createElement("hr");
+            hr.className = "dropdown-divider";
+            li.appendChild(hr);
+            select_config.appendChild(li);
+        }
         var li = document.createElement("li");
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className = "dropdown-item";
-        btn.innerText = name;
+        btn.innerText = v.config.cameraName;
         btn.onclick = () => {
-            var config = configs[index];
-            config.cameraID = camera.id;
+            v.config.cameraID = camera.id;
             close();
-            resolve(config);
+            resolve(v.config);
         };
         li.appendChild(btn);
         select_config.appendChild(li);

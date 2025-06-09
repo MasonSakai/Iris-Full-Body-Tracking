@@ -5,7 +5,7 @@ import { Window_NewConfig } from "./Window_NewConfig";
 
 let span_fps = document.getElementById("fps")
 let div_cameras = document.getElementById("camera-display")
-let select_camera = document.getElementById("camera-select") as HTMLSelectElement
+let select_camera = document.getElementById("camera-select") as HTMLUListElement
 let hidden_canvas = document.getElementById("hidden-canvas") as HTMLCanvasElement
 let ctx_hidden_canvas = hidden_canvas.getContext("2d", { willReadFrequently: true })
 
@@ -24,6 +24,25 @@ function StartCamera(config: CameraConfig) {
 
 setBackend().then(() => {
 
+	Camera.CameraSelectorCallback = async (id: string) => {
+
+		var configs = await GetConfigs();
+		var config = configs.find(config => config.cameraID == id)
+
+		if (config == undefined) {
+			config = await Window_NewConfig(id, configs);
+			if (config == undefined) {
+				Camera.UpdateCameraSelector(select_camera)
+				return
+			}
+			await PutConfig(config)
+		}
+
+		StartCamera(config);
+
+		Camera.UpdateCameraSelector(select_camera)
+	}
+
 	Camera.UpdateCameraSelector(select_camera).then(cameras => {
 		GetConfigs().then(v => {
 			if (cameras == undefined) return;
@@ -38,27 +57,6 @@ setBackend().then(() => {
 		});
 	})
 
-	select_camera.onchange = async () => {
-		if (select_camera.value == "") return
-
-		var configs = await GetConfigs();
-		var config = configs.find(config => config.cameraID == select_camera.value)
-
-		if (config == undefined) {
-			config = await Window_NewConfig(select_camera.value, configs);
-			if (config == undefined) {
-				select_camera.value = ""
-				Camera.UpdateCameraSelector(select_camera)
-				return
-			}
-			await PutConfig(config)
-		}
-
-		StartCamera(config);
-
-		select_camera.value = ""
-		Camera.UpdateCameraSelector(select_camera)
-	}
 	AILoop()
 })
 

@@ -23,7 +23,7 @@ export class Camera {
         span_label.innerText = this.config.cameraName;
         div_label.appendChild(span_label);
         var btn_label = document.createElement("button");
-        btn_label.className = "btn btn-dark";
+        btn_label.className = "btn btn-outline-secondary";
         btn_label.type = "button";
         btn_label.innerHTML = "<i class=\"bi bi-pencil-square\"></i>";
         div_label.appendChild(btn_label);
@@ -87,6 +87,10 @@ export class Camera {
         range_threshold.step = "0.01";
         range_threshold.valueAsNumber = this.config.confidenceThreshold;
         range_threshold.setAttribute("list", "threshold-ticks");
+        range_threshold.oninput = () => {
+            this.config.confidenceThreshold = range_threshold.valueAsNumber;
+            this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config });
+        };
         range_threshold.onchange = () => {
             this.config.confidenceThreshold = range_threshold.valueAsNumber;
             this.updateConfig();
@@ -218,13 +222,16 @@ export class Camera {
             };
         });
     }
+    static CameraSelectorCallback = undefined;
     static async UpdateCameraSelector(camSelect, configs = undefined) {
         let cameras = await Camera.GetCameras();
         if (cameras == undefined)
             return;
         if (configs == undefined)
             configs = await GetConfigs();
-        camSelect.innerHTML = `<option value="">Select camera</option>`;
+        var passedConfigs = false;
+        var seenConfigs = false;
+        camSelect.innerHTML = "";
         cameras
             .filter(v => document.body.querySelector(`.card[camera-id="${v.id}"]`) == undefined)
             .sort((a, b) => {
@@ -235,9 +242,29 @@ export class Camera {
             .forEach((camera) => {
             var name = Camera.GetMixedName(camera);
             var config = configs.find(v => v.cameraID == camera.id);
-            if (config != undefined)
+            if (config != undefined) {
                 name = config.cameraName;
-            camSelect.innerHTML += `\n<option value=${camera.id}>${name}</option>`;
+                seenConfigs = true;
+            }
+            else if (seenConfigs && !passedConfigs) {
+                passedConfigs = true;
+                var li = document.createElement("li");
+                var hr = document.createElement("hr");
+                hr.className = "dropdown-divider";
+                li.appendChild(hr);
+                camSelect.appendChild(li);
+            }
+            var li = document.createElement("li");
+            var btn = document.createElement("button");
+            btn.className = "dropdown-item";
+            btn.type = "button";
+            btn.innerText = name;
+            btn.onclick = () => {
+                if (this.CameraSelectorCallback)
+                    this.CameraSelectorCallback(camera.id);
+            };
+            li.appendChild(btn);
+            camSelect.appendChild(li);
         });
         return cameras;
     }

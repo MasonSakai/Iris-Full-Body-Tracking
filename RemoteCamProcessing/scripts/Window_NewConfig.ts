@@ -21,10 +21,18 @@ export function Window_NewConfig(camID: string, configs: CameraConfig[]): Promis
 
 		open(camID)
 
-		div_window.onclick = (ev: MouseEvent) => {
-			if (ev.target != div_window) return
-			close()
-			resolve(undefined)
+		var downOn = false
+		div_window.onmousedown = (ev: MouseEvent) => {
+			downOn = ev.target == div_window
+		}
+		div_window.onmouseup = (ev: MouseEvent) => {
+			if (downOn) {
+				if (ev.target == div_window) {
+					close()
+					resolve(undefined)
+				}
+			}
+			downOn = false;
 		}
 		btn_cancel.onclick = () => {
 			close()
@@ -33,7 +41,7 @@ export function Window_NewConfig(camID: string, configs: CameraConfig[]): Promis
 
 		var camData = await Camera.GetCameraByID(camID)
 
-		populateSelector(camData, configs, resolve)
+		await populateSelector(camData, configs, resolve)
 
 		populateNew(camData)
 		btn_new.onclick = () => {
@@ -47,6 +55,9 @@ export function Window_NewConfig(camID: string, configs: CameraConfig[]): Promis
 
 			close()
 			resolve(config)
+		}
+		txt_name.oninput = () => {
+			btn_new.disabled = configs.some(c => c.cameraName == txt_name.value)
 		}
 	})
 }
@@ -73,10 +84,8 @@ function close() {
 	select_config.onchange = undefined
 }
 
-function populateSelector(camera: CameraData, configs: CameraConfig[], resolve) {
-	while (select_config.firstChild) {
-		select_config.removeChild(select_config.lastChild)
-	}
+async function populateSelector(camera: CameraData, configs: CameraConfig[], resolve) {
+	select_config.innerHTML = ""
 
 	configs = configs.filter(v => document.body.querySelector(`.card[config-id="${v.id}"]`) == undefined)
 
@@ -84,31 +93,56 @@ function populateSelector(camera: CameraData, configs: CameraConfig[], resolve) 
 	select_config_btn.classList.toggle("d-none", noSelectors)
 	if (noSelectors) return
 
-
 	var matches = findBestMatch(Camera.GetMixedName(camera), configs.map(conf => conf.cameraName)).ratings
 
 	matches.sort((a, b) => b.rating - a.rating)
-	matches = matches.map(rat => rat.target)
 
+	var cams = await Camera.GetCameras()
 	var indexesUsed = []
-	matches.forEach(name => {
-		var index = configs.findIndex((conf, ind) => conf.cameraName == name && !indexesUsed.includes(ind))
+	matches = matches.map(rat => {
+		var index = configs.findIndex((conf, ind) => conf.cameraName == rat.target && !indexesUsed.includes(ind))
 		indexesUsed.push(index)
 
-		var li = document.createElement("li")
-		var btn = document.createElement("button")
-		btn.type = "button"
-		btn.className = "dropdown-item"
-		btn.innerText = name
-		btn.onclick = () => {
-			var config = configs[index]
-			config.cameraID = camera.id
-			close()
-			resolve(config)
+		return {
+			config: configs[index],
+			hasID: cams.some(v => v.id == configs[index].cameraID)
 		}
-		li.appendChild(btn)
-		select_config.appendChild(li)
-	})
+	}) as { config: CameraConfig, hasID: Boolean }[]
+
+	var seenFound = false
+	var passedFound = false
+	matches
+		.sort((a: { config: CameraConfig, hasID: Boolean }, b: { config: CameraConfig, hasID: Boolean }) => {
+			var va = a.hasID ? 1 : 0
+			var vb = b.hasID ? 1 : 0
+			return va - vb;
+		})
+		.forEach((v: { config: CameraConfig, hasID: Boolean }) => {
+			if (!v.hasID) {
+				seenFound = true
+			}
+			else if (seenFound && !passedFound) {
+				passedFound = true
+				var li = document.createElement("li")
+				var hr = document.createElement("hr")
+				hr.className = "dropdown-divider"
+				li.appendChild(hr)
+				select_config.appendChild(li)
+			}
+
+			var li = document.createElement("li")
+			var btn = document.createElement("button")
+			btn.type = "button"
+			btn.className = "dropdown-item"
+			btn.innerText = v.config.cameraName
+			btn.onclick = () => {
+				v.config.cameraID = camera.id
+				close()
+				resolve(v.config)
+			}
+			li.appendChild(btn)
+			select_config.appendChild(li)
+		})
 }
 
 function populateNew(camera: CameraData) {

@@ -17,7 +17,12 @@
 			</button>
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-					<select id="camera-select"></select>
+					<li class="nav-item dropdown">
+						<button class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+							Select Camera
+						</button>
+						<ul class="dropdown-menu" id="camera-select" data-bs-theme="dark"></ul>
+					</li>
 				</ul>
 				<span id="fps" style="width: 80px; text-align: center;">-1</span>
 			</div>
@@ -71,6 +76,7 @@
 		</div>
 	</div>
 	<datalist id="threshold-ticks">
+		<option>0.15</option>
 		<option>0.3</option>
 	</datalist>
 	

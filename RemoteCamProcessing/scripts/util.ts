@@ -13,7 +13,7 @@ export const DefaultConfig: CameraConfig = {
 	cameraName: "",
 	cameraID: "",
 	autostart: false,
-	confidenceThreshold: 0.3,
+	confidenceThreshold: 0.15,
 	flip_horizontal: false
 };
 

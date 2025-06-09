@@ -18,6 +18,20 @@ function StartCamera(config) {
     }));
 }
 setBackend().then(() => {
+    Camera.CameraSelectorCallback = async (id) => {
+        var configs = await GetConfigs();
+        var config = configs.find(config => config.cameraID == id);
+        if (config == undefined) {
+            config = await Window_NewConfig(id, configs);
+            if (config == undefined) {
+                Camera.UpdateCameraSelector(select_camera);
+                return;
+            }
+            await PutConfig(config);
+        }
+        StartCamera(config);
+        Camera.UpdateCameraSelector(select_camera);
+    };
     Camera.UpdateCameraSelector(select_camera).then(cameras => {
         GetConfigs().then(v => {
             if (cameras == undefined)
@@ -30,24 +44,6 @@ setBackend().then(() => {
             Camera.UpdateCameraSelector(select_camera, v);
         });
     });
-    select_camera.onchange = async () => {
-        if (select_camera.value == "")
-            return;
-        var configs = await GetConfigs();
-        var config = configs.find(config => config.cameraID == select_camera.value);
-        if (config == undefined) {
-            config = await Window_NewConfig(select_camera.value, configs);
-            if (config == undefined) {
-                select_camera.value = "";
-                Camera.UpdateCameraSelector(select_camera);
-                return;
-            }
-            await PutConfig(config);
-        }
-        StartCamera(config);
-        select_camera.value = "";
-        Camera.UpdateCameraSelector(select_camera);
-    };
     AILoop();
 });
 window.onclose = () => {
