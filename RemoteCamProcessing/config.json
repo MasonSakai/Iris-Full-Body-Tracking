@@ -30,14 +30,14 @@
 	"windowConfigs": [
 		{
 			"cameraName": "Bed Camera",
-			"cameraID": "9a53ccd0a47220d10f006d748cd0e3d36cf43ca409174796fde767fe9da7ac13",
+			"cameraID": "5e6b25fc581a80f9965eea71848d65118f0fe8616b0d612d43fdcc03c43a9b9b",
 			"autostart": true,
 			"confidenceThreshold": 0.3,
 			"flip_horizontal": false
 		},
 		{
-			"cameraName": "Global Shutter Camera (b27f8c)",
-			"cameraID": "b27f8cce7c76472d42233b1e2c5760a7e37b67e7ebeb6ece813ff26c7ba84baa",
+			"cameraName": "Desk Camera",
+			"cameraID": "867b7e7d2eacc21cc6fb599ba882b1a391f068b5430dd9a9a001235a5e11638d",
 			"autostart": false,
 			"confidenceThreshold": 0.3,
 			"flip_horizontal": false

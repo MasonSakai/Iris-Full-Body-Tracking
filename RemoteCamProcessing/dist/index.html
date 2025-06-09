@@ -1,47 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
 	<meta charset="utf-8">
 	<title>Remote Camera Process | Iris FBT</title>
 	<link rel="stylesheet" href="style.css">
-	
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
 </head>
 <body>
-	<div id="controls">
-		<span id="fps" style="width: 80px; text-align: center;">-1</span>
-		<select id="camera-select"></select>
-	</div>
-	<div id="camera-display">
-		
-	</div>
+	<nav class="navbar navbar-expand-lg bg-body-tertiary">
+		<div class="container-fluid">
+			<a class="navbar-brand" href="https://github.com/MasonSakai/Iris-Full-Body-Tracking" target="_blank">Iris FBT</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+				<!-- Add core config and calibration(?)-->
+			</button>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+					<select id="camera-select"></select>
+				</ul>
+				<span id="fps" style="width: 80px; text-align: center;">-1</span>
+			</div>
+		</div>
+	</nav>
+	<div id="camera-display"></div>
 	<canvas id="hidden-canvas" class="d-none"></canvas>
 	
 	<div id="Window_NewConfig" class="d-none">
-		<div>
-			<div class="camera-label">Configure Camera</div>
-			<video class="camera-display"></video>
-			<div class="camera-controls">
-				<div>
-					<button id="wnc-new">Create New Config</button>
-					<select id="wnc-ex"></select>
-					<button id="wnc-cancel">Cancel</button>
+		<div class="card camera-card">
+			<h4 class="card-header">Configure Camera</h4>
+			<div class="card-body">
+				<video></video>
+			</div>
+			<div class="card-footer container-fluid">
+				<div class="row">
+					<button id="wnc-new" class="col-md-auto btn btn-primary">Create New Config</button>
+					<i class="p-1 col-md"></i>
+					<button class="col-md-auto btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+						Select Existing Configuration
+					</button>
+					<ul class="dropdown-menu col-md-auto" id="wnc-ex" data-bs-theme="dark"></ul>
+					<i class="p-1 col-md-auto"></i>
+					<button id="wnc-cancel" class="col-md-auto btn btn-danger">Cancel</button>
 				</div>
-				<div>
-					<input type="text" id="wnc-name">
-					<div>
-						<label>Auto-start</label><input type="checkbox" id="wnc-autostart">
-						<br>
-						<label>Flip Horizontal</label><input type="checkbox" id="wnc-flipHorizontal">
+				<div class="row mt-3">
+					<div class="col-md">
+						<label class="form-label" for="wnc-name">Name</label>
+						<input type="text" id="wnc-name" class="form-control">
 					</div>
-					<div><label>Threshold</label><input type="range" min="0" max="1"  step="0.01" list="ticks" id="wnc-threshold"></div>
-					<datalist id="ticks">
-						<option>0.3</option>
-					</datalist>
+					<div class="col-md-auto">
+						<div class="form-check">
+						  <input class="form-check-input" type="checkbox" value="" id="wnc-autostart">
+							<label class="form-check-label" for="wnc-autostart">
+								Auto-start
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" value="" id="wnc-flipHorizontal">
+							<label class="form-check-label" for="wnc-flipHorizontal">
+								Flip Horizontal
+							</label>
+						</div>
+					</div>
+					<div class="col-md-auto">
+						<label class="form-label" for="wnc-threshold">Threshold</label>
+						<input type="range" min="0" max="1"  step="0.01" list="threshold-ticks" id="wnc-threshold"  class="form-range">
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	<datalist id="threshold-ticks">
+		<option>0.3</option>
+	</datalist>
 	
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 	<script src="main.js"></script>
 </body>
 </html>

@@ -1,1 +1,1 @@
-{"root":["../scripts/cameraworker.ts","../scripts/iriswebclient_keys.js","../scripts/window_newconfig.ts","../scripts/camera-manager.ts","../scripts/index.ts","../scripts/net.ts","../scripts/pose-detector-factory.ts"],"version":"5.8.3"}
+{"root":["../scripts/cameraworker.ts","../scripts/iriswebclient_keys.js","../scripts/window_newconfig.ts","../scripts/camera-manager.ts","../scripts/index.ts","../scripts/pose-detector-factory.ts","../scripts/util.ts"],"version":"5.8.3"}

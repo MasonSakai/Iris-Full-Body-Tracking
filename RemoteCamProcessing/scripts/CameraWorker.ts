@@ -1,7 +1,7 @@
 import { GetFilteredPose, CreateDetector } from "./pose-detector-factory";
 import { PoseDetector } from '@tensorflow-models/pose-detection';
 import { IrisSocket_Key } from "./IrisWebClient_keys";
-import { sendPose, CameraConfig, sendStart } from "./net"
+import { sendPose, CameraConfig, sendStart } from "./util"
 
 var config: CameraConfig
 var detector: PoseDetector

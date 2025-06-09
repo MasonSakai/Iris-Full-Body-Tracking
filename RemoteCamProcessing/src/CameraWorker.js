@@ -1,6 +1,6 @@
 import { GetFilteredPose, CreateDetector } from "./pose-detector-factory";
 import { IrisSocket_Key } from "./IrisWebClient_keys";
-import { sendPose, sendStart } from "./net";
+import { sendPose, sendStart } from "./util";
 var config;
 var detector;
 var image;

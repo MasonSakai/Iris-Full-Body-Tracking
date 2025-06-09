@@ -1,7 +1,7 @@
 import { IrisSocket_Key } from "./IrisWebClient_keys";
-import { PutConfig, GetConfigs } from "./net";
+import { PutConfig, GetConfigs, CreateCheckbox, CreateRange } from "./util";
 export class Camera {
-    el_div;
+    el_card;
     el_canvas;
     el_video;
     span_fps;
@@ -12,17 +12,20 @@ export class Camera {
         this.config = config;
     }
     createElement(videoReadyCallback = undefined) {
-        this.el_div = document.createElement("div");
-        this.el_div.id = this.config.cameraID;
-        this.el_div.className = "camera-card";
+        this.el_card = document.createElement("div");
+        this.el_card.setAttribute("config-id", this.config.id.toString());
+        this.el_card.setAttribute("camera-id", this.config.cameraID);
+        this.el_card.className = "card bg-body-secondary border border-secondary-subtle";
         var div_label = document.createElement("div");
-        div_label.className = "camera-label";
+        div_label.className = "card-header input-group";
         var span_label = document.createElement("span");
+        span_label.className = "input-group-text";
         span_label.innerText = this.config.cameraName;
         div_label.appendChild(span_label);
-        var btn_label = document.createElement("img");
-        btn_label.src = "edit-solid.png";
-        btn_label.tabIndex = 0;
+        var btn_label = document.createElement("button");
+        btn_label.className = "btn btn-dark";
+        btn_label.type = "button";
+        btn_label.innerHTML = "<i class=\"bi bi-pencil-square\"></i>";
         div_label.appendChild(btn_label);
         btn_label.onclick = () => {
             var name = prompt("Rename camera", this.config.cameraName);
@@ -32,11 +35,12 @@ export class Camera {
                 return;
             this.config.cameraName = name;
             span_label.innerText = name;
-            PutConfig(this.config);
+            this.updateConfig();
         };
-        this.el_div.appendChild(div_label);
+        this.el_card.appendChild(div_label);
+        var div_body = document.createElement("div");
+        div_body.className = "card-body";
         var div_camera = document.createElement("div");
-        div_camera.className = "camera-display";
         this.el_video = document.createElement("video");
         Camera.GetCameraStream(this.config.cameraID)
             .then(stream => {
@@ -53,29 +57,52 @@ export class Camera {
         this.el_canvas = document.createElement("canvas");
         this.ctx = this.el_canvas.getContext("2d");
         div_camera.appendChild(this.el_canvas);
-        this.el_div.appendChild(div_camera);
+        div_body.appendChild(div_camera);
+        this.el_card.appendChild(div_body);
+        var div_footer = document.createElement("div");
+        div_footer.classList = "card-footer container-fluid";
         var div_controls = document.createElement("div");
-        div_controls.classList = "camera-controls";
-        var span_autostart = document.createElement("span");
-        var cxb_autostart = document.createElement("input");
-        cxb_autostart.type = "checkbox";
-        cxb_autostart.name = "autostart";
-        cxb_autostart.checked = this.config.autostart;
-        span_autostart.appendChild(cxb_autostart);
-        cxb_autostart.onchange = () => {
-            this.config.autostart = cxb_autostart.checked;
-            PutConfig(this.config);
+        div_controls.classList = "row";
+        var [div_autostart, cbx_autostart] = CreateCheckbox(this.config.id + "-autostart", "Auto-start");
+        div_autostart.classList.add("col-auto");
+        cbx_autostart.checked = this.config.autostart;
+        cbx_autostart.onchange = () => {
+            this.config.autostart = cbx_autostart.checked;
+            this.updateConfig();
         };
-        var lbl_autostart = document.createElement("label");
-        lbl_autostart.htmlFor = "autostart";
-        lbl_autostart.innerText = "Auto-start";
-        span_autostart.appendChild(lbl_autostart);
-        div_controls.appendChild(span_autostart);
-        this.span_fps = document.createElement("span");
-        this.span_fps.classList = "fps";
+        div_controls.appendChild(div_autostart);
+        var [div_flipHorizontal, cbx_flipHorizontal] = CreateCheckbox(this.config.id + "-flipHorizontal", "Flip Horizontal");
+        div_flipHorizontal.classList.add("col-auto");
+        cbx_flipHorizontal.checked = this.config.flip_horizontal;
+        cbx_flipHorizontal.onchange = () => {
+            this.config.flip_horizontal = cbx_flipHorizontal.checked;
+            this.updateConfig();
+        };
+        div_controls.appendChild(div_flipHorizontal);
+        var [lbl_threshold, range_threshold] = CreateRange(this.config.id + "-threshold", "Threshold");
+        lbl_threshold.classList.add("col-auto");
+        range_threshold.classList.add("col");
+        range_threshold.min = "0";
+        range_threshold.max = "1";
+        range_threshold.step = "0.01";
+        range_threshold.valueAsNumber = this.config.confidenceThreshold;
+        range_threshold.setAttribute("list", "threshold-ticks");
+        range_threshold.onchange = () => {
+            this.config.confidenceThreshold = range_threshold.valueAsNumber;
+            this.updateConfig();
+        };
+        div_controls.appendChild(lbl_threshold);
+        div_controls.appendChild(range_threshold);
+        var div_spacer = document.createElement("div");
+        div_spacer.className = "col-auto";
+        div_controls.appendChild(div_spacer);
+        this.span_fps = document.createElement("div");
+        this.span_fps.classList = "col-auto text-body-secondary fps";
+        this.span_fps.innerText = "Starting...";
         div_controls.appendChild(this.span_fps);
-        this.el_div.appendChild(div_controls);
-        return this.el_div;
+        div_footer.appendChild(div_controls);
+        this.el_card.appendChild(div_footer);
+        return this.el_card;
     }
     processImage(canvas, ctx) {
         canvas.width = this.el_video.videoWidth;
@@ -85,6 +112,10 @@ export class Camera {
             key: IrisSocket_Key.msg_image,
             image: ctx.getImageData(0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
         });
+    }
+    updateConfig() {
+        this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config });
+        PutConfig(this.config);
     }
     startWorker() {
         if (typeof (Worker) === "undefined") {
@@ -135,7 +166,7 @@ export class Camera {
             console.log(`Camera worker ${this.config.cameraName} onmessageerror`, ev);
         };
         this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config });
-        this.ai_worker.postMessage({ key: IrisSocket_Key.msg_start, name: this.config.cameraName });
+        this.ai_worker.postMessage({ key: IrisSocket_Key.msg_start });
     }
     close() {
         this.ai_worker.terminate();
@@ -193,9 +224,15 @@ export class Camera {
             return;
         if (configs == undefined)
             configs = await GetConfigs();
-        cameras = cameras.filter(v => document.getElementById(v.id) == undefined);
         camSelect.innerHTML = `<option value="">Select camera</option>`;
-        cameras.forEach((camera) => {
+        cameras
+            .filter(v => document.body.querySelector(`.card[camera-id="${v.id}"]`) == undefined)
+            .sort((a, b) => {
+            var va = configs.find(v => v.cameraID == a.id) != undefined ? 1 : 0;
+            var vb = configs.find(v => v.cameraID == b.id) != undefined ? 1 : 0;
+            return vb - va;
+        })
+            .forEach((camera) => {
             var name = Camera.GetMixedName(camera);
             var config = configs.find(v => v.cameraID == camera.id);
             if (config != undefined)

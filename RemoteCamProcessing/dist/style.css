@@ -1,11 +1,3 @@
-body {
-	margin: 0px;
-	background-color: lightgrey;
-}
-
-.d-none {
-	display: none !important;
-}
 .flipX {
 	-webkit-transform: scaleX(-1);
 	transform: scaleX(-1);
@@ -17,72 +9,42 @@ body {
 	flex-wrap: wrap;
 	align-items: stretch;
 }
-.camera-card {
-	width: fit-content;
+.card {
 	margin: 10px auto 10px auto;
-	padding: 5px;
 	border-radius: 20px;
-	border: thin solid lightgrey;
-	background-color: darkgrey;
+}
+
+.card-header {
 	display: flex;
-    flex-direction: column;
+	justify-content: center;
 }
 
-.camera-label {
-	text-align: center;
-	font-size: larger;
-	font-weight: bolder;
-	font-style: italic;
-}
-.camera-label img {
-	height: 15px;
-	margin-left: 5px;
-	padding: 4px;
-	vertical-align: bottom;
-}
-.camera-label img:hover, .camera-label img:focus {
-	background-color: lightgrey;
-	border-radius: 5px;
-}
-
-.camera-display {
+.card-body > * {
 	width: 640px;
 	display: flex;
 	background-color: lightgrey;
 	position: relative;
-	margin-top: 10px;
-	margin-bottom: 10px;
 }
-.camera-display video {
+.card-body > div > video {
 	position: absolute;
 }
-.camera-display canvas {
+.card-body > div > canvas {
 	z-index: 5;
 }
-.camera-display video, .camera-display canvas {
+.card-body video, .card-body canvas {
 	width: 100%;
 	height: 100%;
 }
-.camera-display, .camera-display > *{
+.card-body, .card-body > *{
 	border-radius: 5px;
 }
-.camera-controls {
-	margin-top: auto;
-	padding-left: 10px;
+.fps {
+	min-width: 105px !important;
 }
-.camera-controls > * {
-	margin-left: 2.5px;
-	margin-right: 2.5px;
-}
-.camera-controls > * label[for] {
-	margin: 0 3px 3px 0;
-}
-
-#controls {
-	background-color: darkgrey;
-	padding: 10px 15px 10px 15px;
-	display: flex;
-	justify-content: center;
+.card input.form-range {
+	-webkit-appearance: revert-layer;
+    -moz-appearance: revert-layer;
+    appearance: revert-layer;
 }
 
 #Window_NewConfig {
@@ -96,10 +58,4 @@ body {
 }
 #Window_NewConfig > div {
 	margin: auto;
-	padding: 5px;
-	border-radius: 20px;
-	border: thin solid lightgrey;
-	background-color: darkgrey;
-	display: flex;
-    flex-direction: column;
 }

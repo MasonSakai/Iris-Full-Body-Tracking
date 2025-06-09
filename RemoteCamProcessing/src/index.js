@@ -1,6 +1,6 @@
 import { setBackend } from "./pose-detector-factory";
 import { Camera } from "./camera-manager";
-import { PutConfig, GetConfigs, sendConnect, sendSize } from "./net";
+import { PutConfig, GetConfigs, sendConnect, sendSize } from "./util";
 import { Window_NewConfig } from "./Window_NewConfig";
 let span_fps = document.getElementById("fps");
 let div_cameras = document.getElementById("camera-display");
