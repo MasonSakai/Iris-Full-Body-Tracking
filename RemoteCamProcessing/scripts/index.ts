@@ -1,40 +1,61 @@
 import { setBackend } from "./pose-detector-factory";
 import { Camera } from "./camera-manager";
-
+import { CameraConfig, GetConfigs, NewConfig } from "./util";
+import { Window_NewConfig } from "./Window_NewConfig";
 
 let span_fps = document.getElementById("fps")
 let div_cameras = document.getElementById("camera-display")
-let select_camera = document.getElementById("camera-select") as HTMLSelectElement
+let select_camera = document.getElementById("camera-select") as HTMLUListElement
 let hidden_canvas = document.getElementById("hidden-canvas") as HTMLCanvasElement
 let ctx_hidden_canvas = hidden_canvas.getContext("2d", { willReadFrequently: true })
 
+var port = 2673 //Flask-SocketIO removes port need in the future
+
 let cameras = []
+function StartCamera(config: CameraConfig) {
+	var camera = new Camera(config)
+	div_cameras.appendChild(camera.createElement((camera: Camera) => {
 
-var port = 2673
-
-Camera.UpdateCameraSelector(select_camera)
+		camera.startWorker(window.location.protocol + "//" + window.location.hostname + ":" + port)
+		cameras.push(camera)
+	}))
+}
 
 setBackend().then(() => {
-	select_camera.onchange = () => {
-		if (select_camera.value == "") return
 
-		var camera = new Camera(select_camera.value)
-		div_cameras.appendChild(camera.createElement(() => {
-			camera.startWorker(window.location.protocol + "//" + window.location.hostname + ":" + port)
-			cameras.push(camera)
+	Camera.CameraSelectorCallback = async (id: string) => {
 
-			//setInterval(() => {
-			//	var context = camera.el_canvas.getContext("2d")
-			//	context.drawImage(camera.el_video, 0, 0, camera.el_canvas.width, camera.el_canvas.height)
-			//	console.log({ w: camera.el_canvas.width, h: camera.el_canvas.height })
+		var configs = await GetConfigs();
+		var config = configs.find(config => config.cameraID == id)
 
-			//	window.location.href = camera.el_canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
-			//}, 5000)
-		}))
+		if (config == undefined) {
+			config = await Window_NewConfig(id, configs);
+			if (config == undefined) {
+				Camera.UpdateCameraSelector(select_camera)
+				return
+			}
+			config = await NewConfig(config)
+		}
 
-		select_camera.value = ""
+		StartCamera(config);
+
 		Camera.UpdateCameraSelector(select_camera)
 	}
+
+	Camera.UpdateCameraSelector(select_camera).then(cameras => {
+		GetConfigs().then(v => {
+			if (cameras == undefined) return;
+
+			v.forEach(config => {
+				if (config.autostart && cameras.some(cam => cam.id == config.cameraID)) {
+					StartCamera(config)
+				}
+			})
+
+			Camera.UpdateCameraSelector(select_camera, v)
+		});
+	})
+
 	AILoop()
 })
 

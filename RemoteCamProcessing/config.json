@@ -29,16 +29,22 @@
 	},
 	"windowConfigs": [
 		{
-			"autostart": false,
-			"cameraName": "Global Shutter Camera (32e4:0234)",
-			"confidenceThreshold": 0.3,
-			"cameraID": "0cba091d5fad572d6763ba16444bf7e54ee2c1ab757cd6ed94f4271cbd5a10b3"
+			"cameraName": "Bed Camera",
+			"cameraID": "5e6b25fc581a80f9965eea71848d65118f0fe8616b0d612d43fdcc03c43a9b9b",
+			"autostart": true,
+			"confidenceThreshold": 0.15
 		},
 		{
+			"cameraName": "Desk Camera",
+			"cameraID": "867b7e7d2eacc21cc6fb599ba882b1a391f068b5430dd9a9a001235a5e11638d",
 			"autostart": false,
-			"cameraName": "Global Shutter Camera (32e4:0234)",
-			"confidenceThreshold": 0.3,
-			"cameraID": "d557cba15309e7de8bcd6b79ea19461355d520df5a93038c70c16d9ee7b1d7e7"
+			"confidenceThreshold": 0.15
+		},
+		{
+			"cameraName": "test",
+			"cameraID": "test",
+			"autostart": true,
+			"confidenceThreshold": 0.3
 		}
 	]
 }

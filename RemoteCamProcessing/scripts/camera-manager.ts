@@ -1,43 +1,62 @@
 import { IrisSocket_Key } from "./IrisWebClient_keys";
+import { CameraConfig, GetConfigs, CreateCheckbox, CreateRange } from "./util"
 
-type CameraData = { label: string, id: string }
+export type CameraData = { label: string, id: string }
 export class Camera {
 
-	el_div: HTMLDivElement
+	el_card: HTMLDivElement
 	el_canvas: HTMLCanvasElement
 	el_video: HTMLVideoElement
-	div_label: HTMLDivElement
 	span_fps: HTMLSpanElement
-	deviceID: string
-	flip_horizontal: boolean = false
-	threshold: number = 0.3
+	config: CameraConfig
 	ai_worker: Worker
 	ctx: CanvasRenderingContext2D
 	send_frame: boolean = false
 
-	constructor(deviceID: string) {
-		this.deviceID = deviceID
+	constructor(config: CameraConfig) {
+		this.config = config
 	}
 
 	createElement(videoReadyCallback: (value: Camera) => void | PromiseLike<void> | undefined = undefined): HTMLDivElement {
-		this.el_div = document.createElement("div")
-		this.el_div.id = this.deviceID
-		this.el_div.className = "camera-card"
+		this.el_card = document.createElement("div")
+		this.el_card.setAttribute("config-id", this.config.id.toString())
+		this.el_card.setAttribute("camera-id", this.config.cameraID)
+		this.el_card.className = "card bg-body-secondary border border-secondary-subtle"
 
 
-		this.div_label = document.createElement("div");
-		this.div_label.className = "camera-label"
-		Camera.GetCameraByID(this.deviceID).then(v =>
-			this.div_label.innerText = v == undefined ? "ERROR GETTING NAME" : Camera.GetMixedName(v)
-		)
-		this.el_div.appendChild(this.div_label)
+		var div_label = document.createElement("div");
+		div_label.className = "card-header input-group"
 
+		var span_label = document.createElement("span")
+		span_label.className = "input-group-text"
+		span_label.innerText = this.config.cameraName
+		div_label.appendChild(span_label)
+
+		var btn_label = document.createElement("button")
+		btn_label.className = "btn btn-outline-secondary"
+		btn_label.type = "button"
+		btn_label.innerHTML = "<i class=\"bi bi-pencil-square\"></i>"
+		div_label.appendChild(btn_label)
+		btn_label.onclick = () => {
+			var name = prompt("Rename camera", this.config.cameraName)
+			if (name == null || name === "") return
+			if (name == this.config.cameraName) return
+
+			this.config.cameraName = name
+			span_label.innerText = name
+			this.updateConfig()
+		}
+
+		this.el_card.appendChild(div_label)
+
+
+		var div_body = document.createElement("div")
+		div_body.className = "card-body"
 
 		var div_camera = document.createElement("div")
-		div_camera.className = "camera-display"
 
 		this.el_video = document.createElement("video")
-		Camera.GetCameraStream(this.deviceID)
+		Camera.GetCameraStream(this.config.cameraID)
 			.then(stream => {
 				this.el_video.srcObject = stream
 				this.el_video.play()
@@ -53,20 +72,68 @@ export class Camera {
 		this.ctx = this.el_canvas.getContext("2d")
 		div_camera.appendChild(this.el_canvas)
 
-		this.el_div.appendChild(div_camera)
+		div_body.appendChild(div_camera)
 
+
+		this.el_card.appendChild(div_body)
+
+
+		var div_footer = document.createElement("div")
+		div_footer.classList = "card-footer container-fluid"
 
 		var div_controls = document.createElement("div")
-		div_controls.classList = "camera-controls"
+		div_controls.classList = "row"
 
-		this.span_fps = document.createElement("span")
-		this.span_fps.classList = "fps"
+		var [div_autostart, cbx_autostart] = CreateCheckbox(this.config.id + "-autostart", "Auto-start")
+		div_autostart.classList.add("col-auto")
+		cbx_autostart.checked = this.config.autostart
+		cbx_autostart.onchange = () => {
+			this.config.autostart = cbx_autostart.checked
+			this.updateConfig()
+		}
+		div_controls.appendChild(div_autostart)
+
+		var [div_flipHorizontal, cbx_flipHorizontal] = CreateCheckbox(this.config.id + "-flipHorizontal", "Flip Horizontal")
+		div_flipHorizontal.classList.add("col-auto")
+		cbx_flipHorizontal.checked = this.config.flip_horizontal
+		cbx_flipHorizontal.onchange = () => {
+			this.config.flip_horizontal = cbx_flipHorizontal.checked
+			this.updateConfig()
+		}
+		div_controls.appendChild(div_flipHorizontal)
+
+		var [lbl_threshold, range_threshold] = CreateRange(this.config.id + "-threshold", "Threshold")
+		lbl_threshold.classList.add("col-auto")
+		range_threshold.classList.add("col")
+		range_threshold.min = "0"
+		range_threshold.max = "1"
+		range_threshold.step = "0.01"
+		range_threshold.valueAsNumber = this.config.confidenceThreshold
+		range_threshold.setAttribute("list", "threshold-ticks")
+		range_threshold.oninput = () => {
+			this.config.confidenceThreshold = range_threshold.valueAsNumber
+			this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config })
+		}
+		range_threshold.onchange = () => {
+			this.config.confidenceThreshold = range_threshold.valueAsNumber
+			this.updateConfig()
+		}
+		div_controls.appendChild(lbl_threshold)
+		div_controls.appendChild(range_threshold)
+
+		var div_spacer = document.createElement("div")
+		div_spacer.className = "col-auto"
+		div_controls.appendChild(div_spacer)
+
+		this.span_fps = document.createElement("div")
+		this.span_fps.classList = "col-auto text-body-secondary fps"
+		this.span_fps.innerText = "Starting..."
 		div_controls.appendChild(this.span_fps)
 
-		this.el_div.appendChild(div_controls)
+		div_footer.appendChild(div_controls)
+		this.el_card.appendChild(div_footer)
 
-
-		return this.el_div
+		return this.el_card
 	}
 
 	processImage(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
@@ -89,10 +156,13 @@ export class Camera {
 		}
 	}
 
+	updateConfig() {
+		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config })
+	}
 
 	startWorker(url: string) {
 		if (typeof (Worker) === "undefined") {
-			console.log(`Camera worker ${ this.div_label.innerText } failed`)
+			console.log(`Camera worker ${ this.config.cameraName } failed`)
 			return;
 		}
 
@@ -129,14 +199,14 @@ export class Camera {
 					break;
 
 				case IrisSocket_Key.msg_requestParams:
-					Camera.GetCameraByID(this.deviceID).then(async v => {
-						data.name = this.div_label.innerText
+					Camera.GetCameraByID(this.config.cameraID).then(async v => {
+						data.name = this.config.cameraName
 						data.camera_name = Camera.GetMixedName(v)
 
 						data.width = this.el_video.videoWidth;
 						data.height = this.el_video.videoHeight;
 
-						var stream = await Camera.GetCameraStream(this.deviceID)
+						var stream = await Camera.GetCameraStream(this.config.cameraID)
 						if (stream) {
 							var settings = stream.getVideoTracks()[0].getSettings();
 							data.cam_width = settings.width
@@ -148,27 +218,27 @@ export class Camera {
 					break;
 
 				case IrisSocket_Key.msg_debug:
-					console.log(`Camera worker ${this.div_label.innerText }`, data.message)
+					console.log(`Camera worker ${this.config.cameraName }`, data.message)
 					break;
 				case IrisSocket_Key.msg_error:
-					console.error(`Camera worker ${ this.div_label.innerText } error`, data.error)
+					console.error(`Camera worker ${ this.config.cameraName } error`, data.error)
 					break;
 
 				default:
-					console.log(`Camera worker ${ this.div_label.innerText } - ${ data.key }`, data)
+					console.log(`Camera worker ${ this.config.cameraName } - ${ data.key }`, data)
 					break;
 
 			}
 		}
 		this.ai_worker.onerror = (ev: ErrorEvent) => {
-			console.log(`Camera worker ${ this.div_label.innerText } onerror`, ev)
+			console.log(`Camera worker ${ this.config.cameraName } onerror`, ev)
 		}
 		this.ai_worker.onmessageerror = (ev: MessageEvent) => {
-			console.log(`Camera worker ${ this.div_label.innerText } onmessageerror`, ev)
+			console.log(`Camera worker ${ this.config.cameraName } onmessageerror`, ev)
 		}
 
-		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, flip_horizontal: this.flip_horizontal, threshold: this.threshold, url: url })
-		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_start, name: this.div_label.innerText })
+		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config, url: url })
+		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_start })
 	}
 
 	close() {
@@ -221,15 +291,53 @@ export class Camera {
 		});
 	}
 
-	static async UpdateCameraSelector(camSelect: HTMLSelectElement) {
+	static CameraSelectorCallback = undefined
+	static async UpdateCameraSelector(camSelect: HTMLUListElement, configs: CameraConfig[] | undefined = undefined): Promise<CameraData[] | undefined> {
 		let cameras = await Camera.GetCameras()
 		if (cameras == undefined) return
 
-		cameras = cameras.filter(v => document.getElementById(v.id) == undefined);
-		camSelect.innerHTML = `<option value="">Select camera</option>`
-		cameras.forEach((camera) => {
-			camSelect.innerHTML += `\n<option value=${camera.id}>${Camera.GetMixedName(camera)}</option>`
-		});
+		if (configs == undefined)
+			configs = await GetConfigs()
+
+		var passedConfigs = false
+		var seenConfigs = false
+		camSelect.innerHTML = ""
+		cameras
+			.filter(v => document.body.querySelector(`.card[camera-id="${v.id}"]`) == undefined)
+			.sort((a: CameraData, b: CameraData) => {
+				var va = configs.find(v => v.cameraID == a.id) != undefined ? 1 : 0
+				var vb = configs.find(v => v.cameraID == b.id) != undefined ? 1 : 0
+				return vb - va;
+			})
+			.forEach((camera) => {
+				var name = Camera.GetMixedName(camera)
+				var config = configs.find(v => v.cameraID == camera.id)
+				if (config != undefined) {
+					name = config.cameraName
+					seenConfigs = true
+				}
+				else if (seenConfigs && !passedConfigs) {
+					passedConfigs = true
+					var li = document.createElement("li")
+					var hr = document.createElement("hr")
+					hr.className = "dropdown-divider"
+					li.appendChild(hr)
+					camSelect.appendChild(li)
+				}
+				var li = document.createElement("li")
+				var btn = document.createElement("button")
+				btn.className = "dropdown-item"
+				btn.type = "button"
+				btn.innerText = name
+				btn.onclick = () => {
+					if (this.CameraSelectorCallback)
+						this.CameraSelectorCallback(camera.id)
+				}
+				li.appendChild(btn)
+				camSelect.appendChild(li)
+			});
+
+		return cameras;
 	}
 
 	static GetMixedName(info: { label: string, id: string }): string {

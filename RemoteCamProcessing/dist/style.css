@@ -1,11 +1,3 @@
-body {
-	margin: 0px;
-	background-color: lightgrey;
-}
-
-.d-none {
-	display: none;
-}
 .flipX {
 	-webkit-transform: scaleX(-1);
 	transform: scaleX(-1);
@@ -17,52 +9,53 @@ body {
 	flex-wrap: wrap;
 	align-items: stretch;
 }
-.camera-card {
-	width: fit-content;
+.card {
 	margin: 10px auto 10px auto;
-	padding: 5px;
 	border-radius: 20px;
-	border: thin solid lightgrey;
-	background-color: darkgrey;
+}
+
+.card-header {
 	display: flex;
-    flex-direction: column;
+	justify-content: center;
 }
 
-.camera-label {
-	text-align: center;
-	font-size: larger;
-	font-weight: bolder;
-	font-style: italic;
-}
-
-.camera-display {
+.card-body > * {
 	width: 640px;
 	display: flex;
 	background-color: lightgrey;
 	position: relative;
-	margin-top: 10px;
-	margin-bottom: 10px;
 }
-.camera-display video {
+.card-body > div > video {
 	position: absolute;
 }
-.camera-display canvas {
+.card-body > div > canvas {
 	z-index: 5;
 }
-.camera-display video, .camera-display canvas {
+.card-body video, .card-body canvas {
 	width: 100%;
 	height: 100%;
 }
-.camera-display, .camera-display > *{
+.card-body, .card-body > *{
 	border-radius: 5px;
 }
-.camera-controls {
-	margin-top: auto; 
+.fps {
+	min-width: 105px !important;
+}
+.card input.form-range {
+	-webkit-appearance: revert-layer;
+    -moz-appearance: revert-layer;
+    appearance: revert-layer;
 }
 
-#controls {
-	background-color: darkgrey;
-	padding: 10px 15px 10px 15px;
+#Window_NewConfig {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.50);
 	display: flex;
-	justify-content: center;
+	z-index: 6;
+}
+#Window_NewConfig > div {
+	margin: auto;
 }

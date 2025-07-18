@@ -1,13 +1,11 @@
 import { GetFilteredPose, CreateDetector } from "./pose-detector-factory";
 import { PoseDetector } from '@tensorflow-models/pose-detection';
 import { IrisSocket_Key } from "./IrisWebClient_keys";
-
-export { }
+import { CameraConfig } from "./util"
 
 var url: string
+var config: CameraConfig
 var detector: PoseDetector
-var threshold: number
-var flip_horizontal: boolean
 var image: ImageData
 var delta: number = -1
 var socket: WebSocket
@@ -18,15 +16,14 @@ self.onmessage = async function (ev: MessageEvent) {
 
 		switch (data.key) {
 			case IrisSocket_Key.msg_config:
+				if (data.config != undefined) config = data.config
 				if (data.url != undefined) url = data.url
-				if (data.threshold != undefined) threshold = data.threshold
-				if (data.flip_horizontal != undefined) flip_horizontal = data.flip_horizontal
 				break;
 			case IrisSocket_Key.msg_image:
 				image = data.image
 				break;
 			case IrisSocket_Key.msg_start:
-				StartSocket(data.name)
+				StartSocket()
 				CreateDetector().then(d => {
 					detector = d
 					AILoop()
@@ -37,8 +34,6 @@ self.onmessage = async function (ev: MessageEvent) {
 				break;
 			case IrisSocket_Key.msg_requestParams:
 				data.key = IrisSocket_Key.CONFIG_POST
-				data.threshold = threshold
-				data.flip_horizontal = flip_horizontal
 				socket.send(JSON.stringify(data))
 				break;
 		}
@@ -67,7 +62,7 @@ async function processPose() {
 	var data = {
 		key: IrisSocket_Key.POSE,
 		delta: avgDelta(delta),
-		pose: await GetFilteredPose(image, detector, threshold, flip_horizontal)
+		pose: await GetFilteredPose(image, detector, config.confidenceThreshold, config.flip_horizontal)
 	}
 	postMessage(data)
 	if (socket.readyState == WebSocket.OPEN) {
@@ -91,7 +86,7 @@ async function AILoop() {
 	}
 }
 
-function StartSocket(name: string) {
+function StartSocket() {
 	socket = new WebSocket(url)
 	socket.onopen = function (ev: Event) {
 		postMessage({
@@ -105,7 +100,7 @@ function StartSocket(name: string) {
 
 		socket.send(JSON.stringify({
 			key: IrisSocket_Key.DECLARE,
-			name: name
+			id: config.id
 		}))
 	}
 	socket.onclose = function (ev: CloseEvent) {
