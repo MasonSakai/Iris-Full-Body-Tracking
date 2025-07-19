@@ -47,24 +47,6 @@ def get_camera_html(cam_id):
     ).first()
     return render_template('_cam_box.html', camera=camera)
 
-
-#@bp_main.route('/fields/list')
-#def rf_list():
-#    data = []
-#    
-#    fields = db.session.scalars(sqla.select(ResearchField)).all()
-#    for field in fields:
-#        data.append({
-#            'id': field.id,
-#            'title': field.title,
-#            'position_count': len(db.session.scalars(field.positions.select()).all()),
-#            'student_count': len(db.session.scalars(field.students.select()).all())
-#        })
-
-#    return jsonify(data)
-
-
-#@bp_main.route('/positions/<pos_id>')
-#def view_position(pos_id):
-#    return render_template('_research.html',
-#                           research_pos=db.session.get(ResearchPosition, pos_id))
+@bp_cam.route('/CameraWorker.js')
+def get_camera_worker():
+    return redirect(url_for('CameraWebsite.static', filename='js/CameraWorker.js'))

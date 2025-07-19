@@ -1,6 +1,5 @@
 from config import Config
-
-from app import create_app, db
+from app import create_app, start_app, db
 from app.IrisModules import imported_modules, IrisModule
 import sqlalchemy as sqla
 import sqlalchemy.orm as sqlo
@@ -20,4 +19,4 @@ def initDB(*args, **kwargs):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=2674)
+    start_app(app, Config)

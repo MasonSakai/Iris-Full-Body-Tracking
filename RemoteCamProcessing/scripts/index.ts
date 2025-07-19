@@ -10,12 +10,10 @@ let select_camera = document.getElementById("camera-select") as HTMLUListElement
 let hidden_canvas = document.getElementById("hidden-canvas") as HTMLCanvasElement
 let ctx_hidden_canvas = hidden_canvas.getContext("2d", { willReadFrequently: true })
 
-var port = 2673 //Flask-SocketIO removes port need in the future
-
 let cameras = []
 function StartCamera(config: CameraConfig) {
 	new Camera(config).createElement(div_cameras, div_cameras_tmp, (camera: Camera) => {
-		camera.startWorker(window.location.protocol + "//" + window.location.hostname + ":" + port)
+		camera.startWorker()
 		cameras.push(camera)
 	})
 }

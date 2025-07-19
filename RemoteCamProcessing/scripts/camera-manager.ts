@@ -1,4 +1,4 @@
-import { IrisSocket_Key } from "./IrisWebClient_keys";
+import { IrisWorkerKey } from "./IrisWebClient_keys";
 import { CameraConfig, GetConfigs } from "./util"
 
 export type CameraData = { label: string, id: string }
@@ -70,7 +70,7 @@ export class Camera {
 		range_threshold.valueAsNumber = this.config.confidence_threshold
 		range_threshold.oninput = () => {
 			this.config.confidence_threshold = range_threshold.valueAsNumber
-			this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config })
+			this.ai_worker.postMessage({ key: IrisWorkerKey.msg_config, config: this.config })
 		}
 		range_threshold.onchange = () => {
 			this.config.confidence_threshold = range_threshold.valueAsNumber
@@ -88,26 +88,24 @@ export class Camera {
 		canvas.height = this.el_video.videoHeight
 		ctx.drawImage(this.el_video, 0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
 		this.ai_worker.postMessage({
-			key: IrisSocket_Key.msg_image,
+			key: IrisWorkerKey.msg_image,
 			image: ctx.getImageData(0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
 		})
 		if (this.send_frame) {
 			this.send_frame = false
 			this.ai_worker.postMessage({
-				key: IrisSocket_Key.msg_socket,
-				message: JSON.stringify({
-					key: IrisSocket_Key.IMAGE,
-					data: canvas.toDataURL()
-				})
+				key: IrisWorkerKey.msg_socket,
+				ev: 'image',
+				message: canvas.toDataURL()
 			})
 		}
 	}
 
 	updateConfig() {
-		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config })
+		this.ai_worker.postMessage({ key: IrisWorkerKey.msg_config, config: this.config })
 	}
 
-	startWorker(url: string) {
+	startWorker() {
 		if (typeof (Worker) === "undefined") {
 			console.log(`Camera worker ${ this.config.name } failed`)
 			return;
@@ -118,7 +116,7 @@ export class Camera {
 			var data = ev.data
 
 			switch (data.key) {
-				case IrisSocket_Key.POSE:
+				case IrisWorkerKey.msg_pose:
 
 					this.span_fps.innerText = `${Math.floor(1000 / data.delta)}fps (${data.delta.toFixed(1)}ms)`
 
@@ -141,11 +139,11 @@ export class Camera {
 					}
 					break;
 
-				case IrisSocket_Key.IMAGE:
+				case IrisWorkerKey.msg_image:
 					this.send_frame = true
 					break;
 
-				case IrisSocket_Key.msg_requestParams:
+				case IrisWorkerKey.msg_requestParams:
 					Camera.GetCameraByID(this.config.camera_id).then(async v => {
 						data.name = this.config.name
 						data.camera_name = Camera.GetMixedName(v)
@@ -164,10 +162,10 @@ export class Camera {
 					})
 					break;
 
-				case IrisSocket_Key.msg_debug:
+				case IrisWorkerKey.msg_debug:
 					console.log(`Camera worker ${this.config.name }`, data.message)
 					break;
-				case IrisSocket_Key.msg_error:
+				case IrisWorkerKey.msg_error:
 					console.error(`Camera worker ${ this.config.name } error`, data.error)
 					break;
 
@@ -184,8 +182,8 @@ export class Camera {
 			console.log(`Camera worker ${ this.config.name } onmessageerror`, ev)
 		}
 
-		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_config, config: this.config, url: url })
-		this.ai_worker.postMessage({ key: IrisSocket_Key.msg_start })
+		this.ai_worker.postMessage({ key: IrisWorkerKey.msg_config, config: this.config })
+		this.ai_worker.postMessage({ key: IrisWorkerKey.msg_start })
 	}
 
 	close() {

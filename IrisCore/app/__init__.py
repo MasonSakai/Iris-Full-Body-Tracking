@@ -5,11 +5,12 @@ from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_socketio import SocketIO
 
-
 db = SQLAlchemy()
-socket = SocketIO()
 migrate = Migrate()
 moment = Moment()
+socketio = SocketIO()
+
+from app.IrisModules import getSubModules, startSubModules, stopSubModules
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -20,15 +21,19 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app,db)
     moment.init_app(app)
-    socket.init_app(app)
+    socketio.init_app(app) # Change module loading to not require
 
     # blueprint registration
     from app.main import main_blueprint as main
     main.template_folder = config_class.TEMPLATE_FOLDER_MAIN
     app.register_blueprint(main)
     
-    from app.IrisModules import getSubModules
     getSubModules(app, config_class)
 
     return app
 
+
+def start_app(app, config_class=Config):
+    startSubModules()
+    socketio.run(app, debug=True, host='0.0.0.0', port=2674)
+    stopSubModules()

@@ -5,6 +5,7 @@ cam_web_blueprint = Blueprint('CameraWebsite', __name__, static_folder='static',
 cam_web_module = None
 
 from CameraWebsite import models, routes
+import CamWebSocket
 from CamWebModule import CamWebModule
 
 def GetIrisModule(app, config_class=Config):

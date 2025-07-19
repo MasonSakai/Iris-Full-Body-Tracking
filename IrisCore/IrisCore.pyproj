@@ -26,6 +26,7 @@
     <Compile Include="app\main\models.py" />
     <Compile Include="app\main\routes.py" />
     <Compile Include="app\modules\CameraWebsite\CamWebModule.py" />
+    <Compile Include="app\modules\CameraWebsite\CamWebSocket.py" />
     <Compile Include="app\modules\CameraWebsite\models.py" />
     <Compile Include="app\modules\CameraWebsite\routes.py" />
     <Compile Include="app\modules\CameraWebsite\__init__.py">
