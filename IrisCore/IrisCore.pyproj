@@ -1,0 +1,88 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>38d44c74-9d91-486d-bd9e-189ebe58551c</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>IrisCore.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>IrisCore</Name>
+    <RootNamespace>IrisCore</RootNamespace>
+    <InterpreterId>MSBuild|venv|$(MSBuildProjectFullPath)</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app\IrisModules.py" />
+    <Compile Include="app\main\models.py" />
+    <Compile Include="app\main\routes.py" />
+    <Compile Include="app\modules\CameraWebsite\CamWebModule.py" />
+    <Compile Include="app\modules\CameraWebsite\models.py" />
+    <Compile Include="app\modules\CameraWebsite\routes.py" />
+    <Compile Include="app\modules\CameraWebsite\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\main\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="config.py" />
+    <Compile Include="IrisCore.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="venv\">
+      <Id>venv</Id>
+      <Version>3.13</Version>
+      <Description>venv (Python 3.13 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app\main\templates\base.html" />
+    <Content Include="app\modules\CameraWebsite\templates\_cam_box.html" />
+    <Content Include="app\modules\CameraWebsite\templates\index.html" />
+    <Content Include="app\modules\CameraWebsite\static\css\index.css" />
+    <Content Include="app\modules\CameraWebsite\static\js\CameraWorker.js" />
+    <Content Include="app\modules\CameraWebsite\static\js\index.js" />
+    <Content Include="app\static\img\c8753add5bdefd40f3846900900fb75f.jpg" />
+    <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="app\" />
+    <Folder Include="app\main\" />
+    <Folder Include="app\main\templates\" />
+    <Folder Include="app\modules\CameraWebsite\" />
+    <Folder Include="app\modules\CameraWebsite\templates\" />
+    <Folder Include="app\modules\CameraWebsite\static\" />
+    <Folder Include="app\modules\CameraWebsite\static\css\" />
+    <Folder Include="app\modules\CameraWebsite\static\js\" />
+    <Folder Include="app\static\" />
+    <Folder Include="app\static\css\" />
+    <Folder Include="app\static\js\" />
+    <Folder Include="app\static\img\" />
+    <Folder Include="app\modules\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>

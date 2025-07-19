@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2191419">
   <PropertyGroup>
     <!--Command to run on project build-->
-    <BuildCommand>npm run build &amp;&amp; XCOPY "$(ProjectDir)dist" "$(SolutionDir)Iris_FBT\Iris_FBT\dist" /S /Y /I &amp;&amp; XCOPY "$(ProjectDir)dist" "$(SolutionDir)build\Iris_FBT\dist" /S /Y /I</BuildCommand>
+    <BuildCommand>npm run build &amp;&amp; XCOPY "$(ProjectDir)dist" "$(SolutionDir)IrisCore\app\modules\CameraWebsite\static\js" /S /Y /I</BuildCommand>
     <!--Command to run on project clean-->
     <CleanCommand>
     </CleanCommand>
     <StartupCommand>npm server.mjs</StartupCommand>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="dist\" />
+  </ItemGroup>
 </Project>

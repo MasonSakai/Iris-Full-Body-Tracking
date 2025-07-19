@@ -15,6 +15,8 @@ Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "RemoteCamProcessing", "Remo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraCalibrator-Standalone", "CameraCalibrator-Standalone\CameraCalibrator-Standalone.vcxproj", "{16141EBC-262E-45E2-B466-EF6206793F07}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "IrisCore", "IrisCore\IrisCore.pyproj", "{38D44C74-9D91-486D-BD9E-189EBE58551C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,12 @@ Global
 		{16141EBC-262E-45E2-B466-EF6206793F07}.Release|x64.Build.0 = Release|x64
 		{16141EBC-262E-45E2-B466-EF6206793F07}.Release|x86.ActiveCfg = Release|Win32
 		{16141EBC-262E-45E2-B466-EF6206793F07}.Release|x86.Build.0 = Release|Win32
+		{38D44C74-9D91-486D-BD9E-189EBE58551C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38D44C74-9D91-486D-BD9E-189EBE58551C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{38D44C74-9D91-486D-BD9E-189EBE58551C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{38D44C74-9D91-486D-BD9E-189EBE58551C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38D44C74-9D91-486D-BD9E-189EBE58551C}.Release|x64.ActiveCfg = Release|Any CPU
+		{38D44C74-9D91-486D-BD9E-189EBE58551C}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

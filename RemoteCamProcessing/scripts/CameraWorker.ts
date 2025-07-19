@@ -62,7 +62,7 @@ async function processPose() {
 	var data = {
 		key: IrisSocket_Key.POSE,
 		delta: avgDelta(delta),
-		pose: await GetFilteredPose(image, detector, config.confidenceThreshold, config.flip_horizontal)
+		pose: await GetFilteredPose(image, detector, config.confidence_threshold, config.flip_horizontal)
 	}
 	postMessage(data)
 	if (socket.readyState == WebSocket.OPEN) {

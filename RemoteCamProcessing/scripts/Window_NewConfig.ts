@@ -46,17 +46,17 @@ export function Window_NewConfig(camID: string, configs: CameraConfig[]): Promis
 		populateNew(camData)
 		btn_new.onclick = () => {
 			var config: CameraConfig = DefaultConfig
-			config.cameraID = camID
-			config.cameraName = txt_name.value
+			config.camera_id = camID
+			config.name = txt_name.value
 			config.autostart = cbx_autostart.checked
 			config.flip_horizontal = cbx_flipHorizontal.checked
-			config.confidenceThreshold = num_thresh.valueAsNumber
+			config.confidence_threshold = num_thresh.valueAsNumber
 
 			close()
 			resolve(config)
 		}
 		txt_name.oninput = () => {
-			btn_new.disabled = configs.some(c => c.cameraName == txt_name.value)
+			btn_new.disabled = configs.some(c => c.name == txt_name.value)
 		}
 	})
 }
@@ -92,19 +92,19 @@ async function populateSelector(camera: CameraData, configs: CameraConfig[], res
 	select_config_btn.classList.toggle("d-none", noSelectors)
 	if (noSelectors) return
 
-	var matches = findBestMatch(Camera.GetMixedName(camera), configs.map(conf => conf.cameraName)).ratings
+	var matches = findBestMatch(Camera.GetMixedName(camera), configs.map(conf => conf.name)).ratings
 
 	matches.sort((a, b) => b.rating - a.rating)
 
 	var cams = await Camera.GetCameras()
 	var indexesUsed = []
 	matches = matches.map(rat => {
-		var index = configs.findIndex((conf, ind) => conf.cameraName == rat.target && !indexesUsed.includes(ind))
+		var index = configs.findIndex((conf, ind) => conf.name == rat.target && !indexesUsed.includes(ind))
 		indexesUsed.push(index)
 
 		return {
 			config: configs[index],
-			hasID: cams.some(v => v.id == configs[index].cameraID)
+			hasID: cams.some(v => v.id == configs[index].camera_id)
 		}
 	}) as { config: CameraConfig, hasID: Boolean }[]
 
@@ -133,9 +133,9 @@ async function populateSelector(camera: CameraData, configs: CameraConfig[], res
 			var btn = document.createElement("button")
 			btn.type = "button"
 			btn.className = "dropdown-item"
-			btn.innerText = v.config.cameraName
+			btn.innerText = v.config.name
 			btn.onclick = () => {
-				v.config.cameraID = camera.id
+				v.config.camera_id = camera.id
 				close()
 				resolve(v.config)
 			}
@@ -147,6 +147,6 @@ async function populateSelector(camera: CameraData, configs: CameraConfig[], res
 function populateNew(camera: CameraData) {
 	txt_name.value = Camera.GetMixedName(camera)
 	cbx_autostart.checked = DefaultConfig.autostart
-	num_thresh.valueAsNumber = DefaultConfig.confidenceThreshold
+	num_thresh.valueAsNumber = DefaultConfig.confidence_threshold
 	cbx_flipHorizontal.checked = DefaultConfig.flip_horizontal
 }
