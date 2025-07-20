@@ -37,3 +37,14 @@ export async function NewConfig(config: CameraConfig): Promise<CameraConfig> {
 	})
 	return data.json()
 }
+
+export async function UpdateConfig(config: CameraConfig): Promise<CameraConfig> {
+	var data = await fetch(`cameras/${config.id}/update`, {
+		method: 'POST',
+		headers: {
+			'Content-type': 'application/json'
+		},
+		body: JSON.stringify(config)
+	})
+	return data.json()
+}

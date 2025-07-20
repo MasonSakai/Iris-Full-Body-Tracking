@@ -121,8 +121,8 @@ function StartSocket() {
 	socket.on('config-not_found', () => {
 		postMessage({ key: IrisWorkerKey.msg_requestParams })
 	})
-	socket.on('image', (data) => {
-		postMessage(data)
+	socket.on('image', () => {
+		postMessage({ key: IrisWorkerKey.msg_image })
 	})
 }
 

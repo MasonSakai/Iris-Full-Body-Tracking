@@ -1,13 +1,17 @@
 from app import db, socketio
+import sqlalchemy as sqla
 from flask import request
 import numpy as np
+import cv2 as cv
+import base64
 from CameraWebsite.models import WebsiteCamera
 from app.dataproviders.position import RayPositionSource, ScoredPositionSource
 from app.synchronize import source_pose_lock
-from flask_socketio import emit, disconnect
+from app.apriltag.models import AprilTagDetector
+from flask_socketio import disconnect
 
 
-sid_dicts = {}
+sid_dict = {}
 sockets = {}
 
 class CamWebSocket(RayPositionSource, ScoredPositionSource):
@@ -18,6 +22,8 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
 	def __init__(self, sid, cam):
 		self.sid = sid
 		self.cam = cam
+
+		socketio.emit('image', namespace='/camsite', to=sid)
 
 	def on_disconnect(self, reason):
 		print(reason)
@@ -57,6 +63,20 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
 			print(e)
 			disconnect(self.sid, '/camsite')
 
+	def on_image(self, data_url):
+		(camera_matrix, dist_coeffs) = self.cam.get_camera_params()
+
+		image = cv.imdecode(np.frombuffer(base64.b64decode(data_url.split(',')[1]), np.uint8), cv.IMREAD_COLOR)
+		image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+		image = self.cam.undistortImage(image, camera_matrix, dist_coeffs)
+
+		detectors = db.session.scalars(sqla.select(AprilTagDetector)).all()
+		for detector in detectors:
+			detector = detector.createDetector()
+			res = detector.detect(image, True, [camera_matrix[0, 0], camera_matrix[0, 2], camera_matrix[1, 1], camera_matrix[1, 2]], 0.11176022352)
+			print(self.cam.id, res)
+
+
 	def get_priority_positions(self):
 		return 20
 
@@ -81,15 +101,19 @@ def on_connect(auth):
 		else:
 			raise ConnectionRefusedError('Camera already taken')
 
-	sid_dicts[request.sid] = auth['id']
+	sid_dict[request.sid] = auth['id']
 	sockets[auth['id']] = CamWebSocket(request.sid, db.session.get(WebsiteCamera, auth['id']))
 
 @socketio.on('disconnect', namespace='/camsite')
 def on_disconnect(reason):
-	sockets[sid_dicts[request.sid]].on_disconnect(reason)
-	sid_dicts.pop(request.sid)
+	sockets[sid_dict[request.sid]].on_disconnect(reason)
+	sid_dict.pop(request.sid)
 
 @socketio.on('pose', namespace='/camsite')
 def on_pose(data):
 	sockets[data['id']].on_pose(data)
+
+@socketio.on('image', namespace='/camsite')
+def on_image(data):
+	sockets[sid_dict[request.sid]].on_image(data)
 

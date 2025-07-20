@@ -1,6 +1,6 @@
 import { setBackend } from "./pose-detector-factory";
 import { Camera } from "./camera-manager";
-import { CameraConfig, GetConfigs, NewConfig } from "./util";
+import { CameraConfig, GetConfigs, NewConfig, UpdateConfig } from "./util";
 import { Window_NewConfig } from "./Window_NewConfig";
 
 let span_fps = document.getElementById("fps")
@@ -31,7 +31,10 @@ setBackend().then(() => {
 				Camera.UpdateCameraSelector(select_camera)
 				return
 			}
-			config = await NewConfig(config)
+			if (config.id >= 0)
+				config = await UpdateConfig(config)
+			else
+				config = await NewConfig(config)
 		}
 
 		StartCamera(config);

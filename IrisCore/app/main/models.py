@@ -45,9 +45,11 @@ class CVUndistortableCamera(Camera):
 	__mapper_args__ = {'polymorphic_identity': 'cv_undistortable_camera'}
 
 	undistort_image : sqlo.Mapped[bool] = sqlo.mapped_column(default=False)
-	camera_matrix: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.array([[320, 0, 320], [0, 240, 240], [0, 0, 1]], np.float64)))
+	camera_matrix: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
+	calib_res_width: sqlo.Mapped[int] = sqlo.mapped_column(default=0)
+	calib_res_height: sqlo.Mapped[int] = sqlo.mapped_column(default=0)
 	dist_coeffs: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
-	transform: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.identity((4,3), np.float64)))
+	transform: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
 
 	def set_camera_params(self, camera_matrix: np.array, dist_coeffs: np.array):
 		self.camera_matrix = pickle.dumps(camera_matrix)
@@ -66,8 +68,9 @@ class CVUndistortableCamera(Camera):
 
 	def undistortImage(self, image: MatLike):
 		(camera_matrix, dist_coeffs) = self.get_camera_params()
-
-
+		return self.undistortImage(image, camera_matrix, dist_coeffs)
+		
+	def undistortImage(self, image: MatLike, camera_matrix: np.array, dist_coeffs: np.array):
 		return cv.undistort(image, camera_matrix, dist_coeffs)
 
 	def undistortPoints(self, data: np.array):

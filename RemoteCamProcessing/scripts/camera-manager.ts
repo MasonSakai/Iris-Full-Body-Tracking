@@ -1,5 +1,5 @@
 import { IrisWorkerKey } from "./IrisWebClient_keys";
-import { CameraConfig, GetConfigs } from "./util"
+import { CameraConfig, GetConfigs, UpdateConfig } from "./util"
 
 export type CameraData = { label: string, id: string }
 export class Camera {
@@ -103,6 +103,7 @@ export class Camera {
 
 	updateConfig() {
 		this.ai_worker.postMessage({ key: IrisWorkerKey.msg_config, config: this.config })
+		UpdateConfig(this.config)
 	}
 
 	startWorker() {
@@ -170,7 +171,7 @@ export class Camera {
 					break;
 
 				default:
-					console.log(`Camera worker ${ this.config.name } - ${ data.key }`, data)
+					//console.log(`Camera worker ${ this.config.name } - ${ data.key }`, data)
 					break;
 
 			}

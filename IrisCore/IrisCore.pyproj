@@ -22,6 +22,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app\apriltag\models.py" />
+    <Compile Include="app\apriltag\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\dataproviders\position.py">
       <SubType>Code</SubType>
     </Compile>
@@ -71,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\" />
+    <Folder Include="app\apriltag\" />
     <Folder Include="app\dataproviders\" />
     <Folder Include="app\main\" />
     <Folder Include="app\main\templates\" />
