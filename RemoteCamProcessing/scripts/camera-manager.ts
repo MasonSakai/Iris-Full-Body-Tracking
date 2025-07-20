@@ -18,7 +18,7 @@ export class Camera {
 	}
 
 	async createElement(parent: HTMLElement, tmpParent: HTMLElement, videoReadyCallback: (value: Camera) => void | PromiseLike<void> | undefined = undefined) {
-		var resp = await fetch(`cameras/${this.config.camera_id}/cam_box`)
+		var resp = await fetch(`cameras/${this.config.id}/cam_box`)
 		tmpParent.innerHTML = await resp.text()
 
 		this.el_card = tmpParent.querySelector(`[camera-id="${this.config.camera_id}"]`)

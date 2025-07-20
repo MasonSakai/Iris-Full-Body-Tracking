@@ -90,13 +90,14 @@ async function AILoop() {
 }
 
 function StartSocket() {
-	socket = io('/camsite')
+	socket = io('/camsite', {
+		auth: config
+	})
 	socket.on('connect', () => {
 		postMessage({
 			key: IrisWorkerKey.msg_socket_event,
 			func: "on_connect"
 		})
-		socket.emit("declare", config.id)
 	})
 	socket.on('disconnect', (reason: string) => {
 		postMessage({

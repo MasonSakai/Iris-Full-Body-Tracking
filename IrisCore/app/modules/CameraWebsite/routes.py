@@ -22,11 +22,8 @@ def get_cameras():
 
 
 @bp_cam.route('/cameras/<id>', methods=['GET', 'POST'])
-def get_camera(cam_id):
-    camera = db.session.scalars(
-        sqla.select(WebsiteCamera)
-        .where(WebsiteCamera.camera_id == cam_id)
-    ).first()
+def get_camera(id):
+    camera = db.session.get(WebsiteCamera, id)
     return jsonify(camera.getConfig())
 
 
@@ -39,13 +36,9 @@ def new_camera():
     return jsonify(camera.getConfig())
 
 
-@bp_cam.route('/cameras/<cam_id>/cam_box')
-def get_camera_html(cam_id):
-    camera = db.session.scalars(
-        sqla.select(WebsiteCamera)
-        .where(WebsiteCamera.camera_id == cam_id)
-    ).first()
-    return render_template('_cam_box.html', camera=camera)
+@bp_cam.route('/cameras/<id>/cam_box')
+def get_camera_html(id):
+    return render_template('_cam_box.html', camera=db.session.get(WebsiteCamera, id))
 
 @bp_cam.route('/CameraWorker.js')
 def get_camera_worker():

@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>38d44c74-9d91-486d-bd9e-189ebe58551c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>IrisCore.py</StartupFile>
+    <StartupFile>iris_core.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,12 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app\dataproviders\position.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\dataproviders\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\IrisModules.py" />
     <Compile Include="app\main\models.py" />
     <Compile Include="app\main\routes.py" />
@@ -32,6 +38,7 @@
     <Compile Include="app\modules\CameraWebsite\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\synchronize.py" />
     <Compile Include="app\__init__.py">
       <SubType>Code</SubType>
     </Compile>
@@ -39,7 +46,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="config.py" />
-    <Compile Include="IrisCore.py" />
+    <Compile Include="iris_core.py" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="venv\">
@@ -64,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\" />
+    <Folder Include="app\dataproviders\" />
     <Folder Include="app\main\" />
     <Folder Include="app\main\templates\" />
     <Folder Include="app\modules\CameraWebsite\" />

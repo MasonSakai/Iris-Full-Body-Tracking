@@ -1,6 +1,12 @@
+import pickle
+from typing import Optional
+from cv2.typing import MatLike
 from app import db
 import sqlalchemy as sqla
 import sqlalchemy.orm as sqlo
+import numpy as np
+import cv2 as cv
+
 
 class Camera(db.Model):
 	__tablename__ = "camera"
@@ -23,21 +29,6 @@ class Camera(db.Model):
 	def __repr__(self):
 		return '<Camera - {} "{}">'.format(self.id, self.display_name)
 
-	def getImage(self):
-		return None
-
-	def correctForStage(self, stage, data):
-		return None
-
-	def ready(self):
-		return False
-
-	def camera_flags(self):
-		return None
-
-	def getTransform(self):
-		return None
-
 	def getConfig(self):
 		return {
 			'id': self.id,
@@ -47,3 +38,45 @@ class Camera(db.Model):
 	def setConfig(self, config):
 		if 'name' in config:
 			self.display_name = config['name']
+
+class CVUndistortableCamera(Camera):
+	__tablename__ = "cv_undistortable_camera"
+	id: sqlo.Mapped[int] = sqlo.mapped_column(sqla.ForeignKey("camera.id"), primary_key=True)
+	__mapper_args__ = {'polymorphic_identity': 'cv_undistortable_camera'}
+
+	undistort_image : sqlo.Mapped[bool] = sqlo.mapped_column(default=False)
+	camera_matrix: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.array([[320, 0, 320], [0, 240, 240], [0, 0, 1]], np.float64)))
+	dist_coeffs: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
+	transform: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.identity((4,3), np.float64)))
+
+	def set_camera_params(self, camera_matrix: np.array, dist_coeffs: np.array):
+		self.camera_matrix = pickle.dumps(camera_matrix)
+		self.dist_coeffs = pickle.dumps(dist_coeffs)
+		db.session.commit()
+
+	def get_camera_params(self):
+		return (pickle.loads(self.camera_matrix), pickle.loads(self.dist_coeffs))
+
+	def set_transform(self, transform: np.array):
+		self.transform = pickle.dumps(transform)
+		db.session.commit()
+
+	def get_transform(self):
+		return pickle.loads(self.transform)
+
+	def undistortImage(self, image: MatLike):
+		(camera_matrix, dist_coeffs) = self.get_camera_params()
+
+
+		return cv.undistort(image, camera_matrix, dist_coeffs)
+
+	def undistortPoints(self, data: np.array):
+		(camera_matrix, dist_coeffs) = self.get_camera_params()
+		return self.undistortPoints(data, camera_matrix, dist_coeffs)
+
+		
+	def undistortPoints(self, data: np.array, camera_matrix: np.array, dist_coeffs: np.array):
+		if data is not np.array:
+			data = np.array(data)
+
+		return np.squeeze(cv.undistortPoints(data, camera_matrix, dist_coeffs))
