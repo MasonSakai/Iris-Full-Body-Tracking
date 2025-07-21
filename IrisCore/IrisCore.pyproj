@@ -35,11 +35,11 @@
     <Compile Include="app\IrisModules.py" />
     <Compile Include="app\main\models.py" />
     <Compile Include="app\main\routes.py" />
-    <Compile Include="app\modules\CameraWebsite\CamWebModule.py" />
-    <Compile Include="app\modules\CameraWebsite\CamWebSocket.py" />
-    <Compile Include="app\modules\CameraWebsite\models.py" />
-    <Compile Include="app\modules\CameraWebsite\routes.py" />
-    <Compile Include="app\modules\CameraWebsite\__init__.py">
+    <Compile Include="modules\CameraWebsite\CamWebModule.py" />
+    <Compile Include="modules\CameraWebsite\CamWebSocket.py" />
+    <Compile Include="modules\CameraWebsite\models.py" />
+    <Compile Include="modules\CameraWebsite\routes.py" />
+    <Compile Include="modules\CameraWebsite\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\synchronize.py" />
@@ -65,11 +65,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\main\templates\base.html" />
-    <Content Include="app\modules\CameraWebsite\templates\_cam_box.html" />
-    <Content Include="app\modules\CameraWebsite\templates\index.html" />
-    <Content Include="app\modules\CameraWebsite\static\css\index.css" />
-    <Content Include="app\modules\CameraWebsite\static\js\CameraWorker.js" />
-    <Content Include="app\modules\CameraWebsite\static\js\index.js" />
+    <Content Include="modules\CameraWebsite\templates\_cam_box.html" />
+    <Content Include="modules\CameraWebsite\templates\index.html" />
+    <Content Include="modules\CameraWebsite\static\css\index.css" />
+    <Content Include="modules\CameraWebsite\static\js\CameraWorker.js" />
+    <Content Include="modules\CameraWebsite\static\js\index.js" />
     <Content Include="app\static\img\c8753add5bdefd40f3846900900fb75f.jpg" />
     <Content Include="requirements.txt" />
   </ItemGroup>
@@ -79,16 +79,16 @@
     <Folder Include="app\dataproviders\" />
     <Folder Include="app\main\" />
     <Folder Include="app\main\templates\" />
-    <Folder Include="app\modules\CameraWebsite\" />
-    <Folder Include="app\modules\CameraWebsite\templates\" />
-    <Folder Include="app\modules\CameraWebsite\static\" />
-    <Folder Include="app\modules\CameraWebsite\static\css\" />
-    <Folder Include="app\modules\CameraWebsite\static\js\" />
+    <Folder Include="modules\CameraWebsite\" />
+    <Folder Include="modules\CameraWebsite\templates\" />
+    <Folder Include="modules\CameraWebsite\static\" />
+    <Folder Include="modules\CameraWebsite\static\css\" />
+    <Folder Include="modules\CameraWebsite\static\js\" />
     <Folder Include="app\static\" />
     <Folder Include="app\static\css\" />
     <Folder Include="app\static\js\" />
     <Folder Include="app\static\img\" />
-    <Folder Include="app\modules\" />
+    <Folder Include="modules\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

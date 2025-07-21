@@ -121,15 +121,11 @@ function StartSocket() {
 	socket.on('config-not_found', () => {
 		postMessage({ key: IrisWorkerKey.msg_requestParams })
 	})
-	socket.on('image', () => {
-		postMessage({ key: IrisWorkerKey.msg_image })
+	socket.on('image', (data) => {
+		postMessage({ key: IrisWorkerKey.msg_image, constraints: data })
 	})
 }
 
-
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 var avgVals = []
 var avgIndex = 0

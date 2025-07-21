@@ -1,5 +1,5 @@
 import { IrisWorkerKey } from "./IrisWebClient_keys";
-import { CameraConfig, GetConfigs, UpdateConfig } from "./util"
+import { CameraConfig, GetConfigs, sleep, UpdateConfig } from "./util"
 
 export type CameraData = { label: string, id: string }
 export class Camera {
@@ -11,7 +11,7 @@ export class Camera {
 	config: CameraConfig
 	ai_worker: Worker
 	ctx: CanvasRenderingContext2D
-	send_frame: boolean = false
+	send_frame: {} | string | false | undefined = false
 
 	constructor(config: CameraConfig) {
 		this.config = config
@@ -86,12 +86,14 @@ export class Camera {
 	processImage(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
 		canvas.width = this.el_video.videoWidth
 		canvas.height = this.el_video.videoHeight
-		ctx.drawImage(this.el_video, 0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
+		ctx.drawImage(this.el_video, 0, 0)
 		this.ai_worker.postMessage({
 			key: IrisWorkerKey.msg_image,
 			image: ctx.getImageData(0, 0, this.el_video.videoWidth, this.el_video.videoHeight)
 		})
-		if (this.send_frame) {
+
+		if (this.send_frame != false) {
+			var props = this.send_frame
 			this.send_frame = false
 			this.ai_worker.postMessage({
 				key: IrisWorkerKey.msg_socket,
@@ -141,7 +143,7 @@ export class Camera {
 					break;
 
 				case IrisWorkerKey.msg_image:
-					this.send_frame = true
+					this.send_frame = data.constraints
 					break;
 
 				case IrisWorkerKey.msg_requestParams:
@@ -192,17 +194,10 @@ export class Camera {
 		this.ai_worker = undefined
 	}
 
-	static async GetCameraStream(deviceID: string | undefined = ""): Promise<MediaStream | undefined> {
+	static async GetCameraStream(deviceID: string | undefined = "", props: {} = { width: 640, height: 480 }): Promise<MediaStream | undefined> {
 		if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
 			let properties: { [key: string]: any } = {
-				video: {} /*{
-					width: {
-						ideal: 640
-					},
-					height: {
-						ideal: 480
-					}
-				}*/
+				video: props
 			}
 			if (deviceID) properties.video["deviceId"] = { exact: deviceID };
 			return await navigator.mediaDevices.getUserMedia(properties);
@@ -249,7 +244,7 @@ export class Camera {
 		var seenConfigs = false
 		camSelect.innerHTML = ""
 		cameras
-			.filter(v => document.body.querySelector(`.card[camera-id="${v.id}"]`) == undefined)
+			.filter(v => document.querySelector(`.card[camera-id="${v.id}"]`) == undefined)
 			.sort((a: CameraData, b: CameraData) => {
 				var va = configs.find(v => v.camera_id == a.id) != undefined ? 1 : 0
 				var vb = configs.find(v => v.camera_id == b.id) != undefined ? 1 : 0

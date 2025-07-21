@@ -8,6 +8,6 @@ class Config(object):
         'sqlite:///' + os.path.join(basedir, 'project.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ROOT_PATH = basedir
-    MODULE_PATH = os.path.join(basedir, 'app\\modules')
+    MODULE_PATH = os.path.join(basedir, 'modules')
     STATIC_FOLDER = os.path.join(basedir, 'app\\static')
     TEMPLATE_FOLDER_MAIN = os.path.join(basedir, 'app\\main\\templates')

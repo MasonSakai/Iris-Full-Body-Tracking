@@ -1,0 +1,61 @@
+.flipX {
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+}
+
+#camera-display {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: stretch;
+}
+.card {
+	margin: 10px auto 10px auto;
+	border-radius: 20px;
+}
+
+.card-header {
+	display: flex;
+	justify-content: center;
+}
+
+.card-body > * {
+	width: 640px;
+	display: flex;
+	background-color: lightgrey;
+	position: relative;
+}
+.card-body > div > video {
+	position: absolute;
+}
+.card-body > div > canvas {
+	z-index: 5;
+}
+.card-body video, .card-body canvas {
+	width: 100%;
+	height: 100%;
+}
+.card-body, .card-body > *{
+	border-radius: 5px;
+}
+.fps {
+	min-width: 105px !important;
+}
+.card input.form-range {
+	-webkit-appearance: revert-layer;
+    -moz-appearance: revert-layer;
+    appearance: revert-layer;
+}
+
+#Window_NewConfig {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.50);
+	display: flex;
+	z-index: 6;
+}
+#Window_NewConfig > div {
+	margin: auto;
+}

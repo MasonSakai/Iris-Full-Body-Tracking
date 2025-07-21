@@ -1,6 +1,6 @@
 import { setBackend } from "./pose-detector-factory";
 import { Camera } from "./camera-manager";
-import { CameraConfig, GetConfigs, NewConfig, UpdateConfig } from "./util";
+import { CameraConfig, GetConfigs, NewConfig, sleep, UpdateConfig } from "./util";
 import { Window_NewConfig } from "./Window_NewConfig";
 
 let span_fps = document.getElementById("fps")
@@ -10,9 +10,9 @@ let select_camera = document.getElementById("camera-select") as HTMLUListElement
 let hidden_canvas = document.getElementById("hidden-canvas") as HTMLCanvasElement
 let ctx_hidden_canvas = hidden_canvas.getContext("2d", { willReadFrequently: true })
 
-let cameras = []
-function StartCamera(config: CameraConfig) {
-	new Camera(config).createElement(div_cameras, div_cameras_tmp, (camera: Camera) => {
+let cameras = [] as Camera[]
+async function StartCamera(config: CameraConfig) {
+	await new Camera(config).createElement(div_cameras, div_cameras_tmp, (camera: Camera) => {
 		camera.startWorker()
 		cameras.push(camera)
 	})
@@ -37,20 +37,20 @@ setBackend().then(() => {
 				config = await NewConfig(config)
 		}
 
-		StartCamera(config);
+		await StartCamera(config);
 
 		Camera.UpdateCameraSelector(select_camera)
 	}
 
 	Camera.UpdateCameraSelector(select_camera).then(cameras => {
-		GetConfigs().then(v => {
+		GetConfigs().then(async v => {
 			if (cameras == undefined) return;
 
-			v.forEach(config => {
+			for (const config of v) {
 				if (config.autostart && cameras.some(cam => cam.id == config.camera_id)) {
-					StartCamera(config)
+					await StartCamera(config)
 				}
-			})
+			}
 
 			Camera.UpdateCameraSelector(select_camera, v)
 		});
@@ -81,8 +81,4 @@ async function AILoop() {
 			await sleep(16.66 - delta);
 		}
 	}
-}
-
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
 }
