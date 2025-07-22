@@ -7,8 +7,8 @@ from app.main import main_blueprint as bp_main
 
 
 @bp_main.route('/', methods=['GET', 'POST'])
-def config():
-    return render_template('camera_processor.html')
+def index():
+    return render_template('index.html')
 
 
 @bp_main.app_errorhandler(404)

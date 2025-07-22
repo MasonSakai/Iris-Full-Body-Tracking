@@ -23,6 +23,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app\apriltag\models.py" />
+    <Compile Include="app\apriltag\routes.py" />
     <Compile Include="app\apriltag\__init__.py">
       <SubType>Code</SubType>
     </Compile>
@@ -64,18 +65,30 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\apriltag\static\css\apriltag.css" />
+    <Content Include="app\apriltag\templates\apriltag.html" />
+    <Content Include="app\main\static\css\popup.css" />
+    <Content Include="app\main\static\img\github-mark-white.png" />
+    <Content Include="app\main\templates\github-mark-white.svg" />
+    <Content Include="app\main\static\img\github-mark.png" />
+    <Content Include="app\main\templates\github-mark.svg" />
     <Content Include="app\main\templates\base.html" />
+    <Content Include="app\main\templates\_popup.html" />
     <Content Include="modules\CameraWebsite\templates\_cam_box.html" />
-    <Content Include="modules\CameraWebsite\templates\index.html" />
-    <Content Include="modules\CameraWebsite\static\css\index.css" />
+    <Content Include="modules\CameraWebsite\templates\camsite.html" />
+    <Content Include="modules\CameraWebsite\static\css\camsite.css" />
     <Content Include="modules\CameraWebsite\static\js\CameraWorker.js" />
-    <Content Include="modules\CameraWebsite\static\js\index.js" />
-    <Content Include="app\static\img\c8753add5bdefd40f3846900900fb75f.jpg" />
+    <Content Include="modules\CameraWebsite\static\js\camsite.js" />
+    <Content Include="app\main\static\img\c8753add5bdefd40f3846900900fb75f.jpg" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\" />
     <Folder Include="app\apriltag\" />
+    <Folder Include="app\apriltag\static\" />
+    <Folder Include="app\apriltag\static\css\" />
+    <Folder Include="app\apriltag\static\js\" />
+    <Folder Include="app\apriltag\templates\" />
     <Folder Include="app\dataproviders\" />
     <Folder Include="app\main\" />
     <Folder Include="app\main\templates\" />
@@ -84,10 +97,10 @@
     <Folder Include="modules\CameraWebsite\static\" />
     <Folder Include="modules\CameraWebsite\static\css\" />
     <Folder Include="modules\CameraWebsite\static\js\" />
-    <Folder Include="app\static\" />
-    <Folder Include="app\static\css\" />
-    <Folder Include="app\static\js\" />
-    <Folder Include="app\static\img\" />
+    <Folder Include="app\main\static\" />
+    <Folder Include="app\main\static\css\" />
+    <Folder Include="app\main\static\js\" />
+    <Folder Include="app\main\static\img\" />
     <Folder Include="modules\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

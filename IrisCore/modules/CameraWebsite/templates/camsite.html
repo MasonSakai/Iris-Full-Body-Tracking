@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('CameraWebsite.static', filename='css/camsite.css') }}">
+{% endblock %}
+
+{% block navbar %}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+	<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+		<li class="nav-item dropdown">
+			<button class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+				Select Camera
+			</button>
+			<ul class="dropdown-menu" id="camera-select" data-bs-theme="dark"></ul>
+		</li>
+	</ul>
+	<span id="fps" style="width: 80px; text-align: center;">-1</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="camera-display"></div>
+<canvas id="hidden-canvas" class="d-none"></canvas>
+<div id="camera-box-tmp" class="d-none"></div>
+
+
+<script> console.warn("TODO: USE _POPUP.HTML") </script>
+<div id="Window_NewConfig" class="d-none">
+	<div class="card camera-card">
+		<h4 class="card-header">Configure Camera</h4>
+		<div class="card-body">
+			<video></video>
+		</div>
+		<div class="card-footer container-fluid">
+			<div class="row">
+				<button id="wnc-new" class="col-md-auto btn btn-primary">Create New Config</button>
+				<i class="p-1 col-md"></i>
+				<button class="col-md-auto btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+					Select Existing Configuration
+				</button>
+				<ul class="dropdown-menu col-md-auto" id="wnc-ex" data-bs-theme="dark"></ul>
+				<i class="p-1 col-md-auto"></i>
+				<button id="wnc-cancel" class="col-md-auto btn btn-danger">Cancel</button>
+			</div>
+			<div class="row mt-3">
+				<div class="col-md">
+					<label class="form-label" for="wnc-name">Name</label>
+					<input type="text" id="wnc-name" class="form-control">
+				</div>
+				<div class="col-md-auto">
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" value="" id="wnc-autostart">
+						<label class="form-check-label" for="wnc-autostart">
+							Auto-start
+						</label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" value="" id="wnc-flipHorizontal">
+						<label class="form-check-label" for="wnc-flipHorizontal">
+							Flip Horizontal
+						</label>
+					</div>
+				</div>
+				<div class="col-md-auto">
+					<label class="form-label" for="wnc-threshold">Threshold</label>
+					<input type="range" min="0" max="1" step="0.01" list="threshold-ticks" id="wnc-threshold" class="form-range">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<datalist id="threshold-ticks">
+	<option>0.15</option>
+	<option>0.3</option>
+</datalist>
+
+<script src="{{ url_for('CameraWebsite.static', filename='js/camsite.js') }}"></script>
+{% endblock %}

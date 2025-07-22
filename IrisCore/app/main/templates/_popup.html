@@ -1,0 +1,41 @@
+<div id="popupBackground" onclick="closePopup()" hidden>
+	<div id="popup" onclick="event.stopPropagation()"></div>
+</div>
+
+<script>
+    function updateTimestamps() {
+        document.querySelectorAll('.flask-moment').forEach(function(element) {
+            var timestamp = element.getAttribute('data-timestamp');
+            var funct = element.getAttribute('data-function');
+            var format = element.getAttribute('data-format');
+            element.textContent = moment(timestamp)[funct](format);
+            element.style = null
+        });
+    }
+
+    let popup = {
+        background: document.getElementById("popupBackground"),
+        content: document.getElementById("popup"),
+        listeners_open: [updateTimestamps],
+        listeners_close: []
+    }
+    function closePopup() {
+        popup.background.hidden = true
+        popup.listeners_close.forEach(l => l())
+    }
+    function openPopup(content) {
+        popup.background.hidden = false
+        popup.content.innerHTML = content
+        popup.listeners_open.forEach(l => l())
+    }
+    function openPopupURL(url) {
+        fetch(url)
+            .then(resp => resp.text()
+                .then(cont => openPopup(cont))
+                .catch(err => console.log(err))
+            )
+            .catch(err => console.log(err))
+    }
+</script>
+
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/popup.css') }}">

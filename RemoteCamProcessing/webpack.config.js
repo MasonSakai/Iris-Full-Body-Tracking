@@ -4,7 +4,7 @@ const path = require('path');
 module.exports = {
     mode: 'development',
     entry: {
-        index: './src/index.js',
+        camsite: './src/camsite.js',
         CameraWorker: './src/CameraWorker.js'
     },
     output: {

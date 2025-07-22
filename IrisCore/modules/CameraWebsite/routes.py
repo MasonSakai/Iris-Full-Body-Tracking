@@ -8,7 +8,7 @@ from CameraWebsite import cam_web_blueprint as bp_cam
 
 @bp_cam.route('/')
 def index():
-    return render_template('index.html', title='Remote Camera Process')
+    return render_template('camsite.html', title='Remote Camera Process')
 
 
 @bp_cam.route('/cameras')
