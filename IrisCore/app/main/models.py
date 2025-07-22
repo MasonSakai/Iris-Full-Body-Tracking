@@ -59,6 +59,16 @@ class CVUndistortableCamera(Camera):
 	def get_camera_params(self):
 		return (pickle.loads(self.camera_matrix), pickle.loads(self.dist_coeffs))
 
+	def rescale_camera_matrix(self, shape):
+		sy = shape[0] / self.calib_res_height
+		
+		mat = pickle.loads(self.camera_matrix)
+		mat *= sy
+		mat[0, 2] += (shape[1] - sy * self.calib_res_width) / 2
+		mat[2, 2] = 1
+
+		return mat
+
 	def set_transform(self, transform: np.array):
 		self.transform = pickle.dumps(transform)
 		db.session.commit()

@@ -67,18 +67,56 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
 			print(e, data) #, positions, pose_positions, scores, pose_scores, sep='\n')
 
 	def on_image(self, data_url):
-		(camera_matrix, dist_coeffs) = self.cam.get_camera_params()
+		(_, dist_coeffs) = self.cam.get_camera_params()
 
-		image = cv.imdecode(np.frombuffer(base64.b64decode(data_url.split(',')[1]), np.uint8), cv.IMREAD_COLOR)
-		print(image.shape)
-		image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-		image = self.cam.undistortImage(image, camera_matrix, dist_coeffs)
+		img = cv.imdecode(np.frombuffer(base64.b64decode(data_url.split(',')[1]), np.uint8), cv.IMREAD_COLOR)
+		img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+		camera_matrix = self.cam.rescale_camera_matrix(img.shape)
+		img = self.cam.undistortImage(img, camera_matrix, dist_coeffs)
+		
+		scale = 3
+		if scale > 1 and img.shape == (480, 640):
+			kern = np.array([[-1, -1, -1], [-1,  9, -1], [-1, -1, -1]])
+			img = cv.resize(img, None, fx=scale, fy=scale, interpolation=cv.INTER_CUBIC)
+			img = cv.filter2D(img, -1, kern)
+			
+		camera_matrix = self.cam.rescale_camera_matrix(img.shape)
+		params = [camera_matrix[0, 0], camera_matrix[1, 1], camera_matrix[0, 2], camera_matrix[1, 2]]
+
+		image = cv.cvtColor(img, cv.COLOR_GRAY2BGR)
+		hasTag = False
+
+		sd = 0.1016
+		sr = 0.1095
 
 		detectors = db.session.scalars(sqla.select(AprilTagDetector)).all()
 		for detector in detectors:
 			detector = detector.createDetector()
-			res = detector.detect(image, True, [camera_matrix[0, 0], camera_matrix[0, 2], camera_matrix[1, 1], camera_matrix[1, 2]], 0.11176022352)
-			print(self.cam.id, res)
+			res = detector.detect(img, True, params, sd)
+			print(self.cam.id, len(res))
+			for r in res:
+				hasTag = True
+				# extract the bounding box (x, y)-coordinates for the AprilTag
+				# and convert each of the (x, y)-coordinate pairs to integers
+				(ptA, ptB, ptC, ptD) = r.corners
+				ptB = (int(ptB[0]), int(ptB[1]))
+				ptC = (int(ptC[0]), int(ptC[1]))
+				ptD = (int(ptD[0]), int(ptD[1]))
+				ptA = (int(ptA[0]), int(ptA[1]))
+				# draw the bounding box of the AprilTag detection
+				cv.line(image, ptA, ptB, (0, 255, 0), 2)
+				cv.line(image, ptB, ptC, (0, 255, 0), 2)
+				cv.line(image, ptC, ptD, (0, 255, 0), 2)
+				cv.line(image, ptD, ptA, (0, 255, 0), 2)
+				# draw the center (x, y)-coordinates of the AprilTag
+				(cX, cY) = (int(r.center[0]), int(r.center[1]))
+				cv.circle(image, (cX, cY), 5, (0, 0, 255), -1)
+				# draw the tag family on the image
+				dist = np.linalg.norm(r.pose_t * (sr/sd))
+				cv.putText(image, '{}:{} @ {}'.format(r.tag_family.decode("utf-8"), r.tag_id, dist),
+					(ptA[0], ptA[1] - 15), cv.FONT_HERSHEY_SIMPLEX, 0.25 * scale, (255, 0, 0), scale)
+
+		cv.imwrite('{}_{}_t.png'.format(self.cam.id, scale), image)
 
 	def on_caps(self, caps):
 		self.camCaps = caps
