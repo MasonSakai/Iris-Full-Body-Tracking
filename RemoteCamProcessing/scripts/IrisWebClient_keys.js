@@ -6,6 +6,7 @@ export const IrisWorkerKey = Object.freeze({
 	msg_image: 1003,
 	msg_requestParams: 1004,
 	msg_pose: 1005,
+	msg_requestCaps: 1006,
 
 	msg_debug: 2000,
 	msg_socket_event: 2001,

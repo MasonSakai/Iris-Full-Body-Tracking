@@ -83,7 +83,7 @@ export class Camera {
 		return this.el_card
 	}
 
-	processImage(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+	async processImage(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
 		canvas.width = this.el_video.videoWidth
 		canvas.height = this.el_video.videoHeight
 		ctx.drawImage(this.el_video, 0, 0)
@@ -95,11 +95,38 @@ export class Camera {
 		if (this.send_frame != false) {
 			var props = this.send_frame
 			this.send_frame = false
+
+			var stream: MediaStream = undefined
+
+			try {
+
+				stream = await Camera.GetCameraStream(this.config.camera_id, props)
+				if (stream) {
+					var settings = stream.getVideoTracks()[0].getSettings()
+					var vid_settings = (this.el_video.srcObject as MediaStream).getVideoTracks()[0].getSettings()
+					var dif = settings != vid_settings && (settings.width > vid_settings.width || settings.height > vid_settings.height)
+					if (!dif) {
+						props['deviceId'] = undefined
+						throw new Error(`Could not get new settings (${JSON.stringify(props)}), using existing stream (${settings.width}, ${settings.height}). Not actually an error`)
+					}
+
+					console.log(`Got new settings(${settings.width}, ${settings.height}), but not implimented yet`)
+				}
+
+			} catch (e) {
+				console.error(e.message)
+			}
+
 			this.ai_worker.postMessage({
 				key: IrisWorkerKey.msg_socket,
 				ev: 'image',
 				message: canvas.toDataURL()
 			})
+
+			if (stream) {
+				stream.getTracks().forEach(t => t.stop())
+			}
+
 		}
 	}
 
@@ -151,19 +178,25 @@ export class Camera {
 						data.name = this.config.name
 						data.camera_name = Camera.GetMixedName(v)
 
-						data.width = this.el_video.videoWidth;
-						data.height = this.el_video.videoHeight;
-
-						var stream = await Camera.GetCameraStream(this.config.camera_id)
+						var stream = this.el_video.srcObject as MediaStream
 						if (stream) {
-							var settings = stream.getVideoTracks()[0].getSettings();
-							data.cam_width = settings.width
-							data.cam_height = settings.height
+							data.settings = stream.getVideoTracks()[0].getSettings()
 						}
 
 						this.ai_worker.postMessage(data)
 					})
 					break;
+
+				case IrisWorkerKey.msg_requestCaps: {
+					var stream = this.el_video.srcObject as MediaStream
+					if (stream) {
+						this.ai_worker.postMessage({
+							key: IrisWorkerKey.msg_requestCaps,
+							caps: stream.getVideoTracks()[0].getCapabilities()
+						})
+					}
+					break;
+				}
 
 				case IrisWorkerKey.msg_debug:
 					console.log(`Camera worker ${this.config.name }`, data.message)
@@ -221,7 +254,7 @@ export class Camera {
 		const devices = await navigator.mediaDevices.enumerateDevices();
 		const videoDevices = devices.filter(device => device.kind === 'videoinput');
 		if (videoDevices[0].deviceId == '') {
-			await Camera.GetCameraStream();
+			(await Camera.GetCameraStream()).getTracks().forEach(t => t.stop());
 			return await Camera.GetCameras();
 		}
 		return videoDevices.map((videoDevice) => {

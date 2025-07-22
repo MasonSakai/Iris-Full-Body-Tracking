@@ -34,6 +34,9 @@ self.onmessage = async function (ev: MessageEvent) {
 			case IrisWorkerKey.msg_requestParams:
 				socket.emit("params", data)
 				break;
+			case IrisWorkerKey.msg_requestCaps:
+				socket.emit("caps", data.caps)
+				break;
 		}
 	} catch (e) {
 		postMessage({
@@ -123,6 +126,9 @@ function StartSocket() {
 	})
 	socket.on('image', (data) => {
 		postMessage({ key: IrisWorkerKey.msg_image, constraints: data })
+	})
+	socket.on('caps', () => {
+		postMessage({ key: IrisWorkerKey.msg_requestCaps })
 	})
 }
 

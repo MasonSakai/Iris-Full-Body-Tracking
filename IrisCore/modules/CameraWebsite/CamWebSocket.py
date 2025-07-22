@@ -18,12 +18,13 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
 	
 	sid: str
 	cam: WebsiteCamera
+	camCaps: dict[str, dict | int | float] | None = None
 
 	def __init__(self, sid, cam):
 		self.sid = sid
 		self.cam = cam
 
-		socketio.emit('image', 'max', namespace='/camsite', to=sid)
+		socketio.emit('caps', namespace='/camsite', to=sid)
 
 	def on_disconnect(self, reason):
 		print(reason)
@@ -35,6 +36,9 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
 	def on_pose(self, data):
 		positions = []
 		scores = []
+		
+		pose_positions = []
+		pose_scores = {}
 
 		try:
 			(camera_matrix, dist_coeffs) = self.cam.get_camera_params()
@@ -60,8 +64,7 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
 				self.positions = positions
 				self.scores = scores
 		except Exception as e:
-			print(e)
-			disconnect(self.sid, '/camsite')
+			print(e, data) #, positions, pose_positions, scores, pose_scores, sep='\n')
 
 	def on_image(self, data_url):
 		(camera_matrix, dist_coeffs) = self.cam.get_camera_params()
@@ -77,6 +80,12 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
 			res = detector.detect(image, True, [camera_matrix[0, 0], camera_matrix[0, 2], camera_matrix[1, 1], camera_matrix[1, 2]], 0.11176022352)
 			print(self.cam.id, res)
 
+	def on_caps(self, caps):
+		self.camCaps = caps
+		socketio.emit('image', {
+			'width': caps['width']['max'],
+			'height': caps['height']['max']
+		}, namespace='/camsite', to=self.sid)
 
 	def get_priority_positions(self):
 		return 20
@@ -120,4 +129,8 @@ def on_image(data):
 		sockets[sid_dict[request.sid]].on_image(data)
 	except ... as e:
 		print(e)
+
+@socketio.on('caps', namespace='/camsite')
+def on_caps(data):
+	sockets[sid_dict[request.sid]].on_caps(data)
 
