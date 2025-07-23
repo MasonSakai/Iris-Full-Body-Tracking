@@ -1,3 +1,4 @@
+from flask import flash
 from config import Config
 from app import create_app, start_app, db
 from app.IrisModules import imported_modules, IrisModule
@@ -19,6 +20,7 @@ def initDB(*args, **kwargs):
         db.create_all()
         if db.session.scalars(sqla.select(AprilTagDetector)).first() is None:
             db.session.add(AprilTagDetector(families="tag36h11"))
+            flash('Auto-created april tag detector for family tag36h11')
         db.session.commit()
 
 

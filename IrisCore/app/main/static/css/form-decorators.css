@@ -1,0 +1,37 @@
+.form-hor, .form-hor-nr {
+	display: flex;
+	flex-direction: column;
+}
+
+.form-hor > *, .form-hor-nr > * {
+	flex: 1 0 0px;
+}
+
+@media screen and (min-width: 480px) {
+	.form-hor {
+		flex-direction: row;
+		margin-left: -24px;
+	}
+
+	.form-hor > * {
+		margin-left: 24px;
+	}
+}
+
+@media screen and (min-width: 1200px) {
+	.popup-form {
+		width: 32vw;
+	}
+}
+
+@media screen and (min-width: 800px) and (max-width: 1200px) {
+	.popup-form {
+		width: 48vw;
+	}
+}
+
+@media screen and (max-width: 800px) {
+	.popup-form {
+		width: 80vw;
+	}
+}

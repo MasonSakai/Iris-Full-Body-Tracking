@@ -21,3 +21,5 @@ class TransformedDataSource(DataSource):
 	
 	def get_source_transform(self):
 		return np.identity(4, np.float64)
+
+#add weighted?

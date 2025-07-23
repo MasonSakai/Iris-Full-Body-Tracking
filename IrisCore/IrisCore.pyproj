@@ -22,6 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app\apriltag\forms.py" />
     <Compile Include="app\apriltag\models.py" />
     <Compile Include="app\apriltag\routes.py" />
     <Compile Include="app\apriltag\__init__.py">
@@ -65,14 +66,16 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app\apriltag\static\css\apriltag.css" />
+    <Content Include="app\main\static\css\form-decorators.css" />
+    <Content Include="app\apriltag\static\pdf\april-tags-pairs.pdf" />
+    <Content Include="app\apriltag\static\pdf\april-tags-sixes.pdf" />
     <Content Include="app\apriltag\templates\apriltag.html" />
+    <Content Include="app\apriltag\templates\_view_detector.html" />
     <Content Include="app\main\static\css\popup.css" />
     <Content Include="app\main\static\img\github-mark-white.png" />
-    <Content Include="app\main\templates\github-mark-white.svg" />
     <Content Include="app\main\static\img\github-mark.png" />
-    <Content Include="app\main\templates\github-mark.svg" />
     <Content Include="app\main\templates\base.html" />
+    <Content Include="app\main\templates\bootstrap_wtf.html" />
     <Content Include="app\main\templates\_popup.html" />
     <Content Include="modules\CameraWebsite\templates\_cam_box.html" />
     <Content Include="modules\CameraWebsite\templates\camsite.html" />
@@ -88,6 +91,7 @@
     <Folder Include="app\apriltag\static\" />
     <Folder Include="app\apriltag\static\css\" />
     <Folder Include="app\apriltag\static\js\" />
+    <Folder Include="app\apriltag\static\pdf\" />
     <Folder Include="app\apriltag\templates\" />
     <Folder Include="app\dataproviders\" />
     <Folder Include="app\main\" />

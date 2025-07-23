@@ -23,9 +23,9 @@ class AprilTagDetector(db.Model):
     families : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64), unique=True, index=True)
 
     nthreads : sqlo.Mapped[int] = sqlo.mapped_column(default=1)
-    quad_decimate : sqlo.Mapped[float] = sqlo.mapped_column(default=1.0)
+    quad_decimate : sqlo.Mapped[float] = sqlo.mapped_column(default=2.0)
     quad_sigma : sqlo.Mapped[float] = sqlo.mapped_column(default=0.0)
-    refine_edges : sqlo.Mapped[int] = sqlo.mapped_column(default=1)
+    refine_edges : sqlo.Mapped[bool] = sqlo.mapped_column(default=True)
     decode_sharpening : sqlo.Mapped[float] = sqlo.mapped_column(default=0.25)
     default_tag_size : sqlo.Mapped[float] = sqlo.mapped_column(default=0.1016)
 
