@@ -8,11 +8,33 @@ from CameraWebsite.models import WebsiteCamera
 from app.dataproviders.position import RayPositionSource, ScoredPositionSource
 from app.synchronize import source_pose_lock
 from app.apriltag.models import AprilTagDetector
+from app.apriltag import add_found_tag
 from flask_socketio import disconnect
 
 
 sid_dict = {}
 sockets = {}
+
+def drawTag(image, r, scale):
+    # extract the bounding box (x, y)-coordinates for the AprilTag
+    # and convert each of the (x, y)-coordinate pairs to integers
+    (ptA, ptB, ptC, ptD) = r.corners
+    ptB = (int(ptB[0]), int(ptB[1]))
+    ptC = (int(ptC[0]), int(ptC[1]))
+    ptD = (int(ptD[0]), int(ptD[1]))
+    ptA = (int(ptA[0]), int(ptA[1]))
+    # draw the bounding box of the AprilTag detection
+    cv.line(image, ptA, ptB, (0, 255, 0), 2)
+    cv.line(image, ptB, ptC, (0, 255, 0), 2)
+    cv.line(image, ptC, ptD, (0, 255, 0), 2)
+    cv.line(image, ptD, ptA, (0, 255, 0), 2)
+    # draw the center (x, y)-coordinates of the AprilTag
+    (cX, cY) = (int(r.center[0]), int(r.center[1]))
+    cv.circle(image, (cX, cY), 5, (0, 0, 255), -1)
+    # draw the tag family on the image
+    dist = np.linalg.norm(r.pose_t)
+    cv.putText(image, '{}:{} @ {}'.format(r.tag_family.decode("utf-8"), r.tag_id, dist),
+        (ptA[0], ptA[1] - 15), cv.FONT_HERSHEY_SIMPLEX, 0.25 * scale, (255, 0, 0), scale)
 
 class CamWebSocket(RayPositionSource, ScoredPositionSource):
     
@@ -87,27 +109,12 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
         detectors = db.session.scalars(sqla.select(AprilTagDetector)).all()
         for detector in detectors:
             (res, tags) = detector.detect(img, camera_matrix)
-            print(self.cam.id, len(res), len(list(map(lambda t: t[1], tags))))
+            print(self.cam.id, len(res), len(tags))
             for r in res:
-                # extract the bounding box (x, y)-coordinates for the AprilTag
-                # and convert each of the (x, y)-coordinate pairs to integers
-                (ptA, ptB, ptC, ptD) = r.corners
-                ptB = (int(ptB[0]), int(ptB[1]))
-                ptC = (int(ptC[0]), int(ptC[1]))
-                ptD = (int(ptD[0]), int(ptD[1]))
-                ptA = (int(ptA[0]), int(ptA[1]))
-                # draw the bounding box of the AprilTag detection
-                cv.line(image, ptA, ptB, (0, 255, 0), 2)
-                cv.line(image, ptB, ptC, (0, 255, 0), 2)
-                cv.line(image, ptC, ptD, (0, 255, 0), 2)
-                cv.line(image, ptD, ptA, (0, 255, 0), 2)
-                # draw the center (x, y)-coordinates of the AprilTag
-                (cX, cY) = (int(r.center[0]), int(r.center[1]))
-                cv.circle(image, (cX, cY), 5, (0, 0, 255), -1)
-                # draw the tag family on the image
-                dist = np.linalg.norm(r.pose_t)
-                cv.putText(image, '{}:{} @ {}'.format(r.tag_family.decode("utf-8"), r.tag_id, dist),
-                    (ptA[0], ptA[1] - 15), cv.FONT_HERSHEY_SIMPLEX, 0.25 * scale, (255, 0, 0), scale)
+                drawTag(image, r, scale)
+                add_found_tag(self.cam, r)
+            for (r, _) in tags:
+                drawTag(image, r, scale)
 
     def on_caps(self, caps):
         self.camCaps = caps

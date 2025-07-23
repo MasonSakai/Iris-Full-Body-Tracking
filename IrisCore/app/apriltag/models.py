@@ -17,7 +17,6 @@ class AprilTag(db.Model):
     #relationships
     detector : sqlo.Mapped['AprilTagDetector'] = sqlo.relationship(back_populates='april_tags')
 
-
 class AprilTagDetector(db.Model):
     id : sqlo.Mapped[int] = sqlo.mapped_column(primary_key=True)
     families : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64), unique=True, index=True)
@@ -27,7 +26,7 @@ class AprilTagDetector(db.Model):
     quad_sigma : sqlo.Mapped[float] = sqlo.mapped_column(default=0.0)
     refine_edges : sqlo.Mapped[bool] = sqlo.mapped_column(default=True)
     decode_sharpening : sqlo.Mapped[float] = sqlo.mapped_column(default=0.25)
-    default_tag_size : sqlo.Mapped[float] = sqlo.mapped_column(default=0.1016)
+    default_tag_size : sqlo.Mapped[float] = sqlo.mapped_column(default=0.1095)
 
     _detector: ClassVar[Detector] = None
 
@@ -58,10 +57,11 @@ class AprilTagDetector(db.Model):
 
         tags = []
 
-        for i in range(len(res)):
+        for i in range(len(res)-1, -1, -1):
             tag = db.session.scalars(self.april_tags.select().where(AprilTag.tag_id == res[i].tag_id and AprilTag.family == res[i].tag_family)).first()
             if (tag):
-                res[i].pose_t *= tag.tag_size / self.default_tag_size
-                tags.append((i, tag))
+                r = res.pop(i)
+                r.pose_t *= tag.tag_size / self.default_tag_size
+                tags.append((r, tag))
 
         return (res, tags)

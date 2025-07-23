@@ -1,5 +1,7 @@
-<div id="popupBackground" onclick="closePopup()" hidden>
-	<div id="popup" onclick="event.stopPropagation()"></div>
+<div id="popupBackground" onclick="closePopup()" {%- if not popup_contents %}hidden{% endif -%}>
+	<div id="popup" onclick="event.stopPropagation()">
+        {{ popup_contents | safe }}
+    </div>
 </div>
 
 <script>

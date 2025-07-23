@@ -9,11 +9,11 @@ import sqlalchemy as sqla
 class DetectorForm(FlaskForm):
     
     families = StringField('Tag Families', validators=[DataRequired()])
-    nthreads = IntegerField('Number of threads', validators=[DataRequired(), NumberRange(min=1)])
-    quad_decimate = FloatField('Quad Decimate', validators=[DataRequired(), NumberRange(min=0)])
-    quad_sigma = FloatField('Quad Sigma', validators=[DataRequired(), NumberRange(min=0)])
+    nthreads = IntegerField('Number of threads', validators=[NumberRange(min=1)])
+    quad_decimate = FloatField('Quad Decimate', validators=[NumberRange(min=0)])
+    quad_sigma = FloatField('Quad Sigma', validators=[NumberRange(min=0)])
     refine_edges = BooleanField('Refine Edges')
-    decode_sharpening = FloatField('Decode Sharpening', validators=[DataRequired(), NumberRange(min=0)])
-    default_tag_size = FloatField('Default tag size (cm)', validators=[DataRequired(), NumberRange(min=0)])
+    decode_sharpening = FloatField('Decode Sharpening', validators=[NumberRange(min=0)])
+    default_tag_size = FloatField('Default tag size (cm)', validators=[NumberRange(min=0)])
 
     submit = SubmitField('Submit')

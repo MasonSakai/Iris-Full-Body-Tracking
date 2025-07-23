@@ -2,17 +2,18 @@ from flask import flash, redirect, render_template, request, url_for
 import sqlalchemy as sqla
 
 from app import db
-from app.apriltag import apriltag_blueprint as bp_aptg
+from app.apriltag import apriltag_blueprint as bp_aptg, found_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
 from app.apriltag.forms import DetectorForm
 
 @bp_aptg.route('/')
-def index():
+def index(popup_contents=''):
     tags = db.session.scalars(sqla.select(AprilTag)).all()
     detectors = db.session.scalars(sqla.select(AprilTagDetector)).all()
 
     return render_template('apriltag.html', title='April Tag Manager',
-                           known_tags=tags, detectors=detectors, found_tags=[])
+                           known_tags=tags, detectors=detectors, found_tags=found_tags,
+                           popup_contents=popup_contents)
 
 
 
@@ -40,8 +41,9 @@ def view_detector(id):
         form.refine_edges.data = detector.refine_edges
         form.decode_sharpening.data = detector.decode_sharpening
         form.default_tag_size.data = detector.default_tag_size * 100
-    
-    return render_template('_view_detector.html', form=form, detector=detector)
+        return render_template('_view_detector.html', form=form, detector=detector)
+
+    return index(popup_contents=render_template('_view_detector.html', form=form, detector=detector))
 
 @bp_aptg.route('/detectors/<id>/delete', )
 def delete_detector(id):
@@ -59,3 +61,14 @@ def view_tag(id):
 @bp_aptg.route('/tags/found/<family>:<id>')
 def view_found_tag(family, id):
     pass
+
+@bp_aptg.route('/tags/found/clear')
+def clear_found_tags():
+    found_tags.clear()
+    return redirect(url_for('apriltag.index'))
+
+@bp_aptg.route('/tags/found/refresh')
+def refresh_found_tags():
+    #found_tags.clear()
+    #send message to sources
+    return redirect(url_for('apriltag.index'))
