@@ -10,7 +10,7 @@ class AprilTag(db.Model):
     
     tag_id : sqlo.Mapped[int] = sqlo.mapped_column(primary_key=True, index=True)
     family : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(16))
-    tag_size: sqlo.Mapped[float] = sqlo.mapped_column(default=0.1095)
+    tag_size: sqlo.Mapped[float] = sqlo.mapped_column(default=0.1125)
     
     detector_id : sqlo.Mapped[int] = sqlo.mapped_column(sqla.ForeignKey('april_tag_detector.id'))
     
@@ -26,7 +26,7 @@ class AprilTagDetector(db.Model):
     quad_sigma : sqlo.Mapped[float] = sqlo.mapped_column(default=0.0)
     refine_edges : sqlo.Mapped[bool] = sqlo.mapped_column(default=True)
     decode_sharpening : sqlo.Mapped[float] = sqlo.mapped_column(default=0.25)
-    default_tag_size : sqlo.Mapped[float] = sqlo.mapped_column(default=0.1095)
+    default_tag_size : sqlo.Mapped[float] = sqlo.mapped_column(default=0.173)
 
     _detector: ClassVar[Detector] = None
 
