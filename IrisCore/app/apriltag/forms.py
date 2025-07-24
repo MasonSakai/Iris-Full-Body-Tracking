@@ -17,3 +17,12 @@ class DetectorForm(FlaskForm):
     default_tag_size = FloatField('Default tag size (cm)', validators=[NumberRange(min=0)])
 
     submit = SubmitField('Submit')
+
+    #add families validator to prevent duplicates?
+
+class FoundTagForm(FlaskForm):
+    
+    display_name = StringField('Display Name', validators=[DataRequired()])
+    tag_size = FloatField('Tag Size (cm)', validators=[NumberRange(min=0)])
+
+    submit = SubmitField('Create')

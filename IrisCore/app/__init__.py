@@ -10,7 +10,7 @@ migrate = Migrate()
 moment = Moment()
 socketio = SocketIO()
 
-from app.IrisModules import getSubModules, startSubModules, stopSubModules
+from app.IrisModules import getSubModules
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -34,6 +34,4 @@ def create_app(config_class=Config):
 
 
 def start_app(app, config_class=Config):
-    startSubModules()
     socketio.run(app, debug=True, host='0.0.0.0', port=2674)
-    stopSubModules()

@@ -44,10 +44,9 @@ class CVUndistortableCamera(Camera):
     id: sqlo.Mapped[int] = sqlo.mapped_column(sqla.ForeignKey("camera.id"), primary_key=True)
     __mapper_args__ = {'polymorphic_identity': 'cv_undistortable_camera'}
 
-    undistort_image : sqlo.Mapped[bool] = sqlo.mapped_column(default=False)
-    camera_matrix: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
     calib_res_width: sqlo.Mapped[int] = sqlo.mapped_column(default=0)
     calib_res_height: sqlo.Mapped[int] = sqlo.mapped_column(default=0)
+    camera_matrix: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
     dist_coeffs: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
     transform: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
 

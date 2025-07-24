@@ -66,11 +66,13 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\apriltag\templates\_add_tag.html" />
     <Content Include="app\main\static\css\form-decorators.css" />
     <Content Include="app\apriltag\static\pdf\april-tags-pairs.pdf" />
     <Content Include="app\apriltag\static\pdf\april-tags-sixes.pdf" />
     <Content Include="app\apriltag\templates\apriltag.html" />
     <Content Include="app\apriltag\templates\_view_detector.html" />
+    <Content Include="app\main\static\css\main.css" />
     <Content Include="app\main\static\css\popup.css" />
     <Content Include="app\main\static\img\github-mark-white.png" />
     <Content Include="app\main\static\img\github-mark.png" />

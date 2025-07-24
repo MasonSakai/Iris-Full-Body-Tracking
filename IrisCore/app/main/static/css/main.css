@@ -1,0 +1,3 @@
+.list-span:not(:last-of-type):after {
+	content: ',';
+}

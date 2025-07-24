@@ -31,9 +31,3 @@ def getSubModules(app, config_class=Config):
 				print(f"Imported subpackage: {subpackage_name}")
 			except ImportError as e:
 				print(f"Could not import subpackage {subpackage_name}: {e}")
-
-def startSubModules():
-	print("Starting modules")
-
-def stopSubModules():
-	print("Stopping modules")

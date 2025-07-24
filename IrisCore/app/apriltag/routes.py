@@ -1,10 +1,13 @@
 from flask import flash, redirect, render_template, request, url_for
+from pupil_apriltags import Detector
 import sqlalchemy as sqla
+import numpy as np
 
 from app import db
 from app.apriltag import apriltag_blueprint as bp_aptg, found_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
-from app.apriltag.forms import DetectorForm
+from app.apriltag.forms import DetectorForm, FoundTagForm
+from app.main.models import Camera
 
 @bp_aptg.route('/')
 def index(popup_contents=''):
@@ -28,7 +31,7 @@ def view_detector(id):
         detector.quad_sigma = form.quad_sigma.data
         detector.refine_edges = form.refine_edges.data
         detector.decode_sharpening = form.decode_sharpening.data
-        detector.default_tag_size = form.default_tag_size.data / 100
+        detector.default_tag_size = form.default_tag_size.data / 100.
 
         db.session.commit()
         flash('Detector {} Updated'.format(detector.id))
@@ -58,9 +61,44 @@ def delete_detector(id):
 def view_tag(id):
     pass
 
-@bp_aptg.route('/tags/found/<family>:<id>')
+@bp_aptg.route('/tags/found/<family>:<id>', methods=['GET', 'POST'])
 def view_found_tag(family, id):
-    pass
+    id = int(id)
+
+    res: Detector = None
+    sources: dict[Camera, list[Detector]] = {}
+    index = -1
+
+    for (i, (i_res, i_sources)) in enumerate(found_tags):
+        if i_res.tag_family.decode('utf-8') == family and i_res.tag_id == id:
+            index = i
+            res = i_res
+            sources = i_sources
+            break
+
+    r_sources = {}
+    for source in sources:
+        r_sources[source] = (sources[source], np.linalg.norm(sources[source].pose_t))
+        
+    detector = db.session.scalars(sqla.select(AprilTagDetector).where(AprilTagDetector.families.contains(family))).first()
+
+    form = FoundTagForm()
+    if form.validate_on_submit():
+        tag = AprilTag(tag_id = id, tag_family=family,
+                       tag_size = form.tag_size.data / 100., display_name=form.display_name.data)
+        db.session.add(tag)
+        db.session.commit()
+        found_tags.pop(index)
+        flash('Tag {} ({}:{}) Added'.format(tag.display_name, tag.tag_family, tag.tag_id))
+        return redirect(url_for('apriltag.index'))
+
+    elif request.method == 'GET':
+
+        form.display_name.data = '{}:{}'.format(family, id)
+        form.tag_size.data = detector.default_tag_size * 100.
+        return render_template('_add_tag.html', form=form, tag=res, sources=r_sources, detector=detector)
+
+    return index(popup_contents=render_template('_add_tag.html', form=form, tag=res, sources=r_sources, detector=detector))
 
 @bp_aptg.route('/tags/found/clear')
 def clear_found_tags():

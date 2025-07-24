@@ -8,33 +8,12 @@ from CameraWebsite.models import WebsiteCamera
 from app.dataproviders.position import RayPositionSource, ScoredPositionSource
 from app.synchronize import source_pose_lock
 from app.apriltag.models import AprilTagDetector
-from app.apriltag import add_found_tag
+from app.apriltag import add_found_tag, drawTag
 from flask_socketio import disconnect
 
 
 sid_dict = {}
 sockets = {}
-
-def drawTag(image, r, scale):
-    # extract the bounding box (x, y)-coordinates for the AprilTag
-    # and convert each of the (x, y)-coordinate pairs to integers
-    (ptA, ptB, ptC, ptD) = r.corners
-    ptB = (int(ptB[0]), int(ptB[1]))
-    ptC = (int(ptC[0]), int(ptC[1]))
-    ptD = (int(ptD[0]), int(ptD[1]))
-    ptA = (int(ptA[0]), int(ptA[1]))
-    # draw the bounding box of the AprilTag detection
-    cv.line(image, ptA, ptB, (0, 255, 0), 2)
-    cv.line(image, ptB, ptC, (0, 255, 0), 2)
-    cv.line(image, ptC, ptD, (0, 255, 0), 2)
-    cv.line(image, ptD, ptA, (0, 255, 0), 2)
-    # draw the center (x, y)-coordinates of the AprilTag
-    (cX, cY) = (int(r.center[0]), int(r.center[1]))
-    cv.circle(image, (cX, cY), 5, (0, 0, 255), -1)
-    # draw the tag family on the image
-    dist = np.linalg.norm(r.pose_t)
-    cv.putText(image, '{}:{} @ {}'.format(r.tag_family.decode("utf-8"), r.tag_id, dist),
-        (ptA[0], ptA[1] - 15), cv.FONT_HERSHEY_SIMPLEX, 0.25 * scale, (255, 0, 0), scale)
 
 class CamWebSocket(RayPositionSource, ScoredPositionSource):
     
@@ -64,6 +43,8 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
 
         try:
             (camera_matrix, dist_coeffs) = self.cam.get_camera_params()
+            if (len(camera_matrix) == 0):
+                return
 
             for pose in data['pose']:
                 pose_positions = []
@@ -116,12 +97,15 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
             for (r, _) in tags:
                 drawTag(image, r, scale)
 
+        cv.imwrite('images/{}-{}.png'.format(self.cam.id, scale), image)
+
     def on_caps(self, caps):
         self.camCaps = caps
-        socketio.emit('image', {
-            'width': caps['width']['max'],
-            'height': caps['height']['max']
-        }, namespace='/camsite', to=self.sid)
+        if self.cam.calib_res_width > 0:
+            socketio.emit('image', {
+                'width': caps['width']['max'],
+                'height': caps['height']['max']
+            }, namespace='/camsite', to=self.sid)
 
     def get_priority_positions(self):
         return 20
@@ -163,7 +147,7 @@ def on_pose(data):
 def on_image(data):
     try:
         sockets[sid_dict[request.sid]].on_image(data)
-    except ... as e:
+    except BaseException as e:
         print(e)
 
 @socketio.on('caps', namespace='/camsite')

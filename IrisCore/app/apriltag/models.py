@@ -7,19 +7,16 @@ from pupil_apriltags import Detector
 
 class AprilTag(db.Model):
     id : sqlo.Mapped[int] = sqlo.mapped_column(primary_key=True)
-    
-    tag_id : sqlo.Mapped[int] = sqlo.mapped_column(primary_key=True, index=True)
-    family : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(16))
+
+    tag_id : sqlo.Mapped[int] = sqlo.mapped_column(index=True)
+    tag_family : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(16), index=True)
     tag_size: sqlo.Mapped[float] = sqlo.mapped_column(default=0.1125)
     
-    detector_id : sqlo.Mapped[int] = sqlo.mapped_column(sqla.ForeignKey('april_tag_detector.id'))
-    
-    #relationships
-    detector : sqlo.Mapped['AprilTagDetector'] = sqlo.relationship(back_populates='april_tags')
+    display_name : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64), unique=True)
 
 class AprilTagDetector(db.Model):
     id : sqlo.Mapped[int] = sqlo.mapped_column(primary_key=True)
-    families : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64), unique=True, index=True)
+    families : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64), index=True)
 
     nthreads : sqlo.Mapped[int] = sqlo.mapped_column(default=1)
     quad_decimate : sqlo.Mapped[float] = sqlo.mapped_column(default=2.0)
@@ -29,9 +26,6 @@ class AprilTagDetector(db.Model):
     default_tag_size : sqlo.Mapped[float] = sqlo.mapped_column(default=0.173)
 
     _detector: ClassVar[Detector] = None
-
-    #relationships
-    april_tags : sqlo.WriteOnlyMapped[AprilTag] = sqlo.relationship(back_populates='detector', passive_deletes=True)
     
     #functions
     def __repr__(self):
@@ -58,7 +52,7 @@ class AprilTagDetector(db.Model):
         tags = []
 
         for i in range(len(res)-1, -1, -1):
-            tag = db.session.scalars(self.april_tags.select().where(AprilTag.tag_id == res[i].tag_id and AprilTag.family == res[i].tag_family)).first()
+            tag = db.session.scalars(sqla.select(AprilTag).where(AprilTag.tag_id == res[i].tag_id and AprilTag.family == res[i].tag_family)).first()
             if (tag):
                 r = res.pop(i)
                 r.pose_t *= tag.tag_size / self.default_tag_size

@@ -1,0 +1,49 @@
+{% import 'bootstrap_wtf.html' as wtf %}
+
+<div class="card popup-form">
+	<div class="card-header text-center">
+		<div>
+			<h4>Viewing Found Tag {{ tag.tag_family.decode("utf-8") }}:{{ tag.tag_id }}</h4>
+		</div>
+	</div>
+	<form action="{{ url_for('apriltag.view_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id) }}" method="POST">
+		{{ form.hidden_tag() }}
+
+		<div class="card-body">
+			{{ wtf.form_field(form.display_name) }}
+			{{ wtf.form_field(form.tag_size) }}
+
+			<h6>Cameras:</h6>
+			<div class="container-fluid row">
+				{% for source, (res, dist) in sources.items() %}
+				<div class="col-auto">
+					{{ source.display_name }} @ <span dist="{{ dist }}"></span> m
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+
+		<div class="card-footer">
+			<div class="form-hor">
+				{{ wtf.form_field(form.submit) }}
+				<button type="button" class="btn btn-secondary mb-3" onclick="closePopup()">Cancel</button>
+			</div>
+			<a href="{ { url_for('apriltag.remove_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id) }}" class="btn btn-outline-warning form-control mb-3">Clear</a>
+		</div>
+	</form>
+	<script>
+		dists = document.querySelectorAll('.popup-form span[dist]')
+		def_size = {{ detector.default_tag_size * 100 }}
+		size = document.getElementById('tag_size')
+
+		function updateDists() {
+			for (const dist of dists) {
+				d = parseFloat(dist.getAttribute('dist'))
+				d *= parseFloat(size.value) / def_size
+				dist.innerText = d.toPrecision(5)
+			}
+		}
+		updateDists()
+		size.oninput = updateDists
+	</script>
+</div>

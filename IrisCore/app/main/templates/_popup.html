@@ -23,11 +23,13 @@
     }
     function closePopup() {
         popup.background.hidden = true
+        popup.content.innerHTML = ''
         popup.listeners_close.forEach(l => l())
     }
     function openPopup(content) {
         popup.background.hidden = false
-        popup.content.innerHTML = content
+		const frag = document.createRange().createContextualFragment(content);
+        popup.content.appendChild(frag)
         popup.listeners_open.forEach(l => l())
     }
     function openPopupURL(url) {
