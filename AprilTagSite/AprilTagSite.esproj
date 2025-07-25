@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2752196">
+  <PropertyGroup>
+    <BuildCommand>npm run build &amp;&amp; XCOPY "$(ProjectDir)dist" "$(SolutionDir)IrisCore\app\apriltag\static\js" /S /Y /I</BuildCommand>
+  </PropertyGroup>
+</Project>

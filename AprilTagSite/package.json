@@ -1,0 +1,24 @@
+{
+	"name": "apriltagsite",
+	"version": "1.0.0",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "tsc --build && npx webpack",
+		"clean": "tsc --build --clean"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@types/node": "^24.1.0",
+		"eslint": "^9.31.0",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"@types/three": "^0.178.1",
+		"three": "^0.178.0",
+		"webpack": "^5.100.2",
+		"webpack-cli": "^6.0.1"
+	}
+}

@@ -1,101 +1,107 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>April Tag Manager</h1>
+<h1>April Tag Manager</h1>
 
-	<!-- Add (collapsable) 3d view of tags and sources? here, at end, or as pop-up -->
+<!-- Add (collapsable) 3d view of tags and sources? here, at end, or as pop-up -->
+<canvas id="tag-canvas" class="bg-dark-subtle rounded-5" width="640" height="480" style="display: block;"></canvas>
 
-	<div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
-		<table class="w-100 text-center table table-hover caption-top">
-			<caption class="ps-3 border-bottom border-dark-subtle">
-				<h5>April tag detectors: {{ detectors|length }}</h5>
-			</caption>
-			{% if detectors|length > 0 %}
-			<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
-				<tr>
-					<td class="p-2">ID</td>
-					<td class="p-2">Families</td>
-					<td class="p-2">Default Tag Size</td>
-				</tr>
-			</thead>
-			<tbody>
-				{% for detector in detectors %}
-				<tr id="detector-{{ detector.id }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_detector', id=detector.id)}}')">
-					<td class="p-2">{{ detector.id }}</td>
-					<td class="p-2">{{ detector.families }}</td>
-					<td class="p-2">{{ detector.default_tag_size * 100 }}cm</td>
-				</tr>
-				{% endfor %}
-			</tbody>
-			{% endif %}
-		</table>
-	</div>
+<div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
+	<table class="w-100 text-center table table-hover caption-top">
+		<caption class="ps-3 border-bottom border-dark-subtle">
+			<h5>April tag detectors: {{ detectors|length }}</h5>
+		</caption>
+		{% if detectors|length > 0 %}
+		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
+			<tr>
+				<td class="p-2">ID</td>
+				<td class="p-2">Families</td>
+				<td class="p-2">Default Tag Size</td>
+			</tr>
+		</thead>
+		<tbody>
+			{% for detector in detectors %}
+			<tr id="detector-{{ detector.id }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_detector', id=detector.id)}}')">
+				<td class="p-2">{{ detector.id }}</td>
+				<td class="p-2">{{ detector.families }}</td>
+				<td class="p-2">{{ detector.default_tag_size * 100 }}cm</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+		{% endif %}
+	</table>
+</div>
 
-	<div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
-		<table class="w-100 text-center table table-hover caption-top">
-			<caption class="ps-3 border-bottom border-dark-subtle"><h5>Known April Tags: {{ known_tags|length }}</h5></caption>
-			{% if known_tags|length > 0 %}
-			<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
-				<tr>
-					<td class="p-2">Name</td>
-					<td class="p-2">Family</td>
-					<td class="p-2">ID</td>
-					<td class="p-2">Tag Size</td>
-				</tr>
-			</thead>
-			<tbody>
-				{% for tag in known_tags %}
-				<tr id="tag-{{ tag.id }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_tag', id=tag.id)}}')">
-					<td class="p-2">{{ tag.display_name }}</td>
-					<td class="p-2">{{ tag.tag_family }}</td>
-					<td class="p-2">{{ tag.tag_id }}</td>
-					<td class="p-2">{{ tag.tag_size * 100 }}cm</td>
-				</tr>
-				{% endfor %}
-			</tbody>
-			{% endif %}
-		</table>
-	</div>
+<div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
+	<table class="w-100 text-center table table-hover caption-top">
+		<caption class="ps-3 border-bottom border-dark-subtle"><h5>Known April Tags: {{ known_tags|length }}</h5></caption>
+		{% if known_tags|length > 0 %}
+		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
+			<tr>
+				<td class="p-2">Name</td>
+				<td class="p-2">Family</td>
+				<td class="p-2">ID</td>
+				<td class="p-2">Tag Size</td>
+			</tr>
+		</thead>
+		<tbody>
+			{% for tag in known_tags %}
+			<tr id="tag-{{ tag.id }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_tag', id=tag.id)}}')">
+				<td class="p-2">{{ tag.display_name }}</td>
+				<td class="p-2">{{ tag.tag_family }}</td>
+				<td class="p-2">{{ tag.tag_id }}</td>
+				<td class="p-2">{{ tag.tag_size * 100 }}cm</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+		{% endif %}
+	</table>
+</div>
 
-	<div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
-		<table class="w-100 text-center table table-hover caption-top">
-			<caption class="ps-3 border-bottom border-dark-subtle">
-				<h5 style="display: inline-block;">Discovered April Tags: {{ found_tags|length }}</h5>
-				<span style="display: inline-block; width: 100px;">&nbsp;</span>
-				<a href="{{ url_for('apriltag.clear_found_tags') }}" class="btn btn-outline-warning me-2">Clear Found Tags</a>
-				<a href="{{ url_for('apriltag.refresh_found_tags') }}" class="btn btn-outline-info me-2">Refresh Found Tags</a>
-				<div></div>
-			</caption>
-			{% if found_tags|length > 0 %}
-			<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
-				<tr>
-					<td class="p-2">Family</td>
-					<td class="p-2">ID</td>
-					<td class="p-2">Seen by</td>
-				</tr>
-			</thead>
-			<tbody>
-				{% for (tag, sources) in found_tags %}
-				<tr id="tag-{{ tag.tag_family.decode("utf-8") }}:{{ tag.id }}" class="p-1 border-bottom border-dark-subtle"
-					onclick="openPopupURL('{{url_for('apriltag.view_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id)}}')">
-					<td class="p-2">{{ tag.tag_family.decode("utf-8") }}</td>
-					<td class="p-2">{{ tag.tag_id }}</td>
-					<td class="p-2">
-						{% for source in sources %}
-						<span class="list-span">{{ source.display_name }}</span>
-						{% endfor %}
-					</td>
-				</tr>
-				{% endfor %}
-			</tbody>
-			{% endif %}
-		</table>
-	</div>
+<div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
+	<table class="w-100 text-center table table-hover caption-top">
+		<caption class="ps-3 border-bottom border-dark-subtle">
+			<h5 style="display: inline-block;">Discovered April Tags: {{ found_tags|length }}</h5>
+			<span style="display: inline-block; width: 100px;">&nbsp;</span>
+			<a href="{{ url_for('apriltag.clear_found_tags') }}" class="btn btn-outline-warning me-2">Clear Found Tags</a>
+			<a href="{{ url_for('apriltag.refresh_found_tags') }}" class="btn btn-outline-info me-2">Refresh Found Tags</a>
+			<div></div>
+		</caption>
+		{% if found_tags|length > 0 %}
+		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
+			<tr>
+				<td class="p-2">Family</td>
+				<td class="p-2">ID</td>
+				<td class="p-2">Seen by</td>
+			</tr>
+		</thead>
+		<tbody>
+			{% for (tag, sources) in found_tags %}
+			<tr id="tag-{{ tag.tag_family.decode("utf-8") }}:{{ tag.id }}" class="p-1 border-bottom border-dark-subtle"
+				onclick="openPopupURL('{{url_for('apriltag.view_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id)}}')">
+				<td class="p-2">{{ tag.tag_family.decode("utf-8") }}</td>
+				<td class="p-2">{{ tag.tag_id }}</td>
+				<td class="p-2">
+					{% for source in sources %}
+					<span class="list-span">{{ source.display_name }}</span>
+					{% endfor %}
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+		{% endif %}
+	</table>
+</div>
 
-	{% include '_popup.html' %}
+{% include '_popup.html' %}
 {% endblock %}
 
 {% block stylesheets %}
-	{{ super() }}
-	<link rel="stylesheet" href="{{ url_for('main.static', filename='css/form-decorators.css') }}">
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/form-decorators.css') }}">
+{% endblock %}
+
+{% block javascript %}
+{{ super() }}
+<script src="{{ url_for('apriltag.static', filename='js/apriltag.js') }}"></script>
 {% endblock %}
