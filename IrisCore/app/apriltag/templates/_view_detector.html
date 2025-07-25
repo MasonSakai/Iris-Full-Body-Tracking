@@ -2,12 +2,10 @@
 
 <div class="card popup-form">
 	<div class="card-header text-center">
-		<div>
-			<h4>
-				Edit Detector {{ detector.id }}
-				<a href="https://pupil-apriltags.readthedocs.io/en/stable/api.html#pupil_apriltags.Detector" target="_blank" class="badge rounded-pill text-bg-info fs-6">?</a>
-			</h4>
-		</div>
+		<h4>
+			Edit Detector {{ detector.id }}
+			<a href="https://pupil-apriltags.readthedocs.io/en/stable/api.html#pupil_apriltags.Detector" target="_blank" class="badge rounded-pill text-bg-info fs-6">?</a>
+		</h4>
 	</div>
 	<form action="{{ url_for('apriltag.view_detector', id=detector.id) }}" method="POST">
 		{{ form.hidden_tag() }}

@@ -4,9 +4,9 @@ import sqlalchemy as sqla
 import numpy as np
 
 from app import db
-from app.apriltag import apriltag_blueprint as bp_aptg, found_tags
+from app.apriltag import apriltag_blueprint as bp_aptg, found_tags, seen_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
-from app.apriltag.forms import DetectorForm, FoundTagForm
+from app.apriltag.forms import DetectorForm, FoundTagForm, EditTagForm
 from app.main.models import Camera
 
 @bp_aptg.route('/')
@@ -17,8 +17,6 @@ def index(popup_contents=''):
     return render_template('apriltag.html', title='April Tag Manager',
                            known_tags=tags, detectors=detectors, found_tags=found_tags,
                            popup_contents=popup_contents)
-
-
 
 @bp_aptg.route('/detectors/<id>', methods=['GET', 'POST'])
 def view_detector(id):
@@ -57,9 +55,42 @@ def delete_detector(id):
     return redirect(url_for('apriltag.index'))
 
 
-@bp_aptg.route('/tags/<id>')
+@bp_aptg.route('/tags/<id>', methods=['GET', 'POST'])
 def view_tag(id):
-    pass
+    tag: AprilTag = db.session.get(AprilTag, id)
+    form = EditTagForm()
+    if form.validate_on_submit():
+
+        if tag.id in seen_tags:
+            scale = tag.tag_size * 100 / form.tag_size.data
+
+
+
+        tag.tag_size = form.tag_size.data / 100
+        tag.display_name = form.display_name.data
+
+        db.session.commit()
+        flash('Tag {} Updated'.format(tag.display_name))
+        return redirect(url_for('apriltag.index'))
+    
+    seen = seen_tags[tag.id] if tag.id in seen_tags else []
+    if request.method == 'GET':
+
+        form.tag_size.data = tag.tag_size * 100
+        form.display_name.data = tag.display_name
+
+        return render_template('_view_tag.html', form=form, tag=tag, seen_sources=seen)
+
+    return index(popup_contents=render_template('_view_tag.html', form=form, tag=tag, seen_sources=seen))
+
+@bp_aptg.route('/tags/<id>/delete')
+def delete_tag(id):
+    tag = db.session.get(AprilTag, id)
+    name = tag.display_name
+    db.session.delete(tag)
+    db.session.commit()
+    flash('Tag {} Deleted!'.format(name))
+    return redirect(url_for('apriltag.index'))
 
 @bp_aptg.route('/tags/found/<family>:<id>', methods=['GET', 'POST'])
 def view_found_tag(family, id):

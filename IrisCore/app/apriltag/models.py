@@ -1,7 +1,9 @@
+import pickle
 from typing import ClassVar
 from app import db
 import sqlalchemy as sqla
 import sqlalchemy.orm as sqlo
+import numpy as np
 from pupil_apriltags import Detector
 
 
@@ -13,6 +15,8 @@ class AprilTag(db.Model):
     tag_size: sqlo.Mapped[float] = sqlo.mapped_column(default=0.1125)
     
     display_name : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64), unique=True)
+
+    transform: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
 
 class AprilTagDetector(db.Model):
     id : sqlo.Mapped[int] = sqlo.mapped_column(primary_key=True)

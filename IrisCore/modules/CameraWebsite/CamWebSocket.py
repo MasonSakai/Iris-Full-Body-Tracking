@@ -8,7 +8,7 @@ from CameraWebsite.models import WebsiteCamera
 from app.dataproviders.position import RayPositionSource, ScoredPositionSource
 from app.synchronize import source_pose_lock
 from app.apriltag.models import AprilTagDetector
-from app.apriltag import add_found_tag, drawTag
+from app.apriltag import add_found_tag, add_seen_tags, drawTag
 from flask_socketio import disconnect
 
 
@@ -94,8 +94,9 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
             for r in res:
                 drawTag(image, r, scale)
                 add_found_tag(self.cam, r)
-            for (r, _) in tags:
+            for (r, tag) in tags:
                 drawTag(image, r, scale)
+                add_seen_tags(tag, self.cam, r)
 
         cv.imwrite('images/{}-{}.png'.format(self.cam.id, scale), image)
 

@@ -26,3 +26,7 @@ class FoundTagForm(FlaskForm):
     tag_size = FloatField('Tag Size (cm)', validators=[NumberRange(min=0)])
 
     submit = SubmitField('Create')
+    
+class EditTagForm(FoundTagForm):
+
+    submit = SubmitField('Submit')

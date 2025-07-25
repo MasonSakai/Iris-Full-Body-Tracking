@@ -8,8 +8,11 @@ from app.main.models import Camera
 from pupil_apriltags import Detection
 
 found_tags = []
+seen_tags: dict[int, dict[int, Detection]] = {}
 
-from app.apriltag import models, routes
+from app.apriltag.models import AprilTag
+from app.apriltag import routes
+
 
 def drawTag(image, r, scale):
     # extract the bounding box (x, y)-coordinates for the AprilTag
@@ -40,3 +43,9 @@ def add_found_tag(source: Camera, res: Detection):
             return
 
     found_tags.append((res, {source: res}))
+
+def add_seen_tags(tag: AprilTag, source: Camera, res: Detection):
+    if not tag.id in seen_tags:
+        seen_tags[tag.id] = {}
+
+    seen_tags[tag.id][source.id] = res

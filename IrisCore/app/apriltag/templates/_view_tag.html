@@ -1,0 +1,28 @@
+{% import 'bootstrap_wtf.html' as wtf %}
+
+<div class="card popup-form">
+	<div class="card-header text-center">
+		<h4>Edit Tag {{ tag.display_name }}</h4>
+	</div>
+	<form action="{{ url_for('apriltag.view_tag', id=tag.id) }}" method="POST">
+		{{ form.hidden_tag() }}
+
+		<div class="card-body">
+
+			<div class="form-hor">
+				{{ wtf.form_field(form.display_name) }}
+				{{ wtf.form_field(form.tag_size) }}
+			</div>
+
+		</div>
+
+		<div class="card-footer">
+			<div class="form-hor">
+				{{ wtf.form_field(form.submit) }}
+				<button type="button" class="btn btn-secondary mb-3" onclick="closePopup()">Cancel</button>
+			</div>
+			<a href="{{ url_for('apriltag.delete_tag', id=tag.id) }}" class="btn btn-danger form-control mb-3"
+			   onclick="if (event.target.innerText == 'DELETE') { event.stopPropagation(); event.preventDefault(); event.target.innerText = 'ARE YOU SURE? (DELETE)' }">DELETE</a>
+		</div>
+	</form>
+</div>

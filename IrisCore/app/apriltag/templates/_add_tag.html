@@ -2,9 +2,7 @@
 
 <div class="card popup-form">
 	<div class="card-header text-center">
-		<div>
-			<h4>Viewing Found Tag {{ tag.tag_family.decode("utf-8") }}:{{ tag.tag_id }}</h4>
-		</div>
+		<h4>Viewing Found Tag {{ tag.tag_family.decode("utf-8") }}:{{ tag.tag_id }}</h4>
 	</div>
 	<form action="{{ url_for('apriltag.view_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id) }}" method="POST">
 		{{ form.hidden_tag() }}
