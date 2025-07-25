@@ -7,7 +7,7 @@ apriltag_blueprint = Blueprint('apriltag', __name__, static_folder='static', tem
 from app.main.models import Camera
 from pupil_apriltags import Detection
 
-found_tags = []
+found_tags: list[tuple[Detection, dict[Camera, Detection]]] = []
 seen_tags: dict[int, dict[int, Detection]] = {}
 
 from app.apriltag.models import AprilTag

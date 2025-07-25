@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+	{% extends "base.html" %}
 
 {% block content %}
 <h1>April Tag Manager</h1>
@@ -9,7 +9,7 @@
 <div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
 	<table class="w-100 text-center table table-hover caption-top">
 		<caption class="ps-3 border-bottom border-dark-subtle">
-			<h5>April tag detectors: {{ detectors|length }}</h5>
+			<h5>April tag detectors: {{ detectors | length }}</h5>
 		</caption>
 		{% if detectors|length > 0 %}
 		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
@@ -24,7 +24,7 @@
 			<tr id="detector-{{ detector.id }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_detector', id=detector.id)}}')">
 				<td class="p-2">{{ detector.id }}</td>
 				<td class="p-2">{{ detector.families }}</td>
-				<td class="p-2">{{ detector.default_tag_size * 100 }}cm</td>
+				<td class="p-2">{{ (detector.default_tag_size * 100)  | round(2, 'floor') }}cm</td>
 			</tr>
 			{% endfor %}
 		</tbody>
@@ -50,7 +50,7 @@
 				<td class="p-2">{{ tag.display_name }}</td>
 				<td class="p-2">{{ tag.tag_family }}</td>
 				<td class="p-2">{{ tag.tag_id }}</td>
-				<td class="p-2">{{ tag.tag_size * 100 }}cm</td>
+				<td class="p-2">{{ (tag.tag_size * 100) | round(2, 'floor') }}cm</td>
 			</tr>
 			{% endfor %}
 		</tbody>

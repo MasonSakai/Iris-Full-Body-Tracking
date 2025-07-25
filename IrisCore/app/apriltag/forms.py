@@ -29,4 +29,6 @@ class FoundTagForm(FlaskForm):
     
 class EditTagForm(FoundTagForm):
 
+    ensure_static = BooleanField('Ensure Static')
+
     submit = SubmitField('Submit')

@@ -13,6 +13,7 @@ class Camera(db.Model):
     
     id : sqlo.Mapped[int] = sqlo.mapped_column(primary_key=True)
     display_name : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64), unique=True, index=True)
+    transform: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
     
     camera_type : sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(50))
     
@@ -28,6 +29,14 @@ class Camera(db.Model):
 
     def __repr__(self):
         return '<Camera - {} "{}">'.format(self.id, self.display_name)
+    
+
+    def set_transform(self, transform: np.array):
+        self.transform = pickle.dumps(transform)
+        db.session.commit()
+
+    def get_transform(self):
+        return pickle.loads(self.transform)
 
     def getConfig(self):
         return {
@@ -48,7 +57,6 @@ class CVUndistortableCamera(Camera):
     calib_res_height: sqlo.Mapped[int] = sqlo.mapped_column(default=0)
     camera_matrix: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
     dist_coeffs: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
-    transform: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
 
     def set_camera_params(self, camera_matrix: np.array, dist_coeffs: np.array):
         self.camera_matrix = pickle.dumps(camera_matrix)
@@ -67,13 +75,6 @@ class CVUndistortableCamera(Camera):
         mat[2, 2] = 1
 
         return mat
-
-    def set_transform(self, transform: np.array):
-        self.transform = pickle.dumps(transform)
-        db.session.commit()
-
-    def get_transform(self):
-        return pickle.loads(self.transform)
 
     def undistortImage(self, image: MatLike):
         (camera_matrix, dist_coeffs) = self.get_camera_params()

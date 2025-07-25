@@ -15,3 +15,4 @@ python-dotenv==1.0.1
 opencv-python
 vmcp[osc4py3]
 pupil-apriltags
+moms-apriltag

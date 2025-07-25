@@ -1,5 +1,8 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RefreshFoundTags, RefreshKnownTags } from './network';
+import { resizeRendererToDisplaySize } from './util'
+import { PickHelper } from './PickHelper'
 
 let scene = new THREE.Scene()
 let camera = new THREE.PerspectiveCamera(75, 2, 0.1, 100)
@@ -10,19 +13,26 @@ let renderer: THREE.WebGLRenderer = null
 function render(time) {
     time *= 0.001  // convert time to seconds
 
-    var canvas = renderer.domElement
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false)
-    camera.aspect = canvas.clientWidth / canvas.clientHeight
-    camera.updateProjectionMatrix()
+    if (resizeRendererToDisplaySize(renderer)) {
+        var canvas = renderer.domElement
+        camera.aspect = canvas.clientWidth / canvas.clientHeight
+        camera.updateProjectionMatrix()
+    }
+
+    PickHelper.pick(scene, camera, time)
 
     controls.update()
+
     renderer.render(scene, camera)
 
     requestAnimationFrame(render)
 }
 
 window.onload = () => {
-    var canvas = document.getElementById('tag-canvas')
+    var canvas = document.getElementById('tag-canvas') as HTMLCanvasElement
+    camera.fov = 2 * Math.atan(canvas.clientHeight / (2 * 240.17084283097014)) * (180 / Math.PI)
+    controls = new OrbitControls(camera, canvas)
+    PickHelper.init(canvas)
     renderer = new THREE.WebGLRenderer(
         {
             antialias: true,
@@ -32,15 +42,13 @@ window.onload = () => {
         })
 
 
-    controls = new OrbitControls(camera, canvas)
+    controls.target.setZ(-1)
+    //camera.position.z = 2
 
-    camera.position.z = 2
+    //LoadTagModel2('tag36h11', 0).then((model) => scene.add(model))
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1)
-    const material = new THREE.MeshBasicMaterial({ color: 0x44aa88 })
-    let cube = new THREE.Mesh(geometry, material)
-    scene.add(cube)
-
+    RefreshFoundTags(scene)
+    RefreshKnownTags(scene)
 
     requestAnimationFrame(render)
 }
