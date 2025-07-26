@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RefreshFoundTags, RefreshKnownTags } from './network';
+import { Refresh } from './network';
 import { resizeRendererToDisplaySize } from './util';
 import { PickHelper } from './PickHelper';
-let scene = new THREE.Scene();
-let camera = new THREE.PerspectiveCamera(75, 2, 0.01, 100);
-let controls = null;
+export let scene = new THREE.Scene();
+export let camera = new THREE.PerspectiveCamera(75, 2, 0.01, 100);
+export let controls = null;
 let renderer = null;
 function render(time) {
     time *= 0.001; // convert time to seconds
@@ -30,11 +30,16 @@ window.onload = () => {
         alpha: true,
         premultipliedAlpha: false
     });
-    controls.target.setZ(-1);
+    controls.target.setZ(1);
     //camera.position.z = 2
     //LoadTagModel2('tag36h11', 0).then((model) => scene.add(model))
-    RefreshFoundTags(scene);
-    RefreshKnownTags(scene);
+    Refresh(); //.then(DebugPositions)
     requestAnimationFrame(render);
 };
+export function LookAt(obj) {
+    camera.position.setFromMatrixPosition(obj.matrix);
+    camera.updateMatrix();
+    controls.target = new THREE.Vector3().setFromMatrixColumn(obj.matrix, 2).add(obj.position);
+    controls.update();
+}
 //# sourceMappingURL=apriltag3D.js.map

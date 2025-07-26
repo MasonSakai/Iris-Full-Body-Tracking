@@ -52,12 +52,12 @@ export class PickHelper {
 			|| Math.abs(event.y - PickHelper.md_pos.y) > 5) return
 
 		if (!(PickHelper.pickedObject && PickHelper.pickedObject.id in PickHelper.listeners)) {
-			PickHelper.default_listeners.forEach(f => f())
+			PickHelper.default_listeners.forEach(f => f(event))
 			return
 		}
 
 		PickHelper.listeners[PickHelper.pickedObject.id]
-			.forEach(f => f(PickHelper.pickedObject))
+			.forEach(f => f(event, PickHelper.pickedObject))
 	}
 	
 	static getCanvasRelativePosition(event) {
@@ -88,19 +88,19 @@ export class PickHelper {
 
 	}
 
-	static listeners: { [id: number]: ((obj: THREE.Object3D) => void)[] } = {}
-	static default_listeners: (() => void)[] = []
+	static listeners: { [id: number]: ((event: MouseEvent, obj: THREE.Object3D) => void)[] } = {}
+	static default_listeners: ((event: MouseEvent) => void)[] = []
 
 	static removeListeners(obj: THREE.Object3D) {
 		delete PickHelper.listeners[obj.id]
 	}
-	static addListener(obj: THREE.Object3D, func: (obj: THREE.Object3D) => void) {
+	static addListener(obj: THREE.Object3D, func: (event: MouseEvent, obj: THREE.Object3D) => void) {
 		if (obj.id in PickHelper.listeners)
 			PickHelper.listeners[obj.id].push(func)
 		else PickHelper.listeners[obj.id] = [func]
 	}
 
-	static add_default_listener(func: () => void) {
+	static add_default_listener(func: (event: MouseEvent) => void) {
 		PickHelper.default_listeners.push(func)
 	}
 }

@@ -39,11 +39,11 @@ export class PickHelper {
             || Math.abs(event.y - PickHelper.md_pos.y) > 5)
             return;
         if (!(PickHelper.pickedObject && PickHelper.pickedObject.id in PickHelper.listeners)) {
-            PickHelper.default_listeners.forEach(f => f());
+            PickHelper.default_listeners.forEach(f => f(event));
             return;
         }
         PickHelper.listeners[PickHelper.pickedObject.id]
-            .forEach(f => f(PickHelper.pickedObject));
+            .forEach(f => f(event, PickHelper.pickedObject));
     }
     static getCanvasRelativePosition(event) {
         const rect = PickHelper.canvas.getBoundingClientRect();

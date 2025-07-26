@@ -57,45 +57,6 @@ def delete_detector(id):
     return redirect(url_for('apriltag.index'))
 
 
-@bp_aptg.route('/tags/list')
-def get_tags():
-    db_tags = db.session.scalars(sqla.select(AprilTag)).all()
-
-    tags = []
-    for tag in db_tags:
-        data = []
-        if tag.id in seen_tags:
-            for i, det in seen_tags[tag.id].items():
-                source = db.session.get(Camera, i)
-                data.append({
-                    'cam':
-                    {
-                        'id': source.id,
-                        'name': source.display_name,
-                        'transform': source.get_transform().tolist()
-                    },
-                    'data':
-                    {
-                        'pose_t': det.pose_t.tolist(),
-                        'pose_r': det.pose_R.tolist(),
-                        'pose_err': det.pose_err
-                    }
-                    })
-        tags.append({
-            'tag':
-            {
-                'id': tag.id,
-                'size': tag.tag_size,
-                'name': tag.display_name,
-                'ident': '{}:{}'.format(tag.tag_family, tag.tag_id),
-                'transform': tag.get_transform().tolist(),
-                'static': tag.ensure_static,
-            },
-            'cams': data
-        })
-
-    return tags
-
 @bp_aptg.route('/tags/<id>', methods=['GET', 'POST'])
 def view_tag(id):
     tag: AprilTag = db.session.get(AprilTag, id)
@@ -134,39 +95,6 @@ def delete_tag(id):
     flash('Tag {} Deleted!'.format(name))
     return redirect(url_for('apriltag.index'))
 
-
-@bp_aptg.route('/tags/found/list')
-def get_found_tags():
-    detectors = db.session.scalars(sqla.select(AprilTagDetector)).all()
-    sizes = {}
-    for detector in detectors:
-        for family in detector.families.split():
-            sizes[family] = detector.default_tag_size
-
-    tags = {}
-    for (tag, sources) in found_tags:
-        data = []
-        for source, det in sources.items():
-            data.append({
-                'cam':
-                {
-                    'id': source.id,
-                    'name': source.display_name,
-                    'transform': source.get_transform().tolist()
-                },
-                'data':
-                {
-                    'pose_t': det.pose_t.tolist(),
-                    'pose_r': det.pose_R.tolist(),
-                    'pose_err': det.pose_err
-                }
-                })
-        tags['{}:{}'.format(tag.tag_family.decode('utf-8'), tag.tag_id)] = {
-            'size': sizes[tag.tag_family.decode('utf-8')],
-            'cams': data
-        }
-
-    return tags
 
 @bp_aptg.route('/tags/found/<family>:<id>', methods=['GET', 'POST'])
 def view_found_tag(family, id):
