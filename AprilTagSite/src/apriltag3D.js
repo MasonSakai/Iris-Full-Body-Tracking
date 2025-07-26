@@ -4,7 +4,7 @@ import { RefreshFoundTags, RefreshKnownTags } from './network';
 import { resizeRendererToDisplaySize } from './util';
 import { PickHelper } from './PickHelper';
 let scene = new THREE.Scene();
-let camera = new THREE.PerspectiveCamera(75, 2, 0.1, 100);
+let camera = new THREE.PerspectiveCamera(75, 2, 0.01, 100);
 let controls = null;
 let renderer = null;
 function render(time) {
@@ -37,4 +37,4 @@ window.onload = () => {
     RefreshKnownTags(scene);
     requestAnimationFrame(render);
 };
-//# sourceMappingURL=apriltag.js.map
+//# sourceMappingURL=apriltag3D.js.map

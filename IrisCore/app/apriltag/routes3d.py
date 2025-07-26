@@ -11,3 +11,13 @@ from app.apriltag.models import AprilTag, AprilTagDetector
 from app.apriltag.forms import DetectorForm, FoundTagForm, EditTagForm
 from app.main.models import Camera
 
+
+@bp_aptg.route('/3D')
+def index3d():
+    return render_template('apriltag3D.html', title='April Tag 3D Manager')
+
+@bp_aptg.route('/tags/image/<family>:<id>.<fileType>')
+def generate_tag_image(family, id, fileType):
+    tag_image = TagGenerator2(family).generate(int(id))
+    _, encoded_image = cv.imencode('.{}'.format(fileType), cv.cvtColor(tag_image, cv.COLOR_GRAY2BGR))
+    return Response(encoded_image.tobytes())

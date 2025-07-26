@@ -4,7 +4,7 @@ const path = require('path');
 module.exports = {
     mode: 'development',
     entry: {
-        apriltag: './src/apriltag.js',
+        apriltag3D: './src/apriltag3D.js',
     },
     output: {
         path: path.resolve(__dirname, 'dist'),

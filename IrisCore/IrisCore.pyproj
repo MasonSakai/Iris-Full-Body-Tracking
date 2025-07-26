@@ -67,7 +67,9 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app\apriltag\static\js\apriltag.js" />
+    <Content Include="app\apriltag\static\js\apriltag3D.js" />
+    <Content Include="app\apriltag\templates\apriltag_base.html" />
+    <Content Include="app\apriltag\templates\apriltag3D.html" />
     <Content Include="app\apriltag\templates\_add_tag.html" />
     <Content Include="app\apriltag\templates\_view_tag.html" />
     <Content Include="app\main\static\css\form-decorators.css" />

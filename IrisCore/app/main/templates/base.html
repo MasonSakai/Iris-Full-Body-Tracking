@@ -24,14 +24,19 @@
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
-			{% block navbar %}{% endblock %}
+			<div class="collapse navbar-collapse" id="navbarNavDropdown">
+				<ul class="navbar-nav">
+					{% block navbar %}{% endblock %}
+				</ul>
+			</div>
+			<span class="col"></span>
 			<a class="navbar-brand" href="https://github.com/MasonSakai/Iris-Full-Body-Tracking" target="_blank">
-				<img src="{{ url_for('main.static', filename='img/github-mark-white.png') }}" alt="Github" height="24"/>
+				<img src="{{ url_for('main.static', filename='img/github-mark-white.png') }}" alt="Github" height="24" />
 			</a>
 		</div>
-	</nav>
+</nav>
 
-	<div class="container-fluid mt-3">
+	<div id="body-container" class="container-fluid mt-3">
 		{% with messages = get_flashed_messages() %}
 			{% if messages %}
 				{% for message in messages %}

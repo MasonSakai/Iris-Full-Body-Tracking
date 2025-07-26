@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{{ super() }}
+<li class="nav-item">
+	<span class="nav-link active">AprilTag</span>
+</li>
+<li class="nav-item">
+	<a class="nav-link" href="{{ url_for('apriltag.index') }}">Manager</a>
+</li>
+<li class="nav-item">
+	<a class="nav-link" href="{{ url_for('apriltag.index3d') }}">3D Manager</a>
+</li>
+{% endblock %}

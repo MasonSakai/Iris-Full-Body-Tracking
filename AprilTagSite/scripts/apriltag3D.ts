@@ -5,7 +5,7 @@ import { resizeRendererToDisplaySize } from './util'
 import { PickHelper } from './PickHelper'
 
 let scene = new THREE.Scene()
-let camera = new THREE.PerspectiveCamera(75, 2, 0.1, 100)
+let camera = new THREE.PerspectiveCamera(75, 2, 0.01, 100)
 let controls: OrbitControls = null
 
 let renderer: THREE.WebGLRenderer = null

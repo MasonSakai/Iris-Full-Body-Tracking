@@ -1,0 +1,51 @@
+{% extends "apriltag_base.html" %}
+
+{% block content %}
+<div class="bg-dark-subtle rounded-5 h-100 border border-dark-subtle">
+	<div class="container-fluid m-2">
+		<div class="row">
+			<div class="col">a</div>
+		</div>
+	</div>
+	<div id="tag-display" class="border-5 border-top border-dark-subtle" style="--tag-list-width: 200px">
+		<canvas id="tag-canvas" class="bg-secondary-subtle"></canvas>
+		<div id="tag-list" class="border-start rounded-start-0 rounded-bottom-5 border-dark-subtle list-group list-group-flush">
+			<div class="list-group-item list-group-item-light" id="tags-known">Known Tags</div>
+			<div class="list-group-item list-group-item-light" id="tags-found">Found Tags</div>
+			<div class="list-group-item p-0" id="tags-end"></div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+{{ super() }}
+<script src="{{ url_for('apriltag.static', filename='js/apriltag3D.js') }}"></script>
+{% endblock %}
+
+{% block stylesheets %}
+{{ super() }}
+<style>
+	#tag-display {
+		height: calc(100% - 1rem - 24px);
+	}
+	#tag-canvas {
+		height: 100%;
+		width: calc(100% - var(--tag-list-width));
+		margin-bottom: -6px;
+		border-bottom-left-radius: var(--bs-border-radius-xxl);
+	}
+	#tag-list {
+		float: right;
+		height: 100%;
+		width: var(--tag-list-width);
+	}
+	body {
+		height: 100vh;
+	}
+	#body-container {
+		height: calc(100vh - 56px - 2rem);
+		max-height: calc(100vh - 56px - 2rem);
+	}
+</style>
+{% endblock %}

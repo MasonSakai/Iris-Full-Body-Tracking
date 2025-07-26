@@ -10,23 +10,25 @@ export class PickHelper {
         PickHelper.pickedObject = null;
         PickHelper.pickPosition = new THREE.Vector2();
         PickHelper.clearPickPosition();
-        window.addEventListener('mousemove', PickHelper.setPickPosition);
-        window.addEventListener('mouseout', PickHelper.clearPickPosition);
-        window.addEventListener('mouseleave', PickHelper.clearPickPosition);
-        window.addEventListener('mousedown', PickHelper.on_mouse_down);
-        window.addEventListener('mouseup', PickHelper.on_mouse_up);
+        canvas.addEventListener('mousemove', PickHelper.setPickPosition);
+        canvas.addEventListener('mouseout', PickHelper.clearPickPosition);
+        canvas.addEventListener('mouseleave', PickHelper.clearPickPosition);
+        canvas.addEventListener('mousedown', PickHelper.on_mouse_down);
+        canvas.addEventListener('mouseup', PickHelper.on_mouse_up);
     }
     static pick(scene, camera, time) {
         // cast a ray through the frustum
         PickHelper.raycaster.setFromCamera(PickHelper.pickPosition, camera);
         // get the list of objects the ray intersected
         const intersectedObjects = PickHelper.raycaster.intersectObjects(scene.children, false);
-        if (intersectedObjects.length) {
-            // pick the first object. It's the closest one
-            PickHelper.pickedObject = intersectedObjects[0].object;
+        for (const i in intersectedObjects) {
+            var obj = intersectedObjects[i].object;
+            if (obj.visible) {
+                PickHelper.pickedObject = obj;
+                return;
+            }
         }
-        else
-            PickHelper.pickedObject = null;
+        PickHelper.pickedObject = null;
     }
     static md_pos;
     static on_mouse_down(event) {
@@ -36,9 +38,12 @@ export class PickHelper {
         if (Math.abs(event.x - PickHelper.md_pos.x) > 5
             || Math.abs(event.y - PickHelper.md_pos.y) > 5)
             return;
-        if (!PickHelper.pickedObject)
+        if (!(PickHelper.pickedObject && PickHelper.pickedObject.id in PickHelper.listeners)) {
+            PickHelper.default_listeners.forEach(f => f());
             return;
-        console.log(PickHelper.pickedObject);
+        }
+        PickHelper.listeners[PickHelper.pickedObject.id]
+            .forEach(f => f(PickHelper.pickedObject));
     }
     static getCanvasRelativePosition(event) {
         const rect = PickHelper.canvas.getBoundingClientRect();
@@ -59,6 +64,20 @@ export class PickHelper {
         // unlikely to pick something
         PickHelper.pickPosition.x = -100000;
         PickHelper.pickPosition.y = -100000;
+    }
+    static listeners = {};
+    static default_listeners = [];
+    static removeListeners(obj) {
+        delete PickHelper.listeners[obj.id];
+    }
+    static addListener(obj, func) {
+        if (obj.id in PickHelper.listeners)
+            PickHelper.listeners[obj.id].push(func);
+        else
+            PickHelper.listeners[obj.id] = [func];
+    }
+    static add_default_listener(func) {
+        PickHelper.default_listeners.push(func);
     }
 }
 //# sourceMappingURL=PickHelper.js.map

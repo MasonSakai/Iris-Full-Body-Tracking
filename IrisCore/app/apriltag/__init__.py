@@ -11,7 +11,7 @@ found_tags: list[tuple[Detection, dict[Camera, Detection]]] = []
 seen_tags: dict[int, dict[int, Detection]] = {}
 
 from app.apriltag.models import AprilTag
-from app.apriltag import routes
+from app.apriltag import routes, routes3d
 
 
 def drawTag(image, r, scale):

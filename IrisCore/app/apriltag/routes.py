@@ -1,9 +1,7 @@
 from flask import flash, redirect, render_template, request, url_for, Response
 from pupil_apriltags import Detector
-from moms_apriltag import TagGenerator2
 import sqlalchemy as sqla
 import numpy as np
-import cv2 as cv
 
 from app import db
 from app.apriltag import apriltag_blueprint as bp_aptg, found_tags, seen_tags
@@ -59,12 +57,6 @@ def delete_detector(id):
     return redirect(url_for('apriltag.index'))
 
 
-@bp_aptg.route('/tags/image/<family>:<id>.<fileType>')
-def generate_tag_image(family, id, fileType):
-    tag_image = TagGenerator2(family).generate(int(id))
-    _, encoded_image = cv.imencode('.{}'.format(fileType), cv.cvtColor(tag_image, cv.COLOR_GRAY2BGR))
-    return Response(encoded_image.tobytes())
-
 @bp_aptg.route('/tags/list')
 def get_tags():
     db_tags = db.session.scalars(sqla.select(AprilTag)).all()
@@ -93,6 +85,8 @@ def get_tags():
             'tag':
             {
                 'id': tag.id,
+                'size': tag.tag_size,
+                'name': tag.display_name,
                 'ident': '{}:{}'.format(tag.tag_family, tag.tag_id),
                 'transform': tag.get_transform().tolist(),
                 'static': tag.ensure_static,
@@ -116,7 +110,6 @@ def view_tag(id):
 
         tag.tag_size = form.tag_size.data / 100
         tag.display_name = form.display_name.data
-        tag.ensure_static = form.ensure_static.data
 
         db.session.commit()
         flash('Tag {} Updated'.format(tag.display_name))
@@ -127,7 +120,6 @@ def view_tag(id):
 
         form.tag_size.data = tag.tag_size * 100
         form.display_name.data = tag.display_name
-        form.ensure_static.data = tag.ensure_static
 
         return render_template('_view_tag.html', form=form, tag=tag, seen_sources=seen)
 
