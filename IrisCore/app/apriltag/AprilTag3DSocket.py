@@ -18,9 +18,7 @@ def update_from(src: Camera | AprilTag):
     while len(queue) > 0:
         src = queue.pop(0)
         ignore.append(src)
-
         s_mat = src.get_transform()
-        print(src)
 
         if isinstance(src, AprilTag):
             cams = seen_tags[src.id]
@@ -33,7 +31,7 @@ def update_from(src: Camera | AprilTag):
                 mat = np.identity(4)
                 mat[:3, :3] = det.pose_R
                 mat[:3, 3] = np.array(det.pose_t).flatten()
-                mat = np.linalg .inv(mat)
+                mat = np.linalg.inv(mat)
 
                 cam.set_transform(np.linalg.matmul(
                     s_mat,
@@ -53,32 +51,74 @@ def update_from(src: Camera | AprilTag):
                 mat[:3, :3] = det.pose_R
                 mat[:3, 3] = np.array(det.pose_t).flatten()
 
-                tag.set_transform(np.linalg.matmul(
-                    s_mat,
-                    mat))
+                tag.set_transform(np.linalg.matmul(s_mat, mat))
 
 
     db.session.commit()
     get_tags()
+    get_found_tags()
+    get_cams()
+  
+def update_global(mat: np.array):
+    def update(src: AprilTag | Camera):
+        trans = src.get_transform()
+        if (trans.size > 0):
+            src.set_transform(np.linalg.matmul(mat, trans))
+
+    for src in db.session.scalars(sqla.select(AprilTag)).all(): update(src)
+    for src in db.session.scalars(sqla.select(Camera)).all(): update(src)
+
+    db.session.commit()
+    get_tags()
+    get_found_tags()
     get_cams()
         
-@socketio.on('set-position', namespace='/apriltag')
-def set_position(ident, pos): #0 133.4 -160
-    src = None
+def get_by_ident(ident) -> Camera | AprilTag:
     if isinstance(ident, str):
         [family, tag_id] = ident.split(':')
         tag_id = int(tag_id)
-        src = db.session.scalar(sqla.select(AprilTag).where(AprilTag.tag_family == family and AprilTag.tag_id == tag_id))
+        return db.session.scalar(sqla.select(AprilTag).where(AprilTag.tag_family == family).where(AprilTag.tag_id == tag_id))
     else:
-        src = db.session.get(Camera, ident)
+        return db.session.get(Camera, ident)
 
-    transform: np.array[float] = src.get_transform()
-    if transform.size == 0:
-        transform = np.identity(4)
+@socketio.on('set-position', namespace='/apriltag') #0 1.334 -1.60
+def set_position(ident, pos, upd_glob):
+    src = get_by_ident(ident)
+    
+    trans: np.array[float] = src.get_transform()
+    if trans.size == 0:
+        trans = np.identity(4)
+        src.set_transform(trans)
 
-    transform[:3, 3] = pos
-    src.set_transform(transform)
-    update_from(src)
+    trans[:3, 3] = pos
+
+    if (upd_glob):
+        s_mat = np.linalg.inv(src.get_transform())
+        trans = np.linalg.matmul(trans, s_mat)
+        update_global(trans)
+    else:
+        src.set_transform(trans)
+        update_from(src)
+        
+@socketio.on('set-position-axis', namespace='/apriltag')
+def set_position(ident, axis_index, pos, upd_glob):
+    if (pos == None): return
+    src = get_by_ident(ident)
+    
+    trans: np.array[float] = src.get_transform()
+    if trans.size == 0:
+        trans = np.identity(4)
+        src.set_transform(trans)
+
+    trans[axis_index, 3] = pos
+
+    if (upd_glob):
+        s_mat = np.linalg.inv(src.get_transform())
+        trans = np.linalg.matmul(trans, s_mat)
+        update_global(trans)
+    else:
+        src.set_transform(trans)
+        update_from(src)
     
 
 @socketio.on('tags', namespace='/apriltag')

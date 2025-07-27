@@ -34,7 +34,7 @@ window.onload = () => {
     camera.position.z = -3;
     controls.update();
     //LoadTagModel2('tag36h11', 0).then((model) => scene.add(model))
-    Refresh(); //.then(DebugPositions)
+    Refresh();
     requestAnimationFrame(render);
 };
 export function LookAt(obj) {
