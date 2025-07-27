@@ -35,7 +35,7 @@ class Camera(db.Model):
         self.transform = pickle.dumps(transform)
         db.session.commit()
 
-    def get_transform(self):
+    def get_transform(self) -> np.array:
         return pickle.loads(self.transform)
 
     def getConfig(self):

@@ -1,10 +1,11 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { DebugPositions, Refresh } from './network';
+import { Refresh } from './network';
 import { resizeRendererToDisplaySize } from './util'
 import { PickHelper } from './PickHelper'
 
 export let scene = new THREE.Scene()
+scene.add(new THREE.AxesHelper(1))
 export let camera = new THREE.PerspectiveCamera(75, 2, 0.01, 100)
 export let controls: OrbitControls = null
 
@@ -42,8 +43,8 @@ window.onload = () => {
         })
 
 
-    controls.target.setZ(1)
-    //camera.position.z = 2
+    camera.position.z = -3
+    controls.update()
 
     //LoadTagModel2('tag36h11', 0).then((model) => scene.add(model))
 
@@ -55,9 +56,6 @@ window.onload = () => {
 
 export function LookAt(obj: THREE.Object3D) {
 
-    camera.position.setFromMatrixPosition(obj.matrix)
-    camera.updateMatrix()
-
-    controls.target = new THREE.Vector3().setFromMatrixColumn(obj.matrix, 2).add(obj.position)
+    controls.target.copy(obj.position)
     controls.update()
 }

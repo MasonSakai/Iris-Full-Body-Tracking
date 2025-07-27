@@ -19,11 +19,14 @@ class AprilTag(db.Model):
 
     transform: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
     
+    def __repr__(self):
+        return '<AprilTag - {} "{}">'.format(self.id, self.display_name)
+
     def set_transform(self, transform: np.array):
         self.transform = pickle.dumps(transform)
         db.session.commit()
 
-    def get_transform(self):
+    def get_transform(self) -> np.array:
         return pickle.loads(self.transform)
 
 class AprilTagDetector(db.Model):

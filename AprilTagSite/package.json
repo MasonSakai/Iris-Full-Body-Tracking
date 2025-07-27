@@ -17,6 +17,7 @@
 	},
 	"dependencies": {
 		"@types/three": "^0.178.1",
+		"socket.io-client": "^4.8.1",
 		"three": "^0.178.0",
 		"webpack": "^5.100.2",
 		"webpack-cli": "^6.0.1"

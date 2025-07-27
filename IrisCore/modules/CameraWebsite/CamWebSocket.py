@@ -93,7 +93,7 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
             print(self.cam.id, len(res), len(tags))
             for r in res:
                 drawTag(image, r, scale)
-                add_found_tag(self.cam, r)
+                add_found_tag(self.cam, detector.default_tag_size, r)
             for (r, tag) in tags:
                 drawTag(image, r, scale)
                 add_seen_tags(tag, self.cam, r)

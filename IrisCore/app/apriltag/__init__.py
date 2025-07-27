@@ -7,11 +7,11 @@ apriltag_blueprint = Blueprint('apriltag', __name__, static_folder='static', tem
 from app.main.models import Camera
 from pupil_apriltags import Detection
 
-found_tags: list[tuple[Detection, dict[Camera, Detection]]] = []
+found_tags: list[tuple[Detection, float, dict[Camera, Detection]]] = []
 seen_tags: dict[int, dict[int, Detection]] = {}
 
 from app.apriltag.models import AprilTag
-from app.apriltag import routes, routes3d
+from app.apriltag import routes, AprilTag3DSocket
 
 
 def drawTag(image, r, scale):
@@ -35,14 +35,14 @@ def drawTag(image, r, scale):
     cv.putText(image, '{}:{} @ {}'.format(r.tag_family.decode("utf-8"), r.tag_id, dist),
         (ptA[0], ptA[1] - 15), cv.FONT_HERSHEY_SIMPLEX, 0.25 * scale, (255, 0, 0), scale)
 
-def add_found_tag(source: Camera, res: Detection):
+def add_found_tag(source: Camera, size: float, res: Detection):
     for i in range(len(found_tags)):
         det: Detection = found_tags[i][0]
         if det.tag_family == res.tag_family and det.tag_id == res.tag_id:
-            found_tags[i][1][source] = res
+            found_tags[i][2][source] = res
             return
 
-    found_tags.append((res, {source: res}))
+    found_tags.append((res, size, {source: res}))
 
 def add_seen_tags(tag: AprilTag, source: Camera, res: Detection):
     if not tag.id in seen_tags:

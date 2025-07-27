@@ -1,9 +1,11 @@
 import * as THREE from 'three';
-import { createMatrixTR, createMatrixT } from './util';
+import { createMatrixT } from './util';
 import { PickHelper } from './PickHelper';
-import { ApplyConstraints } from './constraints';
+import './ui';
 import { scene, LookAt } from './apriltag3D';
+import { io } from 'socket.io-client';
 let texLoader = new THREE.TextureLoader();
+export let socket = io('/apriltag');
 export async function LoadTagModel(ident, size = 1) {
     var geom = new THREE.PlaneGeometry(size, size);
     var tex = await texLoader.loadAsync(`tags/image/${ident}.png`);
@@ -47,57 +49,51 @@ PickHelper.add_default_listener(on_tag_select);
 export let tag_list = {};
 export let camera_list = {};
 export let selected = null;
-async function FetchFoundTags() {
-    var data = await (await fetch('tags/found/list')).json();
-    var el_tags_found = document.getElementById('tags-found').nextSibling;
-    for (const ident in tag_list) {
-        if (!tag_list[ident].known) {
-            tag_list[ident].el.remove();
-            PickHelper.removeListeners(tag_list[ident].obj);
-            tag_list[ident].obj.removeFromParent();
-            delete tag_list[ident];
-        }
-    }
-    for (const ident in data) {
-        var size = data[ident].size;
-        var cams = data[ident].cams;
-        var model = await LoadTagModel(ident, size);
-        model.visible = false;
-        model.name = ident;
-        scene.add(model);
-        var cam_data = {};
-        for (const i in cams) {
-            cam_data[cams[i].cam] = createMatrixTR(cams[i].pose_t, cams[i].pose_r);
-        }
-        var el = document.createElement('button');
-        el.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-        el.innerText = ident;
-        el.id = ident;
-        var num = document.createElement('span');
-        num.className = 'badge rounded-pill';
-        num.classList.add('text-bg-warning');
-        num.innerText = cams.length;
-        el.appendChild(num);
-        el_tags_found.parentElement.insertBefore(el, el_tags_found);
-        PickHelper.addListener(model, (event, m) => {
-            on_tag_select(event, m.name);
-        });
-        el.onclick = (event) => {
-            on_tag_select(event, event.target.id);
-        };
-        tag_list[ident] = {
-            known: false,
-            obj: model,
-            el: el,
-            transform: null,
-            static: false,
-            cams: cam_data,
-            ident: ident
-        };
-    }
+async function ParseFoundTags(data) {
+    //var el_tags_found = document.getElementById('tags-found').nextSibling
+    //for (const ident in tag_list) {
+    //	if (!tag_list[ident].known) {
+    //		tag_list[ident].el.remove()
+    //		PickHelper.removeListeners(tag_list[ident].obj)
+    //		tag_list[ident].obj.removeFromParent()
+    //		delete tag_list[ident]
+    //	}
+    //}
+    //for (const ident in data) {
+    //	var size = data[ident].size
+    //	var model = await LoadTagModel(ident, size)
+    //	model.visible = false
+    //	model.name = ident
+    //	scene.add(model)
+    //	var el = document.createElement('button')
+    //	el.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center'
+    //	el.innerText = ident
+    //	el.id = ident
+    //	var num = document.createElement('span')
+    //	num.className = 'badge rounded-pill'
+    //	num.classList.add('text-bg-warning')
+    //	num.innerText = data[ident].cams.length
+    //	el.appendChild(num)
+    //	el_tags_found.parentElement.insertBefore(el, el_tags_found)
+    //	PickHelper.addListener(model, (event, m) => {
+    //		on_tag_select(event, m.name)
+    //	})
+    //	el.onclick = (event) => {
+    //		on_tag_select(event, (event.target as HTMLButtonElement).id)
+    //	}
+    //	tag_list[ident] = {
+    //		known: false,
+    //		obj: model,
+    //		el: el,
+    //		transform: null,
+    //		static: false,
+    //		cams: data[ident].cams,
+    //		ident: ident
+    //	}
+    //}
 }
-async function FetchKnownTags() {
-    var data = await (await fetch('tags/list')).json();
+socket.on('found_tags', ParseFoundTags);
+async function ParseKnownTags(data) {
     var el_tags_known = document.getElementById('tags-known').nextSibling;
     for (const ident in tag_list) {
         if (tag_list[ident].known) {
@@ -107,14 +103,8 @@ async function FetchKnownTags() {
             delete tag_list[ident];
         }
     }
-    for (const ent in data) {
-        var tag = data[ent].tag;
-        var cams = data[ent].cams;
-        var cam_data = {};
-        for (const i in cams) {
-            var cam = cams[i];
-            cam_data[cam.cam] = createMatrixTR(cam.pose_t, cam.pose_r);
-        }
+    for (const i in data) {
+        var tag = data[i].tag;
         var trans = tag.transform.length > 0 ? createMatrixT(tag.transform) : null;
         var model = await LoadTagModel(tag.ident, tag.size);
         model.name = tag.ident;
@@ -129,7 +119,7 @@ async function FetchKnownTags() {
         var num = document.createElement('span');
         num.className = 'badge rounded-pill';
         num.classList.add(trans == null ? 'text-bg-warning' : tag.static ? 'text-bg-primary' : 'text-bg-secondary');
-        num.innerText = cams.length;
+        num.innerText = data[i].cams.length.toString();
         el.appendChild(num);
         el_tags_known.parentElement.insertBefore(el, el_tags_known);
         PickHelper.addListener(model, (event, m) => {
@@ -144,13 +134,13 @@ async function FetchKnownTags() {
             el: el,
             transform: trans,
             static: tag.static,
-            cams: cam_data,
+            cams: data[i].cams,
             ident: tag.ident
         };
     }
 }
-async function FetchCameras() {
-    var data = await (await fetch('cameras/list')).json();
+socket.on('tags', ParseKnownTags);
+async function ParseCameras(data) {
     var el_cams = document.getElementById('cameras').nextSibling;
     for (const ident in camera_list) {
         camera_list[ident].el.remove();
@@ -192,25 +182,11 @@ async function FetchCameras() {
         };
     }
 }
-export async function Refresh() {
+socket.on('cams', ParseCameras);
+export function Refresh() {
     selected = null;
-    await FetchKnownTags();
-    await FetchFoundTags();
-    await FetchCameras();
-    ApplyConstraints();
-}
-export function DebugPositions() {
-    console.log("Debugging positions");
-    for (const ident in tag_list) {
-        var tag = tag_list[ident];
-        var model = tag.obj;
-        for (const i in tag.cams) {
-            var m = model.clone();
-            m.visible = true;
-            m.matrixAutoUpdate = false;
-            m.matrix.copy(tag.cams[i]);
-            scene.add(m);
-        }
-    }
+    socket.emit('tags');
+    socket.emit('found_tags');
+    socket.emit('cams');
 }
 //# sourceMappingURL=network.js.map

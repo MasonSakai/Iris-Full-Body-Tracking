@@ -24,7 +24,7 @@
   <ItemGroup>
     <Compile Include="app\apriltag\forms.py" />
     <Compile Include="app\apriltag\models.py" />
-    <Compile Include="app\apriltag\routes3d.py" />
+    <Compile Include="app\apriltag\AprilTag3DSocket.py" />
     <Compile Include="app\apriltag\routes.py" />
     <Compile Include="app\apriltag\__init__.py">
       <SubType>Code</SubType>
