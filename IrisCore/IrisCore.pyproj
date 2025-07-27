@@ -22,6 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app\apriltag\calibration.py" />
     <Compile Include="app\apriltag\forms.py" />
     <Compile Include="app\apriltag\models.py" />
     <Compile Include="app\apriltag\AprilTag3DSocket.py" />

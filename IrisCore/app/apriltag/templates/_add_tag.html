@@ -31,7 +31,7 @@
 	</form>
 	<script>
 		dists = document.querySelectorAll('.popup-form span[dist]')
-		def_size = {{ detector.default_tag_size * 100 }}
+		def_size = {{ size * 100 }}
 		size = document.getElementById('tag_size')
 
 		function updateDists() {

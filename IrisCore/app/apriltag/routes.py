@@ -84,6 +84,7 @@ def view_tag(id):
 
         tag.tag_size = form.tag_size.data / 100
         tag.display_name = form.display_name.data
+        tag.ensure_static = form.ensure_static.data
 
         db.session.commit()
         flash('Tag {} Updated'.format(tag.display_name))
@@ -94,6 +95,7 @@ def view_tag(id):
 
         form.tag_size.data = tag.tag_size * 100
         form.display_name.data = tag.display_name
+        form.ensure_static.data = tag.ensure_static
 
         return render_template('_view_tag.html', form=form, tag=tag, seen_sources=seen)
 
@@ -114,21 +116,21 @@ def view_found_tag(family, id):
     id = int(id)
 
     res: Detector = None
+    size = -1
     sources: dict[Camera, list[Detector]] = {}
     index = -1
 
-    for (i, (i_res, i_sources)) in enumerate(found_tags):
+    for (i, (i_res, i_size, i_sources)) in enumerate(found_tags):
         if i_res.tag_family.decode('utf-8') == family and i_res.tag_id == id:
             index = i
             res = i_res
+            size = i_size
             sources = i_sources
             break
 
     r_sources = {}
     for source in sources:
         r_sources[source] = (sources[source], np.linalg.norm(sources[source].pose_t))
-        
-    detector = db.session.scalars(sqla.select(AprilTagDetector).where(AprilTagDetector.families.contains(family))).first()
 
     form = FoundTagForm()
     if form.validate_on_submit():
@@ -144,10 +146,10 @@ def view_found_tag(family, id):
     elif request.method == 'GET':
 
         form.display_name.data = '{}:{}'.format(family, id)
-        form.tag_size.data = detector.default_tag_size * 100.
-        return render_template('_add_tag.html', form=form, tag=res, sources=r_sources, detector=detector)
+        form.tag_size.data = size * 100.
+        return render_template('_add_tag.html', form=form, tag=res, sources=r_sources, size=size)
 
-    return index(popup_contents=render_template('_add_tag.html', form=form, tag=res, sources=r_sources, detector=detector))
+    return index(popup_contents=render_template('_add_tag.html', form=form, tag=res, sources=r_sources, size=size))
 
 @bp_aptg.route('/tags/found/clear')
 def clear_found_tags():

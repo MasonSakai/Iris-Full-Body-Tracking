@@ -49,3 +49,18 @@ def add_seen_tags(tag: AprilTag, source: Camera, res: Detection):
         seen_tags[tag.id] = {}
 
     seen_tags[tag.id][source.id] = res
+
+def clear_tags_for(source: Camera):
+    
+    for tag_id in seen_tags:
+        if source.id in seen_tags[tag_id]:
+            seen_tags[tag_id].pop(source.id)
+            if len(seen_tags[tag_id]) == 0:
+                seen_tags.pop(tag_id)
+
+    
+    for i in range(len(found_tags) - 1, -1, -1):
+        if source in found_tags[i][2]:
+            found_tags[i][2].pop(source)
+            if len(found_tags[i][2]) == 0:
+                found_tags.pop(i)

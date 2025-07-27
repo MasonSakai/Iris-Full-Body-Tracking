@@ -36,7 +36,6 @@ export async function LoadCamModel(): Promise<THREE.Object3D> {
 export type TagInfo = {
 	obj: THREE.Object3D,
 	el: HTMLButtonElement,
-	transform: THREE.Matrix4,
 	static: boolean,
 	cams: number[],
 	ident: string
@@ -45,7 +44,6 @@ export type TagInfo = {
 export type CameraInfo = {
 	obj: THREE.Object3D,
 	el: HTMLButtonElement,
-	transform: THREE.Matrix4,
 	ident: number
 }
 
@@ -89,56 +87,72 @@ export let selectionChange_listeners: ((event: MouseEvent) => void)[] = []
 
 export let refresh_listeners: (() => void)[] = []
 
-async function ParseFoundTags(data) {
-	//var el_tags_found = document.getElementById('tags-found').nextSibling
-	//for (const ident in tag_list) {
-	//	if (!tag_list[ident].known) {
-	//		tag_list[ident].el.remove()
-	//		PickHelper.removeListeners(tag_list[ident].obj)
-	//		tag_list[ident].obj.removeFromParent()
-	//		delete tag_list[ident]
-	//	}
-	//}
+let found_tags_obj: THREE.Object3D = null
+let found_tags: { [ident: string]: { el: HTMLButtonElement, objs: THREE.Object3D[] } } = {}
+async function ParseFoundTags(data: {
+	ident: string,
+	size: number,
+	cams: { [id: number]: number[]}
+}[]) {
+	var active_list = {}
+	for (const ident in found_tags) {
+		active_list[ident] = found_tags[ident].el.classList.contains('active')
+		found_tags[ident].el.remove()
+		found_tags[ident].objs.forEach(obj => obj.removeFromParent())
+		delete found_tags[ident]
+	}
 
-	//for (const ident in data) {
-	//	var size = data[ident].size
+	if (!found_tags_obj) {
+		found_tags_obj = new THREE.Object3D()
+		scene.add(found_tags_obj)
+	}
 
-	//	var model = await LoadTagModel(ident, size)
-	//	model.visible = false
-	//	model.name = ident
-	//	scene.add(model)
+	var el_tags_found = document.getElementById('tags-found').nextSibling
+	for (const i in data) {
+		var ident = data[i].ident
+		var size = data[i].size
+		var cams = data[i].cams
+		var active = active_list[ident] ?? false
 
+		var model = await LoadTagModel(ident, size)
+		model.visible = active
 
-	//	var el = document.createElement('button')
-	//	el.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center'
-	//	el.innerText = ident
-	//	el.id = ident
+		var models = []
+		for (const cam_id in cams) {
+			var trans = cams[cam_id].length > 0 ? createMatrixT(cams[cam_id]) : null
+			if (trans == null) continue
 
-	//	var num = document.createElement('span')
-	//	num.className = 'badge rounded-pill'
-	//	num.classList.add('text-bg-warning')
-	//	num.innerText = data[ident].cams.length
-	//	el.appendChild(num)
+			var m = model.clone()
+			m.name = `${ident}-${cam_id}`
+			trans.decompose(m.position, m.quaternion, m.scale)
+			found_tags_obj.add(m)
+		}
 
-	//	el_tags_found.parentElement.insertBefore(el, el_tags_found)
+		var el = document.createElement('button')
+		el.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center'
+		if (active) el.classList.add('active')
+		el.innerText = ident
+		el.id = ident
 
-	//	PickHelper.addListener(model, (event, m) => {
-	//		on_tag_select(event, m.name)
-	//	})
-	//	el.onclick = (event) => {
-	//		on_tag_select(event, (event.target as HTMLButtonElement).id)
-	//	}
+		var num = document.createElement('span')
+		num.className = 'badge rounded-pill'
+		num.classList.add(models.length == 0 ? 'text-bg-warning' : 'text-bg-secondary')
+		num.innerText = Object.keys(cams).length.toString()
+		el.appendChild(num)
 
-	//	tag_list[ident] = {
-	//		known: false,
-	//		obj: model,
-	//		el: el,
-	//		transform: null,
-	//		static: false,
-	//		cams: data[ident].cams,
-	//		ident: ident
-	//	}
-	//}
+		el_tags_found.parentElement.insertBefore(el, el_tags_found)
+
+		el.onclick = (event) => {
+			var tag = found_tags[(event.target as HTMLButtonElement).id]
+			var vis = tag.el.classList.toggle('active')
+			tag.objs.forEach(obj => obj.visible = vis)
+		}
+
+		found_tags[ident] = {
+			el: el,
+			objs: models
+		}
+	}
 
 	on_refresh()
 }
@@ -188,7 +202,6 @@ async function ParseKnownTags(data: {
 			known_tag_list[tag.ident] = {
 				obj: model,
 				el: el,
-				transform: trans,
 				static: tag.static,
 				cams: data[i].cams,
 				ident: tag.ident
@@ -204,7 +217,6 @@ async function ParseKnownTags(data: {
 		num.innerText = data[i].cams.length.toString()
 		known_tag_list[tag.ident].el.appendChild(num)
 
-		known_tag_list[tag.ident].transform = trans
 		known_tag_list[tag.ident].obj.visible = trans != null
 		if (trans != null)
 			trans.decompose(
@@ -256,7 +268,6 @@ async function ParseCameras(data) {
 			camera_list[cam.id] = {
 				obj: model,
 				el: el,
-				transform: trans,
 				ident: cam.id
 			}
 		}
@@ -269,7 +280,6 @@ async function ParseCameras(data) {
 		num.innerText = '-1'
 		camera_list[cam.id].el.appendChild(num)
 
-		camera_list[cam.id].transform = trans
 		camera_list[cam.id].obj.visible = trans != null
 		if (trans != null)
 			trans.decompose(

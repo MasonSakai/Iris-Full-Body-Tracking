@@ -53,48 +53,60 @@ export let camera_list = {};
 export let selected = null;
 export let selectionChange_listeners = [];
 export let refresh_listeners = [];
+let found_tags_obj = null;
+let found_tags = {};
 async function ParseFoundTags(data) {
-    //var el_tags_found = document.getElementById('tags-found').nextSibling
-    //for (const ident in tag_list) {
-    //	if (!tag_list[ident].known) {
-    //		tag_list[ident].el.remove()
-    //		PickHelper.removeListeners(tag_list[ident].obj)
-    //		tag_list[ident].obj.removeFromParent()
-    //		delete tag_list[ident]
-    //	}
-    //}
-    //for (const ident in data) {
-    //	var size = data[ident].size
-    //	var model = await LoadTagModel(ident, size)
-    //	model.visible = false
-    //	model.name = ident
-    //	scene.add(model)
-    //	var el = document.createElement('button')
-    //	el.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center'
-    //	el.innerText = ident
-    //	el.id = ident
-    //	var num = document.createElement('span')
-    //	num.className = 'badge rounded-pill'
-    //	num.classList.add('text-bg-warning')
-    //	num.innerText = data[ident].cams.length
-    //	el.appendChild(num)
-    //	el_tags_found.parentElement.insertBefore(el, el_tags_found)
-    //	PickHelper.addListener(model, (event, m) => {
-    //		on_tag_select(event, m.name)
-    //	})
-    //	el.onclick = (event) => {
-    //		on_tag_select(event, (event.target as HTMLButtonElement).id)
-    //	}
-    //	tag_list[ident] = {
-    //		known: false,
-    //		obj: model,
-    //		el: el,
-    //		transform: null,
-    //		static: false,
-    //		cams: data[ident].cams,
-    //		ident: ident
-    //	}
-    //}
+    var active_list = {};
+    for (const ident in found_tags) {
+        active_list[ident] = found_tags[ident].el.classList.contains('active');
+        found_tags[ident].el.remove();
+        found_tags[ident].objs.forEach(obj => obj.removeFromParent());
+        delete found_tags[ident];
+    }
+    if (!found_tags_obj) {
+        found_tags_obj = new THREE.Object3D();
+        scene.add(found_tags_obj);
+    }
+    var el_tags_found = document.getElementById('tags-found').nextSibling;
+    for (const i in data) {
+        var ident = data[i].ident;
+        var size = data[i].size;
+        var cams = data[i].cams;
+        var active = active_list[ident] ?? false;
+        var model = await LoadTagModel(ident, size);
+        model.visible = active;
+        var models = [];
+        for (const cam_id in cams) {
+            var trans = cams[cam_id].length > 0 ? createMatrixT(cams[cam_id]) : null;
+            if (trans == null)
+                continue;
+            var m = model.clone();
+            m.name = `${ident}-${cam_id}`;
+            trans.decompose(m.position, m.quaternion, m.scale);
+            found_tags_obj.add(m);
+        }
+        var el = document.createElement('button');
+        el.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+        if (active)
+            el.classList.add('active');
+        el.innerText = ident;
+        el.id = ident;
+        var num = document.createElement('span');
+        num.className = 'badge rounded-pill';
+        num.classList.add(models.length == 0 ? 'text-bg-warning' : 'text-bg-secondary');
+        num.innerText = Object.keys(cams).length.toString();
+        el.appendChild(num);
+        el_tags_found.parentElement.insertBefore(el, el_tags_found);
+        el.onclick = (event) => {
+            var tag = found_tags[event.target.id];
+            var vis = tag.el.classList.toggle('active');
+            tag.objs.forEach(obj => obj.visible = vis);
+        };
+        found_tags[ident] = {
+            el: el,
+            objs: models
+        };
+    }
     on_refresh();
 }
 socket.on('found_tags', ParseFoundTags);
@@ -126,7 +138,6 @@ async function ParseKnownTags(data) {
             known_tag_list[tag.ident] = {
                 obj: model,
                 el: el,
-                transform: trans,
                 static: tag.static,
                 cams: data[i].cams,
                 ident: tag.ident
@@ -138,7 +149,6 @@ async function ParseKnownTags(data) {
         num.classList.add(trans == null ? 'text-bg-warning' : tag.static ? 'text-bg-primary' : 'text-bg-secondary');
         num.innerText = data[i].cams.length.toString();
         known_tag_list[tag.ident].el.appendChild(num);
-        known_tag_list[tag.ident].transform = trans;
         known_tag_list[tag.ident].obj.visible = trans != null;
         if (trans != null)
             trans.decompose(known_tag_list[tag.ident].obj.position, known_tag_list[tag.ident].obj.quaternion, known_tag_list[tag.ident].obj.scale);
@@ -178,7 +188,6 @@ async function ParseCameras(data) {
             camera_list[cam.id] = {
                 obj: model,
                 el: el,
-                transform: trans,
                 ident: cam.id
             };
         }
@@ -188,7 +197,6 @@ async function ParseCameras(data) {
         num.classList.add(trans == null ? 'text-bg-warning' : 'text-bg-secondary');
         num.innerText = '-1';
         camera_list[cam.id].el.appendChild(num);
-        camera_list[cam.id].transform = trans;
         camera_list[cam.id].obj.visible = trans != null;
         if (trans != null)
             trans.decompose(camera_list[cam.id].obj.position, camera_list[cam.id].obj.quaternion, camera_list[cam.id].obj.scale);

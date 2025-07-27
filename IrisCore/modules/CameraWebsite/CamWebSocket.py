@@ -5,10 +5,10 @@ import numpy as np
 import cv2 as cv
 import base64
 from CameraWebsite.models import WebsiteCamera
+from app.apriltag.calibration import CalculateCameraPose
 from app.dataproviders.position import RayPositionSource, ScoredPositionSource
 from app.synchronize import source_pose_lock
 from app.apriltag.models import AprilTagDetector
-from app.apriltag import add_found_tag, add_seen_tags, drawTag
 from flask_socketio import disconnect
 
 
@@ -70,35 +70,10 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
             print(e, data) #, positions, pose_positions, scores, pose_scores, sep='\n')
 
     def on_image(self, data_url):
-        (_, dist_coeffs) = self.cam.get_camera_params()
-
         img = cv.imdecode(np.frombuffer(base64.b64decode(data_url.split(',')[1]), np.uint8), cv.IMREAD_COLOR)
         img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        camera_matrix = self.cam.rescale_camera_matrix(img.shape)
-        img = self.cam.undistortImage(img, camera_matrix, dist_coeffs)
+        CalculateCameraPose(self.cam, img)
         
-        scale = 3
-        if scale > 1 and img.shape == (480, 640):
-            kern = np.array([[-1, -1, -1], [-1,  9, -1], [-1, -1, -1]])
-            img = cv.resize(img, None, fx=scale, fy=scale, interpolation=cv.INTER_CUBIC)
-            img = cv.filter2D(img, -1, kern)
-            
-        camera_matrix = self.cam.rescale_camera_matrix(img.shape)
-
-        image = cv.cvtColor(img, cv.COLOR_GRAY2BGR)
-
-        detectors = db.session.scalars(sqla.select(AprilTagDetector)).all()
-        for detector in detectors:
-            (res, tags) = detector.detect(img, camera_matrix)
-            print(self.cam.id, len(res), len(tags))
-            for r in res:
-                drawTag(image, r, scale)
-                add_found_tag(self.cam, detector.default_tag_size, r)
-            for (r, tag) in tags:
-                drawTag(image, r, scale)
-                add_seen_tags(tag, self.cam, r)
-
-        cv.imwrite('images/{}-{}.png'.format(self.cam.id, scale), image)
 
     def on_caps(self, caps):
         self.camCaps = caps

@@ -1,14 +1,19 @@
 from flask import flash, redirect, render_template, request, url_for, Response
-from pupil_apriltags import Detector
+from pupil_apriltags import Detection, Detector
 import sqlalchemy as sqla
 import numpy as np
 import cv2 as cv
 
 from app import db, socketio
 from app.apriltag import apriltag_blueprint as bp_aptg, found_tags, seen_tags
-from app.apriltag.models import AprilTag, AprilTagDetector
-from app.apriltag.forms import DetectorForm, FoundTagForm, EditTagForm
+from app.apriltag.models import AprilTag
 from app.main.models import Camera
+
+def det_to_mat(det: Detection):
+    mat = np.identity(4)
+    mat[:3, :3] = det.pose_R
+    mat[:3, 3] = np.array(det.pose_t).flatten()
+    return mat
 
 def update_from(src: Camera | AprilTag):
     
@@ -28,9 +33,7 @@ def update_from(src: Camera | AprilTag):
                     continue
                 queue.append(cam)
                 
-                mat = np.identity(4)
-                mat[:3, :3] = det.pose_R
-                mat[:3, 3] = np.array(det.pose_t).flatten()
+                mat = det_to_mat(det)
                 mat = np.linalg.inv(mat)
 
                 cam.set_transform(np.linalg.matmul(
@@ -46,11 +49,7 @@ def update_from(src: Camera | AprilTag):
                 queue.append(tag)
 
                 det = seen_tags[tag_id][src.id]
-                
-                mat = np.identity(4)
-                mat[:3, :3] = det.pose_R
-                mat[:3, 3] = np.array(det.pose_t).flatten()
-
+                mat = det_to_mat(det)
                 tag.set_transform(np.linalg.matmul(s_mat, mat))
 
 
@@ -148,21 +147,20 @@ def get_tags(sid = None):
     
 @socketio.on('found_tags', namespace='/apriltag')
 def get_found_tags(sid = None):
-    detectors = db.session.scalars(sqla.select(AprilTagDetector)).all()
-    sizes = {}
-    for detector in detectors:
-        for family in detector.families.split():
-            sizes[family] = detector.default_tag_size
 
-    tags = {}
-    for (tag, sources) in found_tags:
-        data = []
+    tags = []
+    for (tag, size, sources) in found_tags:
+        data = {}
         for source in sources:
-            data.append(source.id)
-        tags['{}:{}'.format(tag.tag_family.decode('utf-8'), tag.tag_id)] = {
-            'size': sizes[tag.tag_family.decode('utf-8')],
+            s_mat = source.get_transform()
+            if (s_mat.size == 0): data[source.id] = []
+            mat = det_to_mat(sources[source])
+            data[source.id] = np.linalg.matmul(s_mat, mat).tolist()
+        tags.append({
+            'ident': '{}:{}'.format(tag.tag_family.decode('utf-8'), tag.tag_id),
+            'size': size,
             'cams': data
-        }
+        })
         
     socketio.emit('found_tags', tags, namespace='/apriltag', to=(sid if sid != None else request.sid))
     

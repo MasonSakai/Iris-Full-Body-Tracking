@@ -73,7 +73,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% for (tag, sources) in found_tags %}
+			{% for (tag, size, sources) in found_tags %}
 			<tr id="tag-{{ tag.tag_family.decode("utf-8") }}:{{ tag.id }}" class="p-1 border-bottom border-dark-subtle"
 				onclick="openPopupURL('{{url_for('apriltag.view_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id)}}')">
 				<td class="p-2">{{ tag.tag_family.decode("utf-8") }}</td>
