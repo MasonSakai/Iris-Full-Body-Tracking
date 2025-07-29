@@ -7,9 +7,9 @@ import base64
 from CameraWebsite.models import WebsiteCamera
 from app.apriltag.calibration import CalculateCameraPose
 from app.dataproviders.position import RayPositionSource, ScoredPositionSource
-from app.synchronize import source_pose_lock
-from app.apriltag.models import AprilTagDetector
 from flask_socketio import disconnect
+from app.dataproviders import source_registry
+from app.synchronize import source_registry_lock
 
 
 sid_dict = {}
@@ -24,19 +24,23 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
     def __init__(self, sid, cam):
         self.sid = sid
         self.cam = cam
+        with source_registry_lock:
+            source_registry.append(self)
 
         socketio.emit('caps', namespace='/camsite', to=sid)
 
     def on_disconnect(self, reason):
         print(reason)
         sockets.pop(self.cam.id)
+        with source_registry_lock:
+            source_registry.remove(self)
 
-    positions = []
-    scores = []
+    positions = {}
+    scores = {}
 
     def on_pose(self, data):
-        positions = []
-        scores = []
+        positions = {}
+        scores = {}
         
         pose_positions = []
         pose_scores = {}
@@ -56,16 +60,14 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
                 
                 pose_positions = self.cam.undistortPoints(pose_positions, camera_matrix, dist_coeffs)
                 pose_positions = np.append(pose_positions, np.ones((len(pose_positions), 1)), axis=1)
-                pose_positions /= np.linalg.norm(pose_positions, axis=1, keepdims=True)
 
                 pose_positions = dict(zip(pose_keys, pose_positions))
 
-                positions.append(pose_positions)
-                scores.append(pose_scores)
+                positions = pose_positions
+                scores = pose_scores
 
-            with source_pose_lock:
-                self.positions = positions
-                self.scores = scores
+            self.positions = positions
+            self.scores = scores
         except Exception as e:
             print(e, data) #, positions, pose_positions, scores, pose_scores, sep='\n')
 

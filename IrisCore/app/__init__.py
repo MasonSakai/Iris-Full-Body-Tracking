@@ -24,6 +24,8 @@ def create_app(config_class=Config):
     # blueprint registration
     from app.main import main_blueprint as main
     app.register_blueprint(main)
+    from app.main.math_worker import math_worker
+    math_worker.init_app(app)
 
     from app.apriltag import apriltag_blueprint as apriltag
     app.register_blueprint(apriltag)

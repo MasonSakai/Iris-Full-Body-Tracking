@@ -66,7 +66,7 @@ async function processPose() {
 		pose: await GetFilteredPose(image, detector, config.confidence_threshold, config.flip_horizontal)
 	}
 	postMessage(data)
-	if (socket.active) {
+	if (socket.connected) {
 		socket.emit('pose', {
 			id: config.id,
 			time: (performance || Date).now(),

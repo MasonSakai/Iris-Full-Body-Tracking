@@ -8,6 +8,7 @@ from app import db, socketio
 from app.apriltag import apriltag_blueprint as bp_aptg, found_tags, seen_tags
 from app.apriltag.models import AprilTag
 from app.main.models import Camera
+from app.main.math_worker import publishers
 
 def det_to_mat(det: Detection):
     mat = np.identity(4)
@@ -177,3 +178,10 @@ def get_cams(sid = None):
         })
         
     socketio.emit('cams', cams, namespace='/apriltag', to=(sid if sid != None else request.sid))
+
+def post_pose(pose: dict[str, np.array]):
+    data = {}
+    for ident, p in pose.items():
+        data[ident] = p.tolist()
+    socketio.emit('pose', data, namespace='/apriltag')
+publishers.append(post_pose)

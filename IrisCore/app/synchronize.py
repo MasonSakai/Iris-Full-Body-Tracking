@@ -1,5 +1,4 @@
 import threading
 
-
-source_pose_lock = threading.Lock()
+source_registry_lock = threading.Lock()
 

@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, jsonify, request, abort
+from flask import request, render_template, flash, redirect, url_for, jsonify, request, abort
 import sqlalchemy as sqla
 
 from app import db
@@ -24,6 +24,14 @@ def get_cameras():
 @bp_cam.route('/cameras/<id>', methods=['GET', 'POST'])
 def get_camera(id):
     camera = db.session.get(WebsiteCamera, id)
+    return jsonify(camera.getConfig())
+
+
+@bp_cam.route('/cameras/<id>/update', methods=['POST'])
+def set_config(id):
+    camera = db.session.get(WebsiteCamera, id)
+    camera.setConfig(request.json)
+    db.session.commit()
     return jsonify(camera.getConfig())
 
 

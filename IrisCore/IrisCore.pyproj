@@ -37,6 +37,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\IrisModules.py" />
+    <Compile Include="app\main\math_worker.py" />
     <Compile Include="app\main\models.py" />
     <Compile Include="app\main\routes.py" />
     <Compile Include="modules\CameraWebsite\CamWebModule.py" />
