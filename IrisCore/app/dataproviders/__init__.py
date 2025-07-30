@@ -1,4 +1,5 @@
 from threading import Lock
+import time
 import numpy as np
 
 source_registry: list['DataSource'] = []
@@ -9,6 +10,9 @@ class DataSource:
 
     def init(self):
         pass
+
+    def should_update(self):
+        return True
 
     def update(self):
         pass
@@ -28,5 +32,15 @@ class TransformedDataSource(DataSource):
 
     def get_source_transform(self):
         return np.identity(4)
+
+class TimestampedDataSource(DataSource):
+    
+    worker_timestamp: np.array
+    def update(self):
+        with self.source_pose_lock:
+            self.worker_timestamp = self.get_timestamp()
+
+    def get_timestamp(self):
+        return time.time()
 
 #add weighted?

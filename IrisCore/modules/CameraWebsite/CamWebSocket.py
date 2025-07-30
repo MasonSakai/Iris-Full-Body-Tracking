@@ -8,14 +8,14 @@ from CameraWebsite.models import WebsiteCamera
 from app.apriltag.calibration import CalculateCameraPose
 from app.dataproviders.position import RayPositionSource, ScoredPositionSource
 from flask_socketio import disconnect
-from app.dataproviders import source_registry
+from app.dataproviders import TimestampedDataSource, source_registry
 from app.synchronize import source_registry_lock
 
 
 sid_dict = {}
 sockets = {}
 
-class CamWebSocket(RayPositionSource, ScoredPositionSource):
+class CamWebSocket(RayPositionSource, ScoredPositionSource, TimestampedDataSource):
     
     sid: str
     cam: WebsiteCamera
@@ -37,6 +37,8 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
 
     positions = {}
     scores = {}
+    timestamp = 0
+    got_new_pose = False
 
     def on_pose(self, data):
         positions = {}
@@ -66,8 +68,11 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
                 positions = pose_positions
                 scores = pose_scores
 
-            self.positions = positions
-            self.scores = scores
+            with self.source_pose_lock:
+                self.positions = positions
+                self.scores = scores
+                self.timestamp = data['time']
+                self.got_new_pose = True
         except Exception as e:
             print(e, data) #, positions, pose_positions, scores, pose_scores, sep='\n')
 
@@ -96,6 +101,18 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource):
     
     def get_scores_positions(self):
         return self.scores
+    
+    def get_timestamp(self):
+        return self.timestamp
+
+    def should_update(self):
+        with self.source_pose_lock:
+            return self.got_new_pose
+
+    def update(self):
+        with self.source_pose_lock:
+            self.got_new_pose = False
+
 
 
 

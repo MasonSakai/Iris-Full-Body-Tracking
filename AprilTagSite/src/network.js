@@ -233,14 +233,23 @@ async function ParsePose(data) {
         pose_obj = new THREE.Object3D();
         scene.add(pose_obj);
     }
-    pose_obj.clear();
     var m = await LoadPoseModel();
     for (const ident in data) {
-        var trans = createMatrixT(data[ident]);
-        var model = m.clone();
-        model.name = ident;
-        trans.decompose(model.position, model.quaternion, model.scale);
-        pose_obj.add(model);
+        var model = pose_obj.getObjectByName(ident);
+        if (!model) {
+            model = m.clone();
+            model.name = ident;
+            model.matrixAutoUpdate = false;
+            pose_obj.add(model);
+        }
+        model.visible = true;
+        model.matrixAutoUpdate = false;
+        model.matrix = createMatrixT(data[ident]);
+    }
+    for (const model of pose_obj.children) {
+        if (model.name in data)
+            continue;
+        model.visible = false;
     }
 }
 socket.on('pose', ParsePose);

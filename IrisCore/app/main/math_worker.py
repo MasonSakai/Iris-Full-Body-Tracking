@@ -1,6 +1,5 @@
 import atexit
 from math import sqrt
-import time
 from flask import Flask
 from threading import Thread, Lock
 from app import socketio
@@ -93,13 +92,13 @@ class MathWorker:
                     if not self.running:
                         break
 
-                self.UpdateSources()
-                self.CalculatePositions()
-                self.PositionPostProcessing()
-                self.CalculateRotations()
-                self.PostData()
+                if self.ShouldUpdate():
+                    self.UpdateSources()
+                    self.CalculatePositions()
+                    self.PositionPostProcessing()
+                    self.CalculateRotations()
+                    self.PostData()
 
-                time.sleep(0.05)
         except BaseException as e:
             print(e)
             
@@ -126,6 +125,16 @@ class MathWorker:
                     self.sources.append(source)
                 except BaseException as e:
                     print(e)
+
+    def ShouldUpdate(self):
+        with sync.source_registry_lock:
+            for source in source_registry:
+                try:
+                    if source.should_update():
+                        return True
+                except BaseException as e:
+                    print(e)
+        return False
 
     pose_data: dict[str, np.array] = {}
     last_pose_data: dict[str, np.array] = {}
