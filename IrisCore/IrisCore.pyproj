@@ -30,6 +30,10 @@
     <Compile Include="app\apriltag\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\dataprocessing\rollingaverage.py" />
+    <Compile Include="app\dataprocessing\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\dataproviders\position.py">
       <SubType>Code</SubType>
     </Compile>
@@ -101,6 +105,7 @@
     <Folder Include="app\apriltag\static\js\" />
     <Folder Include="app\apriltag\static\pdf\" />
     <Folder Include="app\apriltag\templates\" />
+    <Folder Include="app\dataprocessing\" />
     <Folder Include="app\dataproviders\" />
     <Folder Include="app\main\" />
     <Folder Include="app\main\templates\" />

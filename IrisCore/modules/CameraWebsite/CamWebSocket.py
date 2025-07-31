@@ -11,7 +11,6 @@ from flask_socketio import disconnect
 from app.dataproviders import TimestampedDataSource, source_registry
 from app.synchronize import source_registry_lock
 
-
 sid_dict = {}
 sockets = {}
 
@@ -56,17 +55,20 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource, TimestampedDataSourc
                 pose_positions = []
                 pose_scores = {}
                 pose_keys = pose.keys()
-                for key in pose_keys:
-                    pose_scores[key] = pose[key]['score']
-                    pose_positions.append([pose[key]['x'], pose[key]['y']])
+                if len(pose_keys) > 0:
+                    for key in pose_keys:
+                        pose_scores[key] = pose[key]['score']
+                        pose_positions.append([pose[key]['x'], pose[key]['y']])
                 
-                pose_positions = self.cam.undistortPoints(pose_positions, camera_matrix, dist_coeffs)
-                pose_positions = np.append(pose_positions, np.ones((len(pose_positions), 1)), axis=1)
+                    pose_positions = np.array(self.cam.undistortPoints(pose_positions, camera_matrix, dist_coeffs))
+                    if (len(pose_positions.shape) == 1):
+                        pose_positions = pose_positions.reshape(1, -1)
+                    pose_positions = np.append(pose_positions, np.ones((len(pose_positions), 1)), axis=1)
 
-                pose_positions = dict(zip(pose_keys, pose_positions))
+                    pose_positions = dict(zip(pose_keys, pose_positions))
 
-                positions = pose_positions
-                scores = pose_scores
+                    positions = pose_positions
+                    scores = pose_scores
 
             with self.source_pose_lock:
                 self.positions = positions
@@ -74,7 +76,7 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource, TimestampedDataSourc
                 self.timestamp = data['time']
                 self.got_new_pose = True
         except Exception as e:
-            print(e, data) #, positions, pose_positions, scores, pose_scores, sep='\n')
+            print(e) #, data, positions, pose_positions, scores, pose_scores, sep='\n')
 
     def on_image(self, data_url):
         img = cv.imdecode(np.frombuffer(base64.b64decode(data_url.split(',')[1]), np.uint8), cv.IMREAD_COLOR)
