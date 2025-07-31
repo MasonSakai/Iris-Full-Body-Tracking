@@ -1,6 +1,6 @@
 #include "iris_tracker_device.h"
 #include "device_provider.h"
-#include "../../lib/openvr/samples/drivers/utils/vrmath/vrmath.h"
+#include "../lib/openvr/samples/drivers/utils/vrmath/vrmath.h"
 using namespace IrisFBT;
 
 IrisTrackerDevice::IrisTrackerDevice(IrisTrackerIndex index) : device_id_(vr::k_unTrackedDeviceIndexInvalid), device_index_(index) {};

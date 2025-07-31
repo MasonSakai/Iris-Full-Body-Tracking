@@ -1,4 +1,4 @@
-#include "CameraConfig.h"
+#include "ClientConfig.h"
 #include "util.h"
 #include <fstream>
 #include <iostream>
@@ -6,15 +6,15 @@ using std::lock_guard;
 
 using namespace IrisFBT;
 
-mutex CameraConfig::config_mutex_;
-json CameraConfig::config_;
-wstring CameraConfig::path_;
+mutex ClientConfig::config_mutex_;
+json ClientConfig::config_;
+wstring ClientConfig::path_;
 
-bool CameraConfig::Load() {
+bool ClientConfig::Load() {
 	lock_guard<mutex> lg(config_mutex_);
 
 	if (path_.empty()) {
-		path_ = getAppdata() + L"/cameraConfig.json";
+		path_ = getAppdata() + L"/ClientConfig.json";
 	}
 
 	std::ifstream f(path_);
@@ -37,7 +37,7 @@ bool CameraConfig::Load() {
 	}
 }
 
-bool CameraConfig::Save() {
+bool ClientConfig::Save() {
 	lock_guard<mutex> lg(config_mutex_);
 
 	std::ofstream f(path_);
@@ -49,11 +49,7 @@ bool CameraConfig::Save() {
 	return true;
 }
 
-bool CameraConfig::Rename(string old_name, string new_name) {
-	return change_key(config_, old_name, new_name);
-}
-
-bool CameraConfig::Find(json& config, string ident, bool onlyName) {
+bool ClientConfig::Find(json& config, string ident, bool onlyName) {
 	lock_guard<mutex> lg(config_mutex_);
 
 	if (config_.contains(ident)) {
@@ -74,6 +70,6 @@ bool CameraConfig::Find(json& config, string ident, bool onlyName) {
 	return false;
 }
 
-json& CameraConfig::Get() { lock_guard<mutex> lg(config_mutex_); return config_; }
+json& ClientConfig::Get() { lock_guard<mutex> lg(config_mutex_); return config_; }
 
-json& CameraConfig::Get(string name) { lock_guard<mutex> lg(config_mutex_); return config_[name]; }
+json& ClientConfig::Get(string name) { lock_guard<mutex> lg(config_mutex_); return config_[name]; }

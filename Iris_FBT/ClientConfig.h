@@ -10,7 +10,7 @@ using std::mutex;
 
 namespace IrisFBT {
 
-	class CameraConfig
+	class ClientConfig
 	{
 	public:
 

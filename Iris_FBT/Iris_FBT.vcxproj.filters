@@ -22,15 +22,6 @@
     <Filter Include="VRDriver\Source Files">
       <UniqueIdentifier>{2139455b-76d6-45a7-a373-e70e94ec3663}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IrisWeb">
-      <UniqueIdentifier>{a5d57138-e596-41fd-810e-228338479992}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="IrisWeb\Header Files">
-      <UniqueIdentifier>{27914d68-5792-4953-a066-688627e5818f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="IrisWeb\Source Files">
-      <UniqueIdentifier>{64008762-51d9-4be9-ab01-686f99cde5b6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="iris_tracker_device.cpp">
@@ -48,13 +39,7 @@
     <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IrisWebServer.cpp">
-      <Filter>IrisWeb\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IrisWebClient.cpp">
-      <Filter>IrisWeb\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraConfig.cpp">
+    <ClCompile Include="ClientConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,16 +56,7 @@
     <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IrisWebClient.h">
-      <Filter>IrisWeb\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IrisWebClient_keys.h">
-      <Filter>IrisWeb\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IrisWebServer.h">
-      <Filter>IrisWeb\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraConfig.h">
+    <ClInclude Include="ClientConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

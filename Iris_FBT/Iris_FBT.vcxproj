@@ -92,13 +92,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/openssl/include;$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/Simple-WebSocket-Server;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/install/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib/openssl/lib;$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\install\x64\vc17\lib;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
       <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/openssl/include;$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/Simple-WebSocket-Server;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/install/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -121,7 +121,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib/openssl/lib;$(SolutionDir)lib\sockpp\build\Release;$(SolutionDir)lib\OpenCV\install\x64\vc17\lib;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
       <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -134,13 +134,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/openssl/include;$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/Simple-WebSocket-Server;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/install/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib/openssl/lib;$(SolutionDir)lib\sockpp\build\Debug;$(SolutionDir)lib\OpenCV\install\x64\vc17\lib;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
       <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110d.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -155,7 +155,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/openssl/include;$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/cpp-httplib;$(SolutionDir)lib/Simple-WebSocket-Server;$(SolutionDir)lib/json/include;$(SolutionDir)lib/OpenCV/install/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -163,7 +163,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib/openssl/lib;$(SolutionDir)lib\sockpp\build\Release;$(SolutionDir)lib\OpenCV\install\x64\vc17\lib;$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
       <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -171,22 +171,17 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CameraConfig.cpp" />
+    <ClCompile Include="ClientConfig.cpp" />
     <ClCompile Include="device_data_refs.cpp" />
     <ClCompile Include="device_provider.cpp" />
     <ClCompile Include="hmd_driver_factory.cpp" />
-    <ClCompile Include="IrisWebClient.cpp" />
-    <ClCompile Include="IrisWebServer.cpp" />
     <ClCompile Include="iris_tracker_device.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CameraConfig.h" />
+    <ClInclude Include="ClientConfig.h" />
     <ClInclude Include="device_data_refs.h" />
     <ClInclude Include="device_provider.h" />
-    <ClInclude Include="IrisWebClient.h" />
-    <ClInclude Include="IrisWebClient_keys.h" />
-    <ClInclude Include="IrisWebServer.h" />
     <ClInclude Include="iris_tracker_device.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
