@@ -1,5 +1,6 @@
 import atexit
 from math import sqrt
+from typing import Callable
 from flask import Flask
 from threading import Thread, Lock
 from app import socketio
@@ -20,7 +21,7 @@ def callAllIn(T: type, method_name: str, *args, **kwargs):
 def project(x, on): return on * np.dot(x, on) / np.dot(on, on)
 def reject(x, on): return x - project(x, on)
 
-def closest_points_between_rays(O1: np.array, D1: np.array, O2: np.array, D2: np.array):
+def closest_points_between_rays(O1: np.ndarray, D1: np.ndarray, O2: np.ndarray, D2: np.ndarray):
     norm = np.cross(D1, D2)
     o1 = reject(O1, norm)
     o2 = reject(O2, norm)
@@ -60,7 +61,7 @@ class MathWorker:
     worker_thread: Thread
     filters: dict[str, RollingAverageFilter] = {}
 
-    publishers = []
+    publishers: list[Callable[[np.ndarray], None]] = []
 
     def __init__(self, app: Flask = None):
         self.running_lock = Lock()
@@ -99,6 +100,7 @@ class MathWorker:
                     self.CalculatePositions()
                     self.PositionPostProcessing()
                     self.CalculateRotations()
+                    self.PrePostData()
                     self.PostData()
 
         except BaseException as e:
@@ -303,9 +305,19 @@ class MathWorker:
         else:
             pass
 
+    post_filter = ['head', 'chest', 'hip',
+                   'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist',
+                   'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_foot', 'right_foot']
+    post_data: dict[str, np.array] = {}
+    def PrePostData(self):
+        self.post_data.clear()
+        for key in self.post_filter:
+            if key in self.pose_data:
+                self.post_data[key] = self.pose_data[key]
+
     def PostData(self):
         for p in self.publishers:
-            p(self.pose_data)
+            p(self.post_data)
 
 
 math_worker = MathWorker()

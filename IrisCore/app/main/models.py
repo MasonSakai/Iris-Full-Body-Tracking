@@ -31,7 +31,7 @@ class Camera(db.Model):
         return '<Camera - {} "{}">'.format(self.id, self.display_name)
     
 
-    def set_transform(self, transform: np.array):
+    def set_transform(self, transform: np.ndarray):
         self.transform = pickle.dumps(transform)
         db.session.commit()
 
@@ -58,7 +58,7 @@ class CVUndistortableCamera(Camera):
     camera_matrix: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
     dist_coeffs: sqlo.Mapped[sqla.LargeBinary] = sqlo.mapped_column(sqla.LargeBinary, default=pickle.dumps(np.empty(0)))
 
-    def set_camera_params(self, camera_matrix: np.array, dist_coeffs: np.array):
+    def set_camera_params(self, camera_matrix: np.ndarray, dist_coeffs: np.ndarray):
         self.camera_matrix = pickle.dumps(camera_matrix)
         self.dist_coeffs = pickle.dumps(dist_coeffs)
         db.session.commit()
@@ -80,15 +80,15 @@ class CVUndistortableCamera(Camera):
         (camera_matrix, dist_coeffs) = self.get_camera_params()
         return self.undistortImage(image, camera_matrix, dist_coeffs)
         
-    def undistortImage(self, image: MatLike, camera_matrix: np.array, dist_coeffs: np.array):
+    def undistortImage(self, image: MatLike, camera_matrix: np.ndarray, dist_coeffs: np.ndarray):
         return cv.undistort(image, camera_matrix, dist_coeffs)
 
-    def undistortPoints(self, data: np.array):
+    def undistortPoints(self, data: np.ndarray):
         (camera_matrix, dist_coeffs) = self.get_camera_params()
         return self.undistortPoints(data, camera_matrix, dist_coeffs)
 
         
-    def undistortPoints(self, data: np.array, camera_matrix: np.array, dist_coeffs: np.array):
+    def undistortPoints(self, data: np.ndarray, camera_matrix: np.ndarray, dist_coeffs: np.ndarray):
         if data is not np.array:
             data = np.array(data)
 

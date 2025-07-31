@@ -33,4 +33,5 @@ class WebsiteCamera(CVUndistortableCamera):
             self.autostart = config['autostart']
         if 'confidence_threshold' in config:
             self.confidence_threshold = config['confidence_threshold']
-    
+   
+print('\033[33m =-=-=-=-= loading CameraWebsite DB, change to binds! =-=-=-=-= \033[0m')
