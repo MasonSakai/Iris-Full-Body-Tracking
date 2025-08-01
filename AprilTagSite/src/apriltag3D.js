@@ -1,10 +1,18 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Refresh } from './network';
-import { resizeRendererToDisplaySize } from './util';
+import { createMatrixT, resizeRendererToDisplaySize } from './util';
 import { PickHelper } from './PickHelper';
 export let scene = new THREE.Scene();
-scene.add(new THREE.AxesHelper(1));
+var ax = new THREE.AxesHelper(1);
+ax.matrixAutoUpdate = false;
+ax.matrix.copy(createMatrixT([
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1
+]));
+scene.add(ax);
 export let camera = new THREE.PerspectiveCamera(75, 2, 0.01, 100);
 export let controls = null;
 let renderer = null;

@@ -104,7 +104,7 @@ class MathWorker:
                     self.PostData()
 
         except BaseException as e:
-            print(e)
+            print('bw thread except:', e)
             
         with self.running_lock:
             self.running = False
@@ -117,7 +117,7 @@ class MathWorker:
                 try:
                     source.init()
                 except BaseException as e:
-                    print(e)
+                    print('init sources', source, e)
 
     sources: list[DataSource] = []
     def UpdateSources(self):
@@ -128,7 +128,7 @@ class MathWorker:
                     callAllIn(type(source), 'update', source)
                     self.sources.append(source)
                 except BaseException as e:
-                    print(e)
+                    print('update sources', source, e)
 
     def ShouldUpdate(self):
         with sync.source_registry_lock:
@@ -137,7 +137,7 @@ class MathWorker:
                     if source.should_update():
                         return True
                 except BaseException as e:
-                    print(e)
+                    print('should update', source, e)
         return False
 
     pose_data: dict[str, np.array] = {}
@@ -203,7 +203,7 @@ class MathWorker:
         if 'left_ear' in self.pose_data and 'right_ear' in self.pose_data:
             self.pose_data['head'] = (self.pose_data['left_ear'] + self.pose_data['right_ear']) / 2
 
-    def CalculateRotations(self):
+    def CalculateRotations(self): #+x left, -y up, -z forward
         pose = {}
         for ident, data in self.pose_data.items(): #remove, do last to unknowns?
             trans = np.identity(4)
@@ -211,38 +211,38 @@ class MathWorker:
             pose[ident] = trans
         self.pose_data = pose
         
-        self.do_head('head', 'right_ear', ['nose', 'left_eye', 'right_eye'], ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear'])
+        self.do_head('head', 'left_ear', ['nose', 'left_eye', 'right_eye'], ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear'])
 
-        self.do_chest_hip('hip', 'chest', 'right_hip', False)
-        self.do_chest_hip('chest', 'hip', 'right_shoulder', True)
+        self.do_chest_hip('hip', 'chest', 'left_hip', False)
+        self.do_chest_hip('chest', 'hip', 'left_shoulder', True)
 
-        self.do_three_point('left_shoulder', 'left_elbow', 'left_wrist', 'chest', False, -3, -2, -1, 1)
-        self.do_three_point('right_shoulder', 'right_elbow', 'right_wrist', 'chest', False, 3, 2, -1, 1)
+        self.do_three_point('left_shoulder', 'left_elbow', 'left_wrist', 'chest', False, 1, 2, 3, 3)
+        self.do_three_point('right_shoulder', 'right_elbow', 'right_wrist', 'chest', False, -1, -2, 3, 3)
         
-        self.do_three_point('left_hip', 'left_knee', 'left_ankle', 'hip', False, -2, 3, -1, 1)
-        self.do_three_point('right_hip', 'right_knee', 'right_ankle', 'hip', False, -2, 3, -1, 1)
+        self.do_three_point('left_hip', 'left_knee', 'left_ankle', 'hip', True, 2, 1, -3, 3)
+        self.do_three_point('right_hip', 'right_knee', 'right_ankle', 'hip', True, 2, 1, -3, 3)
 
-    def do_head(self, key_head: str, key_right: str, keys_forward: list[str], rot_copy: list[str]):
+    def do_head(self, key_head: str, key_left: str, keys_forward: list[str], rot_copy: list[str]):
         if key_head in self.pose_data:
-            if key_right in self.pose_data and all(key in self.pose_data for key in keys_forward):
+            if key_left in self.pose_data and all(key in self.pose_data for key in keys_forward):
                 pos_head = self.pose_data[key_head][:3, 3]
                 pos_forward = sum(map(lambda key: self.pose_data[key][:3, 3], keys_forward)) / len(keys_forward)
-                pos_right = self.pose_data[key_right][:3, 3]
+                pos_left = self.pose_data[key_left][:3, 3]
 
-                d_forward = pos_forward - pos_head
-                d_forward /= np.linalg.norm(d_forward)
-                d_right = pos_head - pos_right
-                d_right /= np.linalg.norm(d_right)
+                d_back = pos_head - pos_forward
+                d_back /= np.linalg.norm(d_back)
+                d_left = pos_left - pos_head
+                d_left /= np.linalg.norm(d_left)
                 
-                norm = np.cross(d_right, d_forward)
-                norm /= np.linalg.norm(norm)
+                d_y = np.cross(d_back, d_left)
+                d_y /= np.linalg.norm(d_y)
                 
-                norm_r = np.cross(d_forward, norm)
-                norm_r /= np.linalg.norm(norm_r)
+                d_x = np.cross(d_y, d_back)
+                d_x /= np.linalg.norm(d_x)
 
-                self.pose_data[key_head][:3, 0] = d_forward
-                self.pose_data[key_head][:3, 1] = norm
-                self.pose_data[key_head][:3, 2] = norm_r
+                self.pose_data[key_head][:3, 0] = d_x
+                self.pose_data[key_head][:3, 1] = d_y
+                self.pose_data[key_head][:3, 2] = d_back
 
             else:
                 pass
@@ -251,63 +251,64 @@ class MathWorker:
             for ident in rot_copy:
                 self.pose_data[ident][:3, :3] = mat
 
-    def do_chest_hip(self, key_source: str, key_target: str, key_right: str, inv_target: bool):
-        if key_source in self.pose_data and key_target in self.pose_data and key_right in self.pose_data:
+    def do_chest_hip(self, key_source: str, key_target: str, key_left: str, inv_target: bool):
+        if key_source in self.pose_data and key_target in self.pose_data and key_left in self.pose_data:
             pos_source = self.pose_data[key_source][:3, 3]
             pos_target = self.pose_data[key_target][:3, 3]
-            pos_right = self.pose_data[key_right][:3, 3]
+            pos_left = self.pose_data[key_left][:3, 3]
 
-            d_target = pos_source - pos_target
+            d_target = pos_target - pos_source
             d_target /= np.linalg.norm(d_target)
             if (inv_target):
                 d_target *= -1
-            d_right = pos_source - pos_right
-            d_right /= np.linalg.norm(d_right)
+            d_left = pos_left - pos_source
+            d_left /= np.linalg.norm(d_left)
 
-            d_x = np.cross(d_target, d_right)
-            d_x /= np.linalg.norm(d_x)
-
-            d_z = np.cross(d_x, d_target)
+            d_z = np.cross(d_target, d_left)
             d_z /= np.linalg.norm(d_z)
+
+            d_x = np.cross(d_z, d_target)
+            d_x /= np.linalg.norm(d_x)
             
             self.pose_data[key_source][:3, 0] = d_x
-            self.pose_data[key_source][:3, 1] = d_target
+            self.pose_data[key_source][:3, 1] = -d_target
             self.pose_data[key_source][:3, 2] = d_z
         else:
             pass
 
-    def do_three_point(self, key_start: str, key_center: str, key_end: str, key_ref: str, curve_out: bool, axis_len: int, axis_norm: int, axis_rem: int, axis_ref: int):
+    def do_three_point(self, key_start: str, key_center: str, key_end: str, key_ref: str,
+                       curve_out: bool, axis_len: int, axis_norm: int, axis_rem: int, axis_ref: int):
         if key_start in self.pose_data and key_center in self.pose_data and key_end in self.pose_data:
             pos_start = self.pose_data[key_start][:3, 3]
             pos_center = self.pose_data[key_center][:3, 3]
             pos_end = self.pose_data[key_end][:3, 3]
 
-            d_sc = pos_start - pos_center
+            d_sc = pos_center - pos_start
             d_sc /= np.linalg.norm(d_sc)
-            d_ce = pos_center - pos_end
+            d_ce = pos_end - pos_center
             d_ce /= np.linalg.norm(d_ce)
 
-            norm = np.cross(d_ce, d_sc)
+            norm = np.cross(d_sc, d_ce)
             norm /= np.linalg.norm(norm)
 
             self.pose_data[key_start][:3, abs(axis_len)-1] = d_sc * (1 if axis_len > 0 else -1)
             self.pose_data[key_start][:3, abs(axis_norm)-1] = norm * (1 if axis_norm > 0 else -1)
-            self.pose_data[key_start][:3, abs(axis_rem)-1] = np.cross(norm, d_sc) * (1 if axis_rem > 0 else -1)
+            self.pose_data[key_start][:3, abs(axis_rem)-1] = np.cross(d_sc, norm) * (1 if axis_rem > 0 else -1)
 
             self.pose_data[key_center][:3, abs(axis_len)-1] = d_ce * (1 if axis_len > 0 else -1)
             self.pose_data[key_center][:3, abs(axis_norm)-1] = norm * (1 if axis_norm > 0 else -1)
-            self.pose_data[key_center][:3, abs(axis_rem)-1] = np.cross(norm, d_ce) * (1 if axis_rem > 0 else -1)
+            self.pose_data[key_center][:3, abs(axis_rem)-1] = np.cross(d_ce, norm) * (1 if axis_rem > 0 else -1)
 
             self.pose_data[key_end][:3, abs(axis_len)-1] = d_ce * (1 if axis_len > 0 else -1)
             self.pose_data[key_end][:3, abs(axis_norm)-1] = norm * (1 if axis_norm > 0 else -1)
-            self.pose_data[key_end][:3, abs(axis_rem)-1] = np.cross(norm, d_ce) * (1 if axis_rem > 0 else -1)
+            self.pose_data[key_end][:3, abs(axis_rem)-1] = np.cross(d_ce, norm) * (1 if axis_rem > 0 else -1)
 
         else:
             pass
 
     post_filter = ['head', 'chest', 'hip',
                    'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist',
-                   'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_foot', 'right_foot']
+                   'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
     post_data: dict[str, np.array] = {}
     def PrePostData(self):
         self.post_data.clear()

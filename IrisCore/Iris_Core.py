@@ -1,4 +1,5 @@
 from flask import flash
+from app.apriltag import AprilTag
 from config import Config
 from app import create_app, start_app, db
 from app.IrisModules import imported_modules, IrisModule
@@ -14,7 +15,8 @@ app = create_app(Config)
 def make_shell_context():
     return {'sqla': sqla, 'sqlo': sqlo, 'db': db, 'np': np,
             'imported_modules': imported_modules, 'IrisModule': IrisModule,
-            'Camera': Camera, 'CVUndistortableCamera': CVUndistortableCamera}
+            'Camera': Camera, 'CVUndistortableCamera': CVUndistortableCamera,
+            'AprilTag': AprilTag}
 
 
 @app.before_request

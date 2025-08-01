@@ -10,6 +10,7 @@ export async function LoadTagModel(ident, size = 1) {
     var geom = new THREE.PlaneGeometry(size, size);
     var tex = await texLoader.loadAsync(`tags/image/${ident}.png`);
     tex.magFilter = THREE.NearestFilter;
+    tex.flipY = false;
     var mat = new THREE.MeshBasicMaterial({ map: tex });
     mat.side = THREE.DoubleSide;
     var model = new THREE.Mesh(geom, mat);

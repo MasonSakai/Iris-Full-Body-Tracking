@@ -10,4 +10,4 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ROOT_PATH = basedir
     MODULE_PATH = os.path.join(basedir, 'modules')
-    APPDATA_PATH = appdata_dir
+    APPDATA_PATH = os.path.join(appdata_dir, '/IrisFBT/')

@@ -14,6 +14,7 @@ export async function LoadTagModel(ident: string, size = 1): Promise<THREE.Objec
 
 	var tex = await texLoader.loadAsync(`tags/image/${ident}.png`)
 	tex.magFilter = THREE.NearestFilter
+	tex.flipY = false
 
 	var mat = new THREE.MeshBasicMaterial({ map: tex })
 	mat.side = THREE.DoubleSide
