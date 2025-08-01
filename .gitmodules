@@ -1,9 +1,6 @@
 [submodule "lib/openvr"]
 	path = lib/openvr
 	url = https://github.com/ValveSoftware/openvr
-[submodule "lib/cpp-httplib"]
-	path = lib/cpp-httplib
-	url = https://github.com/yhirose/cpp-httplib.git
 [submodule "lib/OpenCV/opencv"]
 	path = lib/OpenCV/opencv
 	url = https://github.com/opencv/opencv.git
@@ -16,12 +13,3 @@
 [submodule "lib/json"]
 	path = lib/json
 	url = https://github.com/nlohmann/json.git
-[submodule "lib/Simple-WebSocket-Server"]
-	path = lib/Simple-WebSocket-Server
-	url = https://gitlab.com/eidheim/Simple-WebSocket-Server.git
-[submodule "lib/asio"]
-	path = lib/asio
-	url = https://github.com/chriskohlhoff/asio.git
-[submodule "lib/socket.io-client-cpp"]
-	path = lib/socket.io-client-cpp
-	url = https://github.com/socketio/socket.io-client-cpp.git
