@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 #include "IrisSocketClient.h"
+#include "IrisCalibrator.h"
 using namespace IrisFBT;
 
 namespace IrisFBT {
@@ -16,6 +17,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
     device_provider = this;
     ClientConfig::Load();
+    iris_calib = std::make_unique<IrisCalibrator>(this);
     iris_client = std::make_unique<IrisSocketClient>(this);
 
     //TrackedDeviceClass_GenericTracker

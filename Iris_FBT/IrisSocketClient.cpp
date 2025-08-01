@@ -2,6 +2,7 @@
 #include "ClientConfig.h"
 #include <openvr_driver.h>
 #include "util.h"
+#include "IrisCalibrator.h"
 using namespace IrisFBT;
 
 namespace IrisFBT {
@@ -62,7 +63,7 @@ void IrisSocketClient::on_pose(sio::event& event)
             if (tracker != nullptr) {
                 const string& ident = IrisTracker_IndexMap.at(i);
                 if (data.contains(ident)) {
-                    tracker->UpdatePose(data[ident].get<vector<vector<double>>>());
+                    tracker->UpdatePose(data[ident]);
                 }
                 else {
                     tracker->UpdatePoseEmpty();
@@ -71,6 +72,6 @@ void IrisSocketClient::on_pose(sio::event& event)
         }
         provider->mtx_deviceRegister.unlock();
 
-        IrisCalibrator::on_pose(data);
+        iris_calib->on_pose(data);
     }
 }

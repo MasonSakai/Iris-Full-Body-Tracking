@@ -18,5 +18,13 @@ namespace IrisFBT {
 
 	json messageToJson(sio::message::ptr);
 
-	vr::HmdQuaternion_t mRot2Quat(vector<vector<double>>);
+	struct Mat4x4 {
+		double m[4][4];
+
+		Mat4x4();
+		Mat4x4(json& data);
+		const Mat4x4 operator*(const Mat4x4);
+	};
+
+	vr::HmdQuaternion_t mRot2Quat(Mat4x4);
 }

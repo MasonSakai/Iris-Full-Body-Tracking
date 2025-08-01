@@ -2,6 +2,7 @@
 
 #include "openvr_driver.h"
 #include "device_data_refs.h"
+#include "util.h"
 using std::vector;
 
 namespace IrisFBT {
@@ -19,7 +20,7 @@ namespace IrisFBT {
         virtual void* GetComponent(const char* pchComponentNameAndVersion) override;
         virtual void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) override;
         virtual vr::DriverPose_t GetPose() override;
-        void UpdatePose(vector<vector<double>>);
+        void UpdatePose(Mat4x4);
         void UpdatePoseEmpty();
 
     private:

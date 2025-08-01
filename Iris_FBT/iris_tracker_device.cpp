@@ -1,7 +1,7 @@
 #include "iris_tracker_device.h"
 #include "device_provider.h"
 #include "../lib/openvr/samples/drivers/utils/vrmath/vrmath.h"
-#include "util.h"
+#include "IrisCalibrator.h"
 using namespace IrisFBT;
 
 IrisTrackerDevice::IrisTrackerDevice(uint8_t index) : device_id_(vr::k_unTrackedDeviceIndexInvalid), device_index_((IrisTrackerIndex)index) {};
@@ -65,7 +65,7 @@ vr::DriverPose_t IrisTrackerDevice::GetPose() {
 	return pose;
 }
 
-void IrisTrackerDevice::UpdatePose(vector<vector<double>> data) {
+void IrisTrackerDevice::UpdatePose(Mat4x4 data) {
 	vr::DriverPose_t pose = { 0 };
 
 	pose.poseIsValid = true;
@@ -75,11 +75,13 @@ void IrisTrackerDevice::UpdatePose(vector<vector<double>> data) {
 	pose.qWorldFromDriverRotation.w = 1.f;
 	pose.qDriverFromHeadRotation.w = 1.f;
 
+	iris_calib->correct_pose(data);
+
 	pose.qRotation = mRot2Quat(data);
 
-	pose.vecPosition[0] = data[0][3];
-	pose.vecPosition[1] = data[1][3];
-	pose.vecPosition[2] = data[2][3];
+	pose.vecPosition[0] = data.m[0][3];
+	pose.vecPosition[1] = data.m[1][3];
+	pose.vecPosition[2] = data.m[2][3];
 
 	latest_pose_ = pose;
 	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, pose, sizeof(vr::DriverPose_t));
