@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <nlohmann/json.hpp>
+#include <sio_client.h>
+#include <openvr_driver.h>
 using nlohmann::json;
 using std::string;
 using std::wstring;
@@ -14,4 +16,7 @@ namespace IrisFBT {
 
 	vector<string> split(const string& text, char delimiter);
 
+	json messageToJson(sio::message::ptr);
+
+	vr::HmdQuaternion_t mRot2Quat(vector<vector<double>>);
 }

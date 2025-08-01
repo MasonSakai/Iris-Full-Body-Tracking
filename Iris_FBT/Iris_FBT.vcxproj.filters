@@ -22,6 +22,9 @@
     <Filter Include="VRDriver\Source Files">
       <UniqueIdentifier>{2139455b-76d6-45a7-a373-e70e94ec3663}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SocketIO_Files">
+      <UniqueIdentifier>{bb1eb343-7b5e-4a69-af25-71a020e4337b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="iris_tracker_device.cpp">
@@ -42,6 +45,24 @@
     <ClCompile Include="ClientConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\lib\socket.io-client-cpp\src\sio_client.cpp">
+      <Filter>SocketIO_Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\socket.io-client-cpp\src\internal\sio_client_impl.cpp">
+      <Filter>SocketIO_Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\socket.io-client-cpp\src\internal\sio_packet.cpp">
+      <Filter>SocketIO_Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\socket.io-client-cpp\src\sio_socket.cpp">
+      <Filter>SocketIO_Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IrisSocketClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IrisCalibrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="iris_tracker_device.h">
@@ -57,6 +78,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ClientConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IrisSocketClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IrisCalibrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

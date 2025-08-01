@@ -89,8 +89,8 @@ class MathWorker:
     def worker_func(self):
         print ('bw thread start')
         self.InitSources()
-        try:
-            while True:
+        while True:
+            try:
                 with self.running_lock:
                     if not self.running:
                         break
@@ -103,8 +103,8 @@ class MathWorker:
                     self.PrePostData()
                     self.PostData()
 
-        except BaseException as e:
-            print('bw thread except:', e)
+            except BaseException as e:
+                print('bw thread except:', e)
             
         with self.running_lock:
             self.running = False
@@ -211,7 +211,7 @@ class MathWorker:
             pose[ident] = trans
         self.pose_data = pose
         
-        self.do_head('head', 'left_ear', ['nose', 'left_eye', 'right_eye'], ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear'])
+        #self.do_head('head', 'left_ear', ['nose', 'left_eye', 'right_eye'], ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear'])
 
         self.do_chest_hip('hip', 'chest', 'left_hip', False)
         self.do_chest_hip('chest', 'hip', 'left_shoulder', True)

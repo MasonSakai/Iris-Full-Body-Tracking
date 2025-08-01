@@ -18,8 +18,10 @@ namespace IrisFBT {
         void EnterStandby() override;
         void LeaveStandby() override;
 
-        IrisTrackerDevice* GetDevice(IrisTrackerIndex index);
-        std::mutex mtx_deviceTrackingData;
+        void InitTrackers();
+
+        IrisTrackerDevice* GetDevice(uint8_t index);
+        std::mutex mtx_deviceRegister;
     private:
         std::unique_ptr<IrisTrackerDevice> my_devices_[IrisTracker_Count];
     };

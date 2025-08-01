@@ -1,42 +1,44 @@
 #include "iris_tracker_device.h"
 #include "device_provider.h"
 #include "../lib/openvr/samples/drivers/utils/vrmath/vrmath.h"
+#include "util.h"
 using namespace IrisFBT;
 
-IrisTrackerDevice::IrisTrackerDevice(IrisTrackerIndex index) : device_id_(vr::k_unTrackedDeviceIndexInvalid), device_index_(index) {};
+IrisTrackerDevice::IrisTrackerDevice(uint8_t index) : device_id_(vr::k_unTrackedDeviceIndexInvalid), device_index_((IrisTrackerIndex)index) {};
 
 void IrisTrackerDevice::Register() {
-	vr::VRServerDriverHost()->TrackedDeviceAdded(iris_tracker_serial,
+	vr::VRServerDriverHost()->TrackedDeviceAdded((iris_tracker_serial + IrisTracker_IndexMap.at(device_index_)).c_str(),
 		vr::TrackedDeviceClass_GenericTracker, this);
 }
 
 vr::EVRInitError IrisTrackerDevice::Activate(uint32_t unObjectId) {
-    const vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(unObjectId);
-    vr::VRProperties()->SetStringProperty(container, vr::Prop_ModelNumber_String, iris_tracker_model);
-    device_id_ = unObjectId;
-    return vr::VRInitError_None;
+	const vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(unObjectId);
+	vr::VRProperties()->SetStringProperty(container, vr::Prop_ModelNumber_String, iris_tracker_model);
+	device_id_ = unObjectId;
+	return vr::VRInitError_None;
 }
 
 void IrisTrackerDevice::Deactivate() {
 }
 
 void IrisTrackerDevice::RunFrame() {
-	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, GetPose(), sizeof(vr::DriverPose_t));
+	//vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, GetPose(), sizeof(vr::DriverPose_t));
 }
 
 void IrisTrackerDevice::EnterStandby() {
 }
 
 void* IrisTrackerDevice::GetComponent(const char* pchComponentNameAndVersion) {
-    return nullptr;
+	return nullptr;
 }
 
 void IrisTrackerDevice::DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) {
-    if (unResponseBufferSize >= 1)
-        pchResponseBuffer[0] = 0;
+	if (unResponseBufferSize >= 1)
+		pchResponseBuffer[0] = 0;
 }
 
 vr::DriverPose_t IrisTrackerDevice::GetPose() {
+	vr::VRDriverLog()->Log("Get Pose");
 	vr::DriverPose_t pose = { 0 };
 
 	pose.poseIsValid = true;
@@ -61,4 +63,35 @@ vr::DriverPose_t IrisTrackerDevice::GetPose() {
 	pose.vecPosition[2] = hmd_pose.mDeviceToAbsoluteTracking.m[2][3] - 0.25f;
 
 	return pose;
+}
+
+void IrisTrackerDevice::UpdatePose(vector<vector<double>> data) {
+	vr::DriverPose_t pose = { 0 };
+
+	pose.poseIsValid = true;
+	pose.result = vr::TrackingResult_Running_OK;
+	pose.deviceIsConnected = true;
+
+	pose.qWorldFromDriverRotation.w = 1.f;
+	pose.qDriverFromHeadRotation.w = 1.f;
+
+	pose.qRotation = mRot2Quat(data);
+
+	pose.vecPosition[0] = data[0][3];
+	pose.vecPosition[1] = data[1][3];
+	pose.vecPosition[2] = data[2][3];
+
+	latest_pose_ = pose;
+	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, pose, sizeof(vr::DriverPose_t));
+}
+
+void IrisTrackerDevice::UpdatePoseEmpty() {
+	vr::DriverPose_t pose = { 0 };
+
+	pose.poseIsValid = false;
+	pose.result = vr::TrackingResult_Running_OutOfRange;
+	pose.deviceIsConnected = true;
+
+	latest_pose_ = pose;
+	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, pose, sizeof(vr::DriverPose_t));
 }

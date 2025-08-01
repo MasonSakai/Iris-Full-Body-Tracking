@@ -90,16 +90,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB; BOOST_REGEX_NO_LIB; ASIO_STANDALONE; _WEBSOCKETPP_CPP11_STL_; _WEBSOCKETPP_CPP11_FUNCTIONAL_; WIN32;_DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110d.lib</AdditionalDependencies>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -111,9 +111,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB; BOOST_REGEX_NO_LIB; ASIO_STANDALONE; _WEBSOCKETPP_CPP11_STL_; _WEBSOCKETPP_CPP11_FUNCTIONAL_; WIN32;NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -132,16 +132,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB; BOOST_REGEX_NO_LIB; ASIO_STANDALONE; _WEBSOCKETPP_CPP11_STL_; _WEBSOCKETPP_CPP11_FUNCTIONAL_; _DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\openvr\lib\win$(PlatformArchitecture)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib;libssl.lib;libcrypto.lib;opencv_world4110d.lib</AdditionalDependencies>
+      <AdditionalDependencies>openvr_api.lib;Shell32.lib;Ole32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)$(ProjectName)" "$(SolutionDir)build\$(ProjectName)" /S /Y /I</Command>
@@ -153,9 +153,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB; BOOST_REGEX_NO_LIB; ASIO_STANDALONE; _WEBSOCKETPP_CPP11_STL_; _WEBSOCKETPP_CPP11_FUNCTIONAL_; NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -171,10 +171,16 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\lib\socket.io-client-cpp\src\internal\sio_client_impl.cpp" />
+    <ClCompile Include="..\lib\socket.io-client-cpp\src\internal\sio_packet.cpp" />
+    <ClCompile Include="..\lib\socket.io-client-cpp\src\sio_client.cpp" />
+    <ClCompile Include="..\lib\socket.io-client-cpp\src\sio_socket.cpp" />
     <ClCompile Include="ClientConfig.cpp" />
     <ClCompile Include="device_data_refs.cpp" />
     <ClCompile Include="device_provider.cpp" />
     <ClCompile Include="hmd_driver_factory.cpp" />
+    <ClCompile Include="IrisCalibrator.cpp" />
+    <ClCompile Include="IrisSocketClient.cpp" />
     <ClCompile Include="iris_tracker_device.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
@@ -182,6 +188,8 @@
     <ClInclude Include="ClientConfig.h" />
     <ClInclude Include="device_data_refs.h" />
     <ClInclude Include="device_provider.h" />
+    <ClInclude Include="IrisCalibrator.h" />
+    <ClInclude Include="IrisSocketClient.h" />
     <ClInclude Include="iris_tracker_device.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>

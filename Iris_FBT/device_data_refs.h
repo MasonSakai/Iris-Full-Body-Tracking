@@ -1,11 +1,13 @@
 #pragma once
+#include <map>
+#include <string>
 
 namespace IrisFBT {
 
 	extern const char* iris_tracker_serial;
 	extern const char* iris_tracker_model;
 
-	typedef enum {
+	typedef enum: uint8_t {
 		IrisTracker_Head,
 		IrisTracker_Chest,
 		IrisTracker_Hip,
@@ -20,4 +22,5 @@ namespace IrisFBT {
 		IrisTracker_Count
 	} IrisTrackerIndex;
 
+	extern const std::map<uint8_t, const std::string> IrisTracker_IndexMap;
 }
