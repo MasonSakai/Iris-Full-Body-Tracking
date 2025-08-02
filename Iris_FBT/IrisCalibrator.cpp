@@ -11,50 +11,49 @@ namespace IrisFBT {
 
 IrisFBT::IrisCalibrator::IrisCalibrator(DeviceProvider* provider) : provider_(provider) {}
 
-
-unsigned short last_recache_ = -1;
-uint32_t max_index = 0;
-vr::TrackedDevicePose_t* hmd_poses = nullptr;
-uint32_t hmd_index = -1, hand_left_index = -1, hand_right_index = -1;
-static void RecacheDevices() {
-	if (last_recache_ < 500U) {
+void IrisCalibrator::RecacheDevices() {
+	if (last_recache_ < next_recache_) {
 		last_recache_++;
-		return;
 	}
-	vr::VRDriverLog()->Log("Recache");
-	last_recache_ = 0;
-	max_index = 0;
-	hmd_index = -1;
-	hand_left_index = -1;
-	hand_right_index = -1;
+	else {
+		vr::VRDriverLog()->Log("Recache");
+		last_recache_ = 0;
+		max_index = 0;
+		hmd_index = -1;
+		hand_left_index = -1;
+		hand_right_index = -1;
 
-	for (uint32_t i = 0; i < vr::k_unMaxTrackedDeviceCount; i++) {
-		auto handle = vr::VRProperties()->TrackedDeviceToPropertyContainer(i);
-		vr::ETrackedPropertyError err;
-		auto prop = vr::VRProperties()->GetInt32Property(handle, vr::Prop_DeviceClass_Int32, &err);
+		for (uint32_t i = 0; i < vr::k_unMaxTrackedDeviceCount; i++) {
+			auto handle = vr::VRProperties()->TrackedDeviceToPropertyContainer(i);
+			vr::ETrackedPropertyError err;
+			auto prop = vr::VRProperties()->GetInt32Property(handle, vr::Prop_DeviceClass_Int32, &err);
 
-		if (err != vr::TrackedProp_Success) continue;
+			if (err != vr::TrackedProp_Success) continue;
 
-		if (prop == vr::TrackedDeviceClass_HMD) {
-			hmd_index = i;
-			max_index = i + 1;
-		}
-		else if (prop == vr::TrackedDeviceClass_Controller) {
-			auto role = vr::VRProperties()->GetInt32Property(handle, vr::Prop_ControllerRoleHint_Int32, &err);
-			if (role == vr::TrackedControllerRole_LeftHand) {
-				hand_left_index = i;
+			if (prop == vr::TrackedDeviceClass_HMD) {
+				hmd_index = i;
 				max_index = i + 1;
 			}
-			else if (role == vr::TrackedControllerRole_RightHand) {
-				hand_right_index = i;
-				max_index = i + 1;
+			else if (prop == vr::TrackedDeviceClass_Controller) {
+				auto role = vr::VRProperties()->GetInt32Property(handle, vr::Prop_ControllerRoleHint_Int32, &err);
+				if (role == vr::TrackedControllerRole_LeftHand) {
+					hand_left_index = i;
+					max_index = i + 1;
+				}
+				else if (role == vr::TrackedControllerRole_RightHand) {
+					hand_right_index = i;
+					max_index = i + 1;
+				}
 			}
 		}
-	}
 
-	if (hmd_poses != nullptr)
-		delete[] hmd_poses;
-	hmd_poses = new vr::TrackedDevicePose_t[max_index];
+		next_recache_ = (hmd_index == -1 || hand_left_index == -1 || hand_right_index == -1) ? 0x0040U : 0x1000U;
+
+		if (hmd_poses != nullptr)
+			delete[] hmd_poses;
+		hmd_poses = new vr::TrackedDevicePose_t[max_index];
+	}
+	if (max_index != 0) vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0.f, hmd_poses, max_index);
 }
 
 static bool CheckArm(Vector3 pos_wrist, string key_elbow, string key_shoulder, json& pose) {
@@ -64,7 +63,7 @@ static bool CheckArm(Vector3 pos_wrist, string key_elbow, string key_shoulder, j
 
 	double dot = (pos_wrist - pos_elbow) * (pos_elbow - pos_shoulder);
 	dot /= (pos_wrist - pos_elbow).length() * (pos_elbow - pos_shoulder).length();
-	return dot > 0.92;
+	return dot > 0.9;
 }
 
 static bool CheckChest(Vector3 pos_wrist_left, Vector3 pos_wrist_right, string key_chest, json& pose) {
@@ -77,8 +76,6 @@ static bool CheckChest(Vector3 pos_wrist_left, Vector3 pos_wrist_right, string k
 }
 
 void IrisCalibrator::on_pose(json& pose) {
-	RecacheDevices();
-
 	last_seen_head_++;
 	last_seen_left_wrist_++;
 	last_seen_right_wrist_++;
@@ -96,36 +93,52 @@ void IrisCalibrator::on_pose(json& pose) {
 		last_seen_right_wrist_ = 0;
 	}
 
+	if (!is_calibrating) return;
 	if (last_seen_head_ > 5 || last_seen_left_wrist_ > 5 || last_seen_right_wrist_ > 5) return;
 
 	if (max_index == 0) return;
-	if (hmd_index == -1 || hand_left_index == -1 || hand_right_index == -1) return;
+	if (hand_left_index == -1 || hand_right_index == -1) return;
 
-	vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0.f, hmd_poses, max_index);
-	if (hmd_poses[hmd_index].eTrackingResult != vr::TrackingResult_Running_OK ||
-		hmd_poses[hand_left_index].eTrackingResult != vr::TrackingResult_Running_OK ||
+	if (hmd_poses[hand_left_index].eTrackingResult != vr::TrackingResult_Running_OK ||
 		hmd_poses[hand_right_index].eTrackingResult != vr::TrackingResult_Running_OK) return;
-	if (!hmd_poses[hmd_index].bPoseIsValid ||
-		!hmd_poses[hand_left_index].bPoseIsValid ||
+	if (!hmd_poses[hand_left_index].bPoseIsValid ||
 		!hmd_poses[hand_right_index].bPoseIsValid) return;
 
 	if (!CheckArm(pos_left_wrist_, "left_elbow", "left_shoulder", pose)) return;
 	if (!CheckArm(pos_right_wrist_, "right_elbow", "right_shoulder", pose)) return;
 	if (!CheckChest(pos_left_wrist_, pos_right_wrist_, "chest", pose)) return;
 
-	Vector3 pos_hmd = hmd_poses[hmd_index].mDeviceToAbsoluteTracking;
 	Vector3 pos_hand_left = hmd_poses[hand_left_index].mDeviceToAbsoluteTracking;
 	Vector3 pos_hand_right = hmd_poses[hand_right_index].mDeviceToAbsoluteTracking;
 
-	Vector3 midPos_vr = (pos_hand_right + pos_hand_left) / 2;
-	double dist_hmd = (pos_hmd - midPos_vr).length();
 	double dist_hands = (pos_hand_right - pos_hand_left).length();
-
-	Vector3 midPos = (pos_right_wrist_ + pos_left_wrist_) / 2;
-	double dist_head = (pos_head_ - midPos).length();
 	double dist_wrists = (pos_right_wrist_ - pos_left_wrist_).length();
 
-	vr::VRDriverLog()->Log(("calib: " + std::to_string(dist_hmd - dist_head) + ", " + std::to_string(dist_hands - dist_wrists)).c_str());
+	if (abs((dist_hands / dist_wrists) - 1.2) > 0.175) return;
+
+
+	Vector3 dir_vr = (pos_hand_right - pos_hand_left).normalized();
+	Vector3 dir_iris = (pos_right_wrist_ - pos_left_wrist_).normalized();
+
+	double dot;
+	for (int i = 0; i < calib_list_index_; i++) {
+		dot = calib_dir_list_vr_[i] * dir_vr;
+		if (abs(dot) > 0.999) return;
+		dot = calib_dir_list_iris_[i] * dir_iris;
+		if (abs(dot) > 0.999) return;
+	}
+	vr::VRDriverLog()->Log(("calib: " + std::to_string(calib_list_index_)).c_str());
+
+	calib_dir_list_vr_[calib_list_index_] = dir_vr;
+	calib_dir_list_iris_[calib_list_index_] = dir_iris;
+	calib_pos_list_vr_[calib_list_index_] = (pos_hand_right + pos_hand_left) / 2;
+	calib_pos_list_iris_[calib_list_index_] = (pos_right_wrist_ + pos_left_wrist_) / 2;
+	calib_list_index_++;
+
+	if (calib_list_index_ >= 20) {
+		is_calibrating = false;
+		vr::VRDriverLog()->Log("calib complete");
+	}
 }
 
 void IrisCalibrator::correct_pose(Mat4x4& mat) {

@@ -39,6 +39,7 @@ const char* const* DeviceProvider::GetInterfaceVersions() {
 }
 
 void DeviceProvider::RunFrame() {
+    iris_calib->RecacheDevices();
     mtx_deviceRegister.lock();
     for (int i = 0; i < IrisTracker_Count; i++) {
         if (my_devices_[i] != nullptr) {

@@ -12,10 +12,17 @@ namespace IrisFBT {
 		Vector3(json&);
 		Vector3(vr::HmdMatrix34_t&);
 		Vector3 operator*(double) const;
+		Vector3 operator*=(double);
 		Vector3 operator/(double) const;
+		Vector3 operator/=(double);
 		Vector3 operator+(const Vector3) const;
+		Vector3 operator+=(const Vector3);
 		Vector3 operator-(const Vector3) const;
+		Vector3 operator-=(const Vector3);
 		double operator*(const Vector3) const;
+		double dot(const Vector3) const;
+		Vector3 cross(const Vector3) const;
+		Vector3 normalized() const;
 
 		double length() const;
 	};

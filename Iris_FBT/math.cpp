@@ -28,23 +28,65 @@ namespace IrisFBT {
     Vector3 Vector3::operator*(double d) const {
         return Vector3(v[0] * d, v[1] * d, v[2] * d);
     }
+    Vector3 Vector3::operator*=(double d)
+    {
+        v[0] *= d;
+        v[1] *= d;
+        v[2] *= d;
+        return *this;
+    }
     Vector3 Vector3::operator/(double d) const
     {
         return Vector3(v[0] / d, v[1] / d, v[2] / d);
+    }
+    Vector3 Vector3::operator/=(double d)
+    {
+        v[0] /= d;
+        v[1] /= d;
+        v[2] /= d;
+        return *this;
     }
     Vector3 Vector3::operator+(const Vector3 a) const
     {
         return Vector3(v[0] + a.v[0], v[1] + a.v[1], v[2] + a.v[2]);
     }
+    Vector3 Vector3::operator+=(const Vector3 a)
+    {
+        v[0] += a.v[0];
+        v[1] += a.v[1];
+        v[2] += a.v[2];
+        return *this;
+    }
     Vector3 Vector3::operator-(const Vector3 a) const
     {
         return Vector3(v[0] - a.v[0], v[1] - a.v[1], v[2] - a.v[2]);
     }
+    Vector3 Vector3::operator-=(const Vector3 a)
+    {
+        v[0] -= a.v[0];
+        v[1] -= a.v[1];
+        v[2] -= a.v[2];
+        return *this;
+    }
     double Vector3::operator*(const Vector3 a) const {
+        return dot(a);
+    }
+    double Vector3::dot(const Vector3 a) const
+    {
         return v[0] * a.v[0] + v[1] * a.v[1] + v[2] * a.v[2];
     }
+    Vector3 Vector3::cross(const Vector3 a) const
+    {
+        return Vector3(v[1] * a.v[2] - v[2] * a.v[1],
+                       v[2] * a.v[0] - v[0] * a.v[2],
+                       v[0] * a.v[1] - v[1] * a.v[0]);
+    }
+    Vector3 Vector3::normalized() const
+    {
+        return *this / length();
+    }
     double Vector3::length() const {
-        return sqrt(*this * *this);
+        return sqrt(dot(*this));
     }
 
 
