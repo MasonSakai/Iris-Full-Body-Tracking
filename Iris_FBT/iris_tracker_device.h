@@ -2,7 +2,7 @@
 
 #include "openvr_driver.h"
 #include "device_data_refs.h"
-#include "util.h"
+#include "math.h"
 using std::vector;
 
 namespace IrisFBT {

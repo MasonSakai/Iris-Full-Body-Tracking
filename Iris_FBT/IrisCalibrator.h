@@ -1,6 +1,6 @@
 #pragma once
 #include <nlohmann/json.hpp>
-#include "util.h"
+#include "math.h"
 #include "device_provider.h"
 using nlohmann::json;
 using std::vector;
@@ -20,12 +20,12 @@ namespace IrisFBT {
 
 		Mat4x4 mServerToDriver_;
 
-		double left_wrist_pos_[3] = { 0, 0, 0 };
-		long left_wrist_last_seen_ = -1;
-		double right_wrist_pos_[3] = { 0, 0, 0 };
-		long right_wrist_last_seen_ = -1;
-		double head_pos_[3] = { 0, 0, 0 };
-		long head_last_seen_ = -1;
+		Vector3 pos_left_wrist_;
+		unsigned long last_seen_left_wrist_ = 0;
+		Vector3 pos_right_wrist_;
+		unsigned long last_seen_right_wrist_ = 0;
+		Vector3 pos_head_;
+		unsigned long last_seen_head_ = 0;
 	};
 
 	extern std::unique_ptr<IrisCalibrator> iris_calib;

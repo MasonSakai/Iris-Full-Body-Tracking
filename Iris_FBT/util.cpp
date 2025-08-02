@@ -100,49 +100,5 @@ namespace IrisFBT {
         }
     }
     
-    vr::HmdQuaternion_t mRot2Quat(Mat4x4 m) {
-        vr::HmdQuaternion_t q{ };
-
-        q.w = sqrt(fmax(0, 1 + m.m[0][0] + m.m[1][1] + m.m[2][2])) / 2;
-        q.x = sqrt(fmax(0, 1 + m.m[0][0] - m.m[1][1] - m.m[2][2])) / 2;
-        q.y = sqrt(fmax(0, 1 - m.m[0][0] + m.m[1][1] - m.m[2][2])) / 2;
-        q.z = sqrt(fmax(0, 1 - m.m[0][0] - m.m[1][1] + m.m[2][2])) / 2;
-
-        q.x = copysign(q.x, m.m[2][1] - m.m[1][2]);
-        q.y = copysign(q.y, m.m[0][2] - m.m[2][0]);
-        q.z = copysign(q.z, m.m[1][0] - m.m[0][1]);
-
-        return q;
-    }
-
-
-    const Mat4x4 Mat4x4::operator*(const Mat4x4 a)
-    {
-        Mat4x4 res{};
-        for (int i = 0; i < 4; ++i) { // Row of result matrix
-            for (int j = 0; j < 4; ++j) { // Column of result matrix
-                for (int k = 0; k < 4; ++k) { // Elements for dot product
-                    res.m[i][j] += this->m[i][k] * a.m[k][j];
-                }
-            }
-        }
-        return res;
-    }
-
-    Mat4x4::Mat4x4() {
-
-        for (int i = 0; i < 4; ++i) { // Row of result matrix
-            for (int j = 0; j < 4; ++j) { // Column of result matrix
-                m[i][j] = i == j;
-            }
-        }
-    }
-
-    Mat4x4::Mat4x4(json& data) {
-        for (int i = 0; i < 4; ++i) { // Row of result matrix
-            for (int j = 0; j < 4; ++j) { // Column of result matrix
-                m[i][j] = data[i][j].get<double>();
-            }
-        }
-    }
+    
 }

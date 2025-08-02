@@ -182,6 +182,7 @@
     <ClCompile Include="IrisCalibrator.cpp" />
     <ClCompile Include="IrisSocketClient.cpp" />
     <ClCompile Include="iris_tracker_device.cpp" />
+    <ClCompile Include="math.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -191,6 +192,7 @@
     <ClInclude Include="IrisCalibrator.h" />
     <ClInclude Include="IrisSocketClient.h" />
     <ClInclude Include="iris_tracker_device.h" />
+    <ClInclude Include="math.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
