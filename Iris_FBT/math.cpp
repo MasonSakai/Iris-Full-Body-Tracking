@@ -61,6 +61,10 @@ namespace IrisFBT {
     {
         return Vector3(v[0] - a.v[0], v[1] - a.v[1], v[2] - a.v[2]);
     }
+    Vector3 Vector3::operator-() const
+    {
+        return Vector3(-v[0], -v[1], -v[2]);
+    }
     Vector3 Vector3::operator-=(const Vector3 a)
     {
         v[0] -= a.v[0];
@@ -69,24 +73,36 @@ namespace IrisFBT {
         return *this;
     }
     double Vector3::operator*(const Vector3 a) const {
-        return dot(a);
+        return dot(*this, a);
     }
-    double Vector3::dot(const Vector3 a) const
+    double Vector3::dot(const Vector3 a, const Vector3 b)
     {
-        return v[0] * a.v[0] + v[1] * a.v[1] + v[2] * a.v[2];
+        return a.v[0] * b.v[0] + a.v[1] * b.v[1] + a.v[2] * b.v[2];
     }
-    Vector3 Vector3::cross(const Vector3 a) const
+    Vector3 Vector3::cross(const Vector3 a, const Vector3 b)
     {
-        return Vector3(v[1] * a.v[2] - v[2] * a.v[1],
-                       v[2] * a.v[0] - v[0] * a.v[2],
-                       v[0] * a.v[1] - v[1] * a.v[0]);
+        return Vector3(a.v[1] * b.v[2] - a.v[2] * b.v[1],
+                       a.v[2] * b.v[0] - a.v[0] * b.v[2],
+                       a.v[0] * b.v[1] - a.v[1] * b.v[0]);
+    }
+    Vector3 Vector3::project(const Vector3 a, const Vector3 b)
+    {
+        return b * (dot(a, b) / dot(b, b));
+    }
+    Vector3 Vector3::reject(const Vector3 a, const Vector3 b)
+    {
+        return a - project(a, b);
     }
     Vector3 Vector3::normalized() const
     {
         return *this / length();
     }
     double Vector3::length() const {
-        return sqrt(dot(*this));
+        return sqrt(dot(*this, *this));
+    }
+    string Vector3::to_string() const
+    {
+        return '(' + std::to_string(v[0]) + ", " + std::to_string(v[1]) + ", " + std::to_string(v[2]) + ')';
     }
 
 
@@ -98,6 +114,7 @@ namespace IrisFBT {
             }
         }
     }
+    Mat4x4::Mat4x4(int) : m{ 0 } {}
     Mat4x4::Mat4x4(json& data) {
         for (int i = 0; i < 4; ++i) { // Row of result matrix
             for (int j = 0; j < 4; ++j) { // Column of result matrix
@@ -105,9 +122,22 @@ namespace IrisFBT {
             }
         }
     }
+    Mat4x4::Mat4x4(const Vector3 x, const Vector3 y, const Vector3 z, const Vector3 p)
+    {
+        for (int i = 0; i < 3; i++) {
+            m[i][0] = x.v[i];
+            m[i][1] = y.v[i];
+            m[i][2] = z.v[i];
+            m[i][3] = p.v[i];
+        }
+        m[3][0] = 0;
+        m[3][1] = 0;
+        m[3][2] = 0;
+        m[3][3] = 1;
+    }
     Mat4x4 Mat4x4::operator*(const Mat4x4 a) const
     {
-        Mat4x4 res{};
+        Mat4x4 res(0);
         for (int i = 0; i < 4; ++i) { // Row of result matrix
             for (int j = 0; j < 4; ++j) { // Column of result matrix
                 for (int k = 0; k < 4; ++k) { // Elements for dot product
@@ -127,5 +157,43 @@ namespace IrisFBT {
             res.v[i] += this->m[i][3];
         }
         return res;
+    }
+    Mat4x4 Mat4x4::inverse() const
+    {
+        Mat4x4 inv;
+
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                inv.m[i][j] = m[j][i];
+
+        Vector3 pos(m[0][3], m[1][3], m[2][3]);
+        pos = inv * pos;
+        inv.m[0][3] = -pos.v[0];
+        inv.m[1][3] = -pos.v[1];
+        inv.m[2][3] = -pos.v[2];
+        return inv;
+    }
+    Mat4x4 Mat4x4::get_rotation() const
+    {
+        Mat4x4 res;
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                res.m[i][j] = m[i][j];
+        return res;
+    }
+    Vector3 Mat4x4::get_vector(int i) const
+    {
+        return Vector3(m[0][i], m[1][i], m[2][i]);
+    }
+    string Mat4x4::to_string() const
+    {
+        string str = "[\n";
+        for (int i = 0; i < 4; i++) {
+            str += " [";
+            for (int j = 0; j < 4; j++)
+                str += std::to_string(m[i][j]) + ", ";
+            str += "]\n";
+        }
+        return str + ']';
     }
 }

@@ -47,7 +47,7 @@ void IrisCalibrator::RecacheDevices() {
 			}
 		}
 
-		next_recache_ = (hmd_index == -1 || hand_left_index == -1 || hand_right_index == -1) ? 0x0040U : 0x1000U;
+		next_recache_ = (hmd_index == -1 || hand_left_index == -1 || hand_right_index == -1) ? 0x0100U : 0x1000U;
 
 		if (hmd_poses != nullptr)
 			delete[] hmd_poses;
@@ -135,9 +135,43 @@ void IrisCalibrator::on_pose(json& pose) {
 	calib_pos_list_iris_[calib_list_index_] = (pos_right_wrist_ + pos_left_wrist_) / 2;
 	calib_list_index_++;
 
-	if (calib_list_index_ >= 20) {
+	if (calib_list_index_ >= k_unCalibListLen) {
 		is_calibrating = false;
-		vr::VRDriverLog()->Log("calib complete");
+
+		Vector3 norm_vr_ref = Vector3::cross(calib_dir_list_vr_[1], calib_dir_list_vr_[0]).normalized();
+		Vector3 norm_iris_ref = Vector3::cross(calib_dir_list_iris_[1], calib_dir_list_iris_[0]).normalized();
+		Vector3 norm_vr, norm_iris, tmp;
+		int n = 0;
+		for (int i = 1; i < k_unCalibListLen; i++) {
+			for (int j = 0; j < i; j++) {
+				n++;
+				tmp = Vector3::cross(calib_dir_list_vr_[i], calib_dir_list_vr_[j]).normalized();
+				if (norm_vr_ref * tmp < 0) tmp *= -1;
+				norm_vr += tmp;
+				tmp = Vector3::cross(calib_dir_list_iris_[i], calib_dir_list_iris_[j]).normalized();
+				if (norm_iris_ref * tmp < 0) tmp *= -1;
+				norm_iris += tmp;
+			}
+		}
+		norm_vr /= n;
+		norm_iris /= n;
+
+		Mat4x4 mats[k_unCalibListLen];
+		for (int i = 0; i < k_unCalibListLen; i++) {
+			Vector3 dir_vr = Vector3::reject(calib_dir_list_vr_[i], norm_vr).normalized();
+			Mat4x4 mat_vr(dir_vr, norm_vr, Vector3::cross(dir_vr, norm_vr), Vector3());
+
+			Vector3 dir_iris = Vector3::reject(calib_dir_list_iris_[i], norm_iris).normalized();
+			Mat4x4 mat_iris(dir_iris, norm_iris, Vector3::cross(dir_iris, norm_iris), Vector3());
+
+			mats[i] = mat_vr * mat_iris.inverse();
+
+			vr::VRDriverLog()->Log(("calib mat " + mats[i].to_string()).c_str());
+		}
+
+		mServerToDriver_ = mats[0];
+
+		vr::VRDriverLog()->Log(("calib complete " + norm_vr.to_string() + ", " + norm_iris.to_string()).c_str());
 	}
 }
 

@@ -31,6 +31,8 @@ namespace IrisFBT {
 		Vector3 pos_head_;
 		unsigned long last_seen_head_ = 0;
 
+		static const uint32_t k_unCalibListLen = 20;
+
 		unsigned short last_recache_ = -1;
 		unsigned short next_recache_ = 0x0040U;
 		uint32_t max_index = 0;
@@ -38,10 +40,10 @@ namespace IrisFBT {
 		uint32_t hmd_index = -1, hand_left_index = -1, hand_right_index = -1;
 
 		int calib_list_index_ = 0;
-		Vector3 calib_dir_list_vr_[20];
-		Vector3 calib_pos_list_vr_[20];
-		Vector3 calib_dir_list_iris_[20];
-		Vector3 calib_pos_list_iris_[20];
+		Vector3 calib_dir_list_vr_[k_unCalibListLen];
+		Vector3 calib_pos_list_vr_[k_unCalibListLen];
+		Vector3 calib_dir_list_iris_[k_unCalibListLen];
+		Vector3 calib_pos_list_iris_[k_unCalibListLen];
 	};
 
 	extern std::unique_ptr<IrisCalibrator> iris_calib;
