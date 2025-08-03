@@ -1,6 +1,7 @@
 #include "IrisCalibrator.h"
 #include <openvr_driver.h>
 #include <string>
+#include <cmath>
 using std::string;
 
 using namespace IrisFBT;
@@ -150,7 +151,6 @@ void IrisFBT::IrisCalibrator::Calibrate()
 {
 	Vector3 norm_vr = computePlaneNormal(calib_dir_list_vr_, k_unCalibListLen);
 	Vector3 norm_iris = computePlaneNormal(calib_dir_list_iris_, k_unCalibListLen);
-	vr::VRDriverLog()->Log(("raw normals " + norm_vr.to_string() + ", " + norm_iris.to_string()).c_str());
 
 	Vector3 dir_vr = Vector3::reject(calib_dir_list_vr_[0], norm_vr).normalized();
 	Vector3 dir_iris = Vector3::reject(calib_dir_list_iris_[0], norm_iris).normalized();
@@ -163,15 +163,18 @@ void IrisFBT::IrisCalibrator::Calibrate()
 		Vector3 cross_iris = Vector3::cross(dir_iris, dir_iris_2).normalized();
 		if (norm_iris * cross_iris < 0) norm_iris *= -1;
 	}
-	vr::VRDriverLog()->Log(("fixed normals " + norm_vr.to_string() + ", " + norm_iris.to_string()).c_str());
 
 	Mat3x3 mat_rot_vr = Mat3x3(dir_vr, Vector3::cross(norm_vr, dir_vr), norm_vr);
 	Mat3x3 mat_rot_iris = Mat3x3(dir_iris, Vector3::cross(norm_iris, dir_iris), norm_iris);
 	Mat3x3 mat_rot = mat_rot_vr * mat_rot_iris.transpose();
 
-	vr::VRDriverLog()->Log(("calib rot mat vr " + std::to_string(mat_rot_vr.determinant()) + ", " + mat_rot_vr.to_string()).c_str());
-	vr::VRDriverLog()->Log(("calib rot mat iris " + std::to_string(mat_rot_iris.determinant()) + ", " + mat_rot_iris.to_string()).c_str());
-	vr::VRDriverLog()->Log(("calib rot mat " + std::to_string(mat_rot.determinant()) + ", " + mat_rot.to_string()).c_str());
+	Mat3x3 mat_rot_ref = refineRotationKabsch(calib_dir_list_iris_, calib_dir_list_vr_, k_unCalibListLen);
+	double ang = rotationDifferenceAngle(mat_rot, mat_rot) * (180.0 / PI);
+	vr::VRDriverLog()->Log(("calib rot ang " + std::to_string(ang)).c_str());
+
+	if (ang > 15) {
+		mat_rot_ref = mat_rot;
+	}
 
 	Vector3 pos_avg_vr, pos_avg_iris;
 	for (int i = 0; i < k_unCalibListLen; i++) {
@@ -181,9 +184,9 @@ void IrisFBT::IrisCalibrator::Calibrate()
 	pos_avg_vr /= k_unCalibListLen;
 	pos_avg_iris /= k_unCalibListLen;
 
-	Vector3 vec_trans = pos_avg_vr - mat_rot * pos_avg_iris;
+	Vector3 pos_trans = pos_avg_vr - mat_rot * pos_avg_iris;
 
-	mServerToDriver_ = Mat4x4(mat_rot, vec_trans);
+	mServerToDriver_ = Mat4x4(mat_rot, pos_trans);
 
 	vr::VRDriverLog()->Log(("calib complete " + mServerToDriver_.to_string()).c_str());
 }

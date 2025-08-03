@@ -13,3 +13,9 @@
 [submodule "lib/json"]
 	path = lib/json
 	url = https://github.com/nlohmann/json.git
+[submodule "lib/--force"]
+	path = lib/--force
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "lib/eigen"]
+	path = lib/eigen
+	url = https://gitlab.com/libeigen/eigen.git

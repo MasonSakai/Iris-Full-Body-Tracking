@@ -97,6 +97,8 @@ namespace IrisFBT {
                 });
             return obj;
         }
+        default:
+            return nullptr;
         }
     }
     

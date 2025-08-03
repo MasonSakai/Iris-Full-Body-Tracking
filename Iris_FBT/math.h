@@ -4,6 +4,8 @@
 using nlohmann::json;
 using std::string;
 
+const double PI = 3.14159265358979323846;
+
 namespace IrisFBT {
 	struct Vector3 {
 		double v[3];
@@ -29,6 +31,7 @@ namespace IrisFBT {
 		static Vector3 reject(const Vector3, const Vector3);
 		Vector3 normalized() const;
 		double length() const;
+		double len2() const;
 
 		string to_string() const;
 
@@ -44,6 +47,9 @@ namespace IrisFBT {
 		Mat3x3(const vr::HmdQuaternion_t);
 		Mat3x3 operator*(const Mat3x3) const;
 		Vector3 operator*(const Vector3) const;
+		void CopyQuat(const vr::HmdQuaternion_t);
+		Vector3 get_vector(int) const;
+		void set_vector(const Vector3, int);
 		Mat3x3 transpose() const;
 		double determinant() const;
 
@@ -72,5 +78,7 @@ namespace IrisFBT {
 	string quat_to_string(vr::HmdQuaternion_t&);
 
 	Vector3 computePlaneNormal(const Vector3[], const int);
+	Mat3x3 refineRotationKabsch(const Vector3 A[], const Vector3 B[], int N);
+	double rotationDifferenceAngle(const Mat3x3&, const Mat3x3&);
 
 }

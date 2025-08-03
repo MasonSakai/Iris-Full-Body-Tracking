@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB; BOOST_REGEX_NO_LIB; ASIO_STANDALONE; _WEBSOCKETPP_CPP11_STL_; _WEBSOCKETPP_CPP11_FUNCTIONAL_; WIN32;_DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/eigen;$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB; BOOST_REGEX_NO_LIB; ASIO_STANDALONE; _WEBSOCKETPP_CPP11_STL_; _WEBSOCKETPP_CPP11_FUNCTIONAL_; WIN32;NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/eigen;$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -134,7 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB; BOOST_REGEX_NO_LIB; ASIO_STANDALONE; _WEBSOCKETPP_CPP11_STL_; _WEBSOCKETPP_CPP11_FUNCTIONAL_; _DEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/eigen;$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -155,7 +155,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB; BOOST_REGEX_NO_LIB; ASIO_STANDALONE; _WEBSOCKETPP_CPP11_STL_; _WEBSOCKETPP_CPP11_FUNCTIONAL_; NDEBUG;_CONSOLE;ASIO_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib/eigen;$(SolutionDir)lib/socket.io-client-cpp/lib/rapidjson/include;$(SolutionDir)lib/socket.io-client-cpp/lib/websocketpp;$(SolutionDir)lib/socket.io-client-cpp/lib/asio/asio/include;$(SolutionDir)lib/socket.io-client-cpp/src;$(SolutionDir)lib/json/include;$(SolutionDir)lib/openvr/headers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>

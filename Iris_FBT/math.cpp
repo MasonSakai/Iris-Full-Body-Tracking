@@ -1,6 +1,7 @@
 #include "math.h"
 #include <cmath>
 #include <limits>
+#include "Eigen/Dense"
 
 namespace IrisFBT {
     Vector3::Vector3() : v{0, 0, 0} {}
@@ -85,7 +86,10 @@ namespace IrisFBT {
         return *this / length();
     }
     double Vector3::length() const {
-        return sqrt(dot(*this, *this));
+        return sqrt(len2());
+    }
+    double Vector3::len2() const {
+        return dot(*this, *this);
     }
     string Vector3::to_string() const
     {
@@ -118,17 +122,7 @@ namespace IrisFBT {
     }
     Mat3x3::Mat3x3(const vr::HmdQuaternion_t q)
     {
-        m[0][0] = 1. - 2. * (q.y * q.y + q.z * q.z);
-        m[0][1] = 2. * (q.x * q.y - q.z * q.w);
-        m[0][2] = 2. * (q.x * q.z + q.y * q.w);
-
-        m[1][0] = 2. * (q.x * q.y + q.z * q.w);
-        m[1][1] = 1. - 2. * (q.x * q.x + q.z * q.z);
-        m[1][2] = 2. * (q.y * q.z - q.x * q.w);
-
-        m[2][0] = 2. * (q.x * q.z - q.y * q.w);
-        m[2][1] = 2. * (q.y * q.z + q.x * q.w);
-        m[2][2] = 1. - 2. * (q.x * q.x + q.y * q.y);
+        CopyQuat(q);
     }
     Mat3x3 Mat3x3::operator*(const Mat3x3 a) const
     {
@@ -151,6 +145,30 @@ namespace IrisFBT {
             }
         }
         return res;
+    }
+    void Mat3x3::CopyQuat(const vr::HmdQuaternion_t q)
+    {
+        m[0][0] = 1. - 2. * (q.y * q.y + q.z * q.z);
+        m[0][1] = 2. * (q.x * q.y - q.z * q.w);
+        m[0][2] = 2. * (q.x * q.z + q.y * q.w);
+
+        m[1][0] = 2. * (q.x * q.y + q.z * q.w);
+        m[1][1] = 1. - 2. * (q.x * q.x + q.z * q.z);
+        m[1][2] = 2. * (q.y * q.z - q.x * q.w);
+
+        m[2][0] = 2. * (q.x * q.z - q.y * q.w);
+        m[2][1] = 2. * (q.y * q.z + q.x * q.w);
+        m[2][2] = 1. - 2. * (q.x * q.x + q.y * q.y);
+    }
+    Vector3 Mat3x3::get_vector(int i) const
+    {
+        return Vector3(m[0][i], m[1][i], m[2][i]);
+    }
+    void Mat3x3::set_vector(const Vector3 v, int i)
+    {
+        m[0][i] = v.v[0];
+        m[1][i] = v.v[1];
+        m[2][i] = v.v[2];
     }
     Mat3x3 Mat3x3::transpose() const
     {
@@ -428,6 +446,50 @@ namespace IrisFBT {
         }
 
         return normal.normalized();
+    }
+
+    Mat3x3 refineRotationKabsch(const Vector3 A[], const Vector3 B[], int N) {
+        
+        Eigen::Matrix3d H = Eigen::Matrix3d::Zero();
+
+        // Build covariance matrix H = sum( a_i * b_i^T )
+        for (size_t i = 0; i < N; ++i) {
+            Eigen::Vector3d a(A[i].v[0], A[i].v[1], A[i].v[2]);
+            Eigen::Vector3d b(B[i].v[0], B[i].v[1], B[i].v[2]);
+            H += a * b.transpose();  // outer product
+        }
+
+        // SVD of H
+        Eigen::JacobiSVD<Eigen::Matrix3d> svd(H, Eigen::ComputeFullU | Eigen::ComputeFullV);
+        Eigen::Matrix3d U = svd.matrixU();
+        Eigen::Matrix3d V = svd.matrixV();
+
+        // Compute optimal rotation R = V * U^T
+        Eigen::Matrix3d R = V * U.transpose();
+
+        // Ensure right-handed (determinant +1)
+        if (R.determinant() < 0) {
+            V.col(2) *= -1;
+            R = V * U.transpose();
+        }
+
+        // Convert Eigen matrix back to your Mat3x3
+        Mat3x3 result;
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j)
+                result.m[i][j] = R(i, j);
+
+        return result;
+    }
+
+    double rotationDifferenceAngle(const Mat3x3& R1, const Mat3x3& R2) {
+        Mat3x3 R_diff = R1 * R2.transpose();
+        double trace = R_diff.m[0][0] + R_diff.m[1][1] + R_diff.m[2][2];
+        double cos_theta = (trace - 1.0) * 0.5;
+
+        // Clamp to valid range to avoid NaNs from rounding
+        cos_theta = std::max(-1.0, std::min(1.0, cos_theta));
+        return std::acos(cos_theta);  // result in radians
     }
 
 }
