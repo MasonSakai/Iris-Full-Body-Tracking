@@ -44,6 +44,8 @@ namespace IrisFBT {
 		Vector3 calib_pos_list_vr_[k_unCalibListLen];
 		Vector3 calib_dir_list_iris_[k_unCalibListLen];
 		Vector3 calib_pos_list_iris_[k_unCalibListLen];
+
+		void Calibrate();
 	};
 
 	extern std::unique_ptr<IrisCalibrator> iris_calib;

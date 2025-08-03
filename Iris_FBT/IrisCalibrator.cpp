@@ -138,43 +138,52 @@ void IrisCalibrator::on_pose(json& pose) {
 	if (calib_list_index_ >= k_unCalibListLen) {
 		is_calibrating = false;
 
-		Vector3 norm_vr_ref = Vector3::cross(calib_dir_list_vr_[1], calib_dir_list_vr_[0]).normalized();
-		Vector3 norm_iris_ref = Vector3::cross(calib_dir_list_iris_[1], calib_dir_list_iris_[0]).normalized();
-		Vector3 norm_vr, norm_iris, tmp;
-		int n = 0;
-		for (int i = 1; i < k_unCalibListLen; i++) {
-			for (int j = 0; j < i; j++) {
-				n++;
-				tmp = Vector3::cross(calib_dir_list_vr_[i], calib_dir_list_vr_[j]).normalized();
-				if (norm_vr_ref * tmp < 0) tmp *= -1;
-				norm_vr += tmp;
-				tmp = Vector3::cross(calib_dir_list_iris_[i], calib_dir_list_iris_[j]).normalized();
-				if (norm_iris_ref * tmp < 0) tmp *= -1;
-				norm_iris += tmp;
-			}
-		}
-		norm_vr /= n;
-		norm_iris /= n;
-
-		Mat4x4 mats[k_unCalibListLen];
-		for (int i = 0; i < k_unCalibListLen; i++) {
-			Vector3 dir_vr = Vector3::reject(calib_dir_list_vr_[i], norm_vr).normalized();
-			Mat4x4 mat_vr(dir_vr, norm_vr, Vector3::cross(dir_vr, norm_vr), Vector3());
-
-			Vector3 dir_iris = Vector3::reject(calib_dir_list_iris_[i], norm_iris).normalized();
-			Mat4x4 mat_iris(dir_iris, norm_iris, Vector3::cross(dir_iris, norm_iris), Vector3());
-
-			mats[i] = mat_vr * mat_iris.inverse();
-
-			vr::VRDriverLog()->Log(("calib mat " + mats[i].to_string()).c_str());
-		}
-
-		mServerToDriver_ = mats[0];
-
-		vr::VRDriverLog()->Log(("calib complete " + norm_vr.to_string() + ", " + norm_iris.to_string()).c_str());
+		Calibrate();
 	}
 }
 
 void IrisCalibrator::correct_pose(Mat4x4& mat) {
 	mat = iris_calib->mServerToDriver_ * mat;
+}
+
+void IrisFBT::IrisCalibrator::Calibrate()
+{
+	Vector3 norm_vr = computePlaneNormal(calib_dir_list_vr_, k_unCalibListLen);
+	Vector3 norm_iris = computePlaneNormal(calib_dir_list_iris_, k_unCalibListLen);
+	vr::VRDriverLog()->Log(("raw normals " + norm_vr.to_string() + ", " + norm_iris.to_string()).c_str());
+
+	Vector3 dir_vr = Vector3::reject(calib_dir_list_vr_[0], norm_vr).normalized();
+	Vector3 dir_iris = Vector3::reject(calib_dir_list_iris_[0], norm_iris).normalized();
+	{
+		Vector3 dir_vr_2 = Vector3::reject(calib_dir_list_vr_[1], norm_vr).normalized();
+		Vector3 cross_vr = Vector3::cross(dir_vr, dir_vr_2).normalized();
+		if (norm_vr * cross_vr < 0) norm_vr *= -1;
+
+		Vector3 dir_iris_2 = Vector3::reject(calib_dir_list_iris_[1], norm_vr).normalized();
+		Vector3 cross_iris = Vector3::cross(dir_iris, dir_iris_2).normalized();
+		if (norm_iris * cross_iris < 0) norm_iris *= -1;
+	}
+	vr::VRDriverLog()->Log(("fixed normals " + norm_vr.to_string() + ", " + norm_iris.to_string()).c_str());
+
+	Mat3x3 mat_rot_vr = Mat3x3(dir_vr, Vector3::cross(norm_vr, dir_vr), norm_vr);
+	Mat3x3 mat_rot_iris = Mat3x3(dir_iris, Vector3::cross(norm_iris, dir_iris), norm_iris);
+	Mat3x3 mat_rot = mat_rot_vr * mat_rot_iris.transpose();
+
+	vr::VRDriverLog()->Log(("calib rot mat vr " + std::to_string(mat_rot_vr.determinant()) + ", " + mat_rot_vr.to_string()).c_str());
+	vr::VRDriverLog()->Log(("calib rot mat iris " + std::to_string(mat_rot_iris.determinant()) + ", " + mat_rot_iris.to_string()).c_str());
+	vr::VRDriverLog()->Log(("calib rot mat " + std::to_string(mat_rot.determinant()) + ", " + mat_rot.to_string()).c_str());
+
+	Vector3 pos_avg_vr, pos_avg_iris;
+	for (int i = 0; i < k_unCalibListLen; i++) {
+		pos_avg_vr += calib_pos_list_vr_[i];
+		pos_avg_iris += calib_pos_list_iris_[i];
+	}
+	pos_avg_vr /= k_unCalibListLen;
+	pos_avg_iris /= k_unCalibListLen;
+
+	Vector3 vec_trans = pos_avg_vr - mat_rot * pos_avg_iris;
+
+	mServerToDriver_ = Mat4x4(mat_rot, vec_trans);
+
+	vr::VRDriverLog()->Log(("calib complete " + mServerToDriver_.to_string()).c_str());
 }

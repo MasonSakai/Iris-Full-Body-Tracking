@@ -34,21 +34,43 @@ namespace IrisFBT {
 
 	};
 
+	struct Mat3x3 {
+		double m[3][3];
+
+		Mat3x3();
+		Mat3x3(int);
+		Mat3x3(json&);
+		Mat3x3(const Vector3, const Vector3, const Vector3);
+		Mat3x3(const vr::HmdQuaternion_t);
+		Mat3x3 operator*(const Mat3x3) const;
+		Vector3 operator*(const Vector3) const;
+		Mat3x3 transpose() const;
+		double determinant() const;
+
+		string to_string() const;
+	};
+
 	struct Mat4x4 {
 		double m[4][4];
 
 		Mat4x4();
 		Mat4x4(int);
 		Mat4x4(json&);
-		Mat4x4(const Vector3, const Vector3, const Vector3, const Vector3);
+		Mat4x4(const Mat3x3, const Vector3);
+		Mat4x4(const vr::HmdQuaternion_t, const Vector3);
 		Mat4x4 operator*(const Mat4x4) const;
 		Vector3 operator*(const Vector3) const;
 		Mat4x4 inverse() const;
-		Mat4x4 get_rotation() const;
-		Vector3 get_vector(int) const;
+		Mat3x3 get_rotation() const;
+		Vector3 get_vector(int = 3) const;
+		void set_vector(const Vector3, int = 3);
 
 		string to_string() const;
 	};
 
-	vr::HmdQuaternion_t mRot2Quat(Mat4x4);
+	vr::HmdQuaternion_t mRot2Quat(const Mat3x3&);
+	string quat_to_string(vr::HmdQuaternion_t&);
+
+	Vector3 computePlaneNormal(const Vector3[], const int);
+
 }

@@ -53,7 +53,7 @@ void IrisTrackerDevice::UpdatePose(Mat4x4 data) {
 
 	iris_calib->correct_pose(data);
 
-	pose.qRotation = mRot2Quat(data);
+	pose.qRotation = mRot2Quat(data.get_rotation());
 
 	pose.vecPosition[0] = data.m[0][3];
 	pose.vecPosition[1] = data.m[1][3];
