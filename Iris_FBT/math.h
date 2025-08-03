@@ -78,7 +78,14 @@ namespace IrisFBT {
 	string quat_to_string(vr::HmdQuaternion_t&);
 
 	Vector3 computePlaneNormal(const Vector3[], const int);
-	Mat3x3 refineRotationKabsch(const Vector3 A[], const Vector3 B[], int N);
+	Mat3x3 refineRotationKabsch(const Vector3[], const Vector3[], int);
 	double rotationDifferenceAngle(const Mat3x3&, const Mat3x3&);
+	void estimateLocalOffsetAndTranslation(
+		Vector3 src_pos_list[], Vector3 dst_pos_list[],
+		Vector3 src_dir_list[], Vector3 dst_dir_list[],
+		Vector3 src_norm, Vector3 dst_norm, int N,
+		Vector3& outLocalOffset,
+		Vector3& outTranslation
+	);
 
 }

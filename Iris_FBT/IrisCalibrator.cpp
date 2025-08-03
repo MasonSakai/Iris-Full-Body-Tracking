@@ -176,15 +176,16 @@ void IrisFBT::IrisCalibrator::Calibrate()
 		mat_rot_ref = mat_rot;
 	}
 
-	Vector3 pos_avg_vr, pos_avg_iris;
-	for (int i = 0; i < k_unCalibListLen; i++) {
-		pos_avg_vr += calib_pos_list_vr_[i];
-		pos_avg_iris += calib_pos_list_iris_[i];
-	}
-	pos_avg_vr /= k_unCalibListLen;
-	pos_avg_iris /= k_unCalibListLen;
+	Vector3 pos_loc, pos_trans;
+	estimateLocalOffsetAndTranslation(
+		calib_pos_list_iris_, calib_pos_list_vr_,
+		calib_dir_list_iris_, calib_dir_list_vr_,
+		norm_iris, norm_vr, k_unCalibListLen,
+		pos_loc, pos_trans);
+	vr::VRDriverLog()->Log(("calib pos loc " + pos_loc.to_string()).c_str());
+	vr::VRDriverLog()->Log(("calib pos trans " + pos_trans.to_string()).c_str());
 
-	Vector3 pos_trans = pos_avg_vr - mat_rot * pos_avg_iris;
+	pos_trans += mat_rot_ref * pos_loc;
 
 	mServerToDriver_ = Mat4x4(mat_rot, pos_trans);
 

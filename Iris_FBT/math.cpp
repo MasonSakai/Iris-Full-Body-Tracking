@@ -492,4 +492,54 @@ namespace IrisFBT {
         return std::acos(cos_theta);  // result in radians
     }
 
+    static Mat3x3 constructRotationFromDirectionAndNormal(const Vector3& dir, const Vector3& normal) {
+        Vector3 z = dir.normalized();                       // forward
+        Vector3 y = normal.normalized();                    // up
+        Vector3 x = Vector3::cross(y, z).normalized();      // right (X)
+        y = Vector3::cross(z, x);                           // recompute Y to ensure orthonormality
+
+        Mat3x3 R;
+        for (int i = 0; i < 3; ++i) {
+            R.m[i][0] = x.v[i];
+            R.m[i][1] = y.v[i];
+            R.m[i][2] = z.v[i];
+        }
+
+        return R;
+    }
+
+    void estimateLocalOffsetAndTranslation(
+        Vector3 src_pos_list[], Vector3 dst_pos_list[],
+        Vector3 src_dir_list[], Vector3 dst_dir_list[],
+        Vector3 src_norm, Vector3 dst_norm, int N,
+        Vector3& outLocalOffset,
+        Vector3& outTranslation
+    ) {
+        using namespace Eigen;
+        MatrixXd A(3 * N, 6);
+        VectorXd b(3 * N);
+
+        for (int i = 0; i < N; ++i) {
+
+            Mat3x3 R_src = constructRotationFromDirectionAndNormal(src_dir_list[i], src_norm);
+            Mat3x3 R_dst = constructRotationFromDirectionAndNormal(dst_dir_list[i], dst_norm);
+
+            Mat3x3 R_rel = R_dst * R_src.transpose();
+
+            Vector3 y = dst_pos_list[i]- (R_rel * src_pos_list[i]);
+
+            for (int row = 0; row < 3; ++row) {
+                for (int col = 0; col < 3; ++col) {
+                    A(3 * i + row, col) = R_rel.m[row][col];       // part multiplying localOffset
+                    A(3 * i + row, col + 3) = (row == col) ? 1.0 : 0.0; // identity part for translation
+                }
+                b(3 * i + row) = y.v[row];
+            }
+        }
+
+        VectorXd x = A.colPivHouseholderQr().solve(b);
+        outLocalOffset = Vector3{ x(0), x(1), x(2) };
+        outTranslation = Vector3{ x(3), x(4), x(5) };
+    }
+
 }
