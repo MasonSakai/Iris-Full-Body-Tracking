@@ -11,8 +11,8 @@ from flask_socketio import disconnect
 from app.dataproviders import TimestampedDataSource, source_registry
 from app.synchronize import source_registry_lock
 
-sid_dict = {}
-sockets = {}
+sid_dict: dict[str, int] = {}
+sockets: dict[int, 'CamWebSocket'] = {}
 
 class CamWebSocket(RayPositionSource, ScoredPositionSource, TimestampedDataSource):
     
@@ -116,8 +116,6 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource, TimestampedDataSourc
             self.got_new_pose = False
 
 
-
-
 @socketio.on('connect', namespace='/camsite')
 def on_connect(auth):
     if auth['id'] in sockets:
@@ -139,13 +137,6 @@ def on_disconnect(reason):
 @socketio.on('pose', namespace='/camsite')
 def on_pose(data):
     sockets[data['id']].on_pose(data)
-
-@socketio.on('image', namespace='/camsite')
-def on_image(data): #change to a route
-    try:
-        sockets[sid_dict[request.sid]].on_image(data)
-    except BaseException as e:
-        print(e)
 
 @socketio.on('caps', namespace='/camsite')
 def on_caps(data):

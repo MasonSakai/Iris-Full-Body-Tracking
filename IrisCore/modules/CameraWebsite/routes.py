@@ -4,11 +4,13 @@ import sqlalchemy as sqla
 from app import db
 from CameraWebsite.models import WebsiteCamera
 from CameraWebsite import cam_web_blueprint as bp_cam
+from CamWebSocket import sockets
 
 
 @bp_cam.route('/')
 def index():
     return render_template('camsite.html', title='Remote Camera Process')
+
 
 
 @bp_cam.route('/cameras')
@@ -33,6 +35,15 @@ def set_config(id):
     camera.setConfig(request.json)
     db.session.commit()
     return jsonify(camera.getConfig())
+
+
+@bp_cam.route('/cameras/<id>/image', methods=['POST'])
+def on_image(id):
+    if int(id) in sockets:
+        sockets[int(id)].on_image(request.get_data().decode('utf-8'))
+        return '', 204
+    print(id, sockets.keys())
+    return 'ID not active', 403
 
 
 @bp_cam.route('/cameras/new', methods=['POST'])

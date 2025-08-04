@@ -117,10 +117,14 @@ export class Camera {
 				console.error(e.message)
 			}
 
-			this.ai_worker.postMessage({
-				key: IrisWorkerKey.msg_socket,
-				ev: 'image',
-				message: canvas.toDataURL()
+			//this.ai_worker.postMessage({
+			//	key: IrisWorkerKey.msg_socket,
+			//	ev: 'image',
+			//	message: canvas.toDataURL()
+			//})
+			fetch(`cameras/${this.config.id}/image`, {
+				method: 'POST',
+				body: canvas.toDataURL()
 			})
 
 			if (stream) {
