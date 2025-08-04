@@ -24,6 +24,7 @@
     <ProjectGuid>{539ea4d3-8c84-411d-a39b-fb035c49f1af}</ProjectGuid>
     <RootNamespace>AIFBT</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Iris_VR_Driver</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -30,7 +30,6 @@ void IrisCalibrator::RecacheDevices() {
 		last_recache_++;
 	}
 	else {
-		vr::VRDriverLog()->Log("Recache");
 		last_recache_ = 0;
 		max_index = 0;
 		hmd_index = -1;
