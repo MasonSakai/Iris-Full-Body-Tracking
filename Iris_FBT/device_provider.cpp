@@ -16,7 +16,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
     vr::VRDriverLog()->Log("Hello world!");
 
     device_provider = this;
-    ClientConfig::Load();
+    Config_SteamVR.Load();
     iris_calib = std::make_unique<IrisCalibrator>(this);
     iris_client = std::make_unique<IrisSocketClient>(this);
 
@@ -30,7 +30,7 @@ void DeviceProvider::Cleanup() {
     vr::VRDriverLog()->Log("Goodbye world!");
     if (iris_client != nullptr)
         iris_client.reset();
-    ClientConfig::Save();
+    Config_SteamVR.Save();
     VR_CLEANUP_SERVER_DRIVER_CONTEXT();
 }
 
@@ -72,7 +72,7 @@ IrisTrackerDevice* DeviceProvider::GetDevice(uint8_t index) {
 }
 
 void DeviceProvider::InitTrackers() {
-    json& conf = ClientConfig::Get();
+    json& conf = Config_SteamVR.Get();
     if (!conf.contains("active_trackers")) {
         conf["active_trackers"] = {
             { "head",        false },

@@ -5,14 +5,14 @@
 
 using namespace IrisFBT;
 
-json ClientConfig::config_;
-wstring ClientConfig::path_;
+ClientConfig IrisFBT::Config_SteamVR(L"/SteamVR.json");
+
+IrisFBT::ClientConfig::ClientConfig(wstring path)
+{
+	path_ = getAppdata() + path;
+}
 
 bool ClientConfig::Load() {
-
-	if (path_.empty()) {
-		path_ = getAppdata() + L"/SteamVRConfig.json";
-	}
 
 	std::ifstream f(path_);
 	if (!f.good()) {
@@ -34,7 +34,7 @@ bool ClientConfig::Load() {
 	}
 }
 
-bool ClientConfig::Save() {
+bool ClientConfig::Save() const {
 
 	std::ofstream f(path_);
 	if (!f.is_open()) return false;

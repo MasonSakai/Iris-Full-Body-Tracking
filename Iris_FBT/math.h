@@ -72,6 +72,7 @@ namespace IrisFBT {
 		void set_vector(const Vector3, int = 3);
 
 		string to_string() const;
+		json to_json() const;
 	};
 
 	vr::HmdQuaternion_t mRot2Quat(const Mat3x3&);

@@ -316,6 +316,18 @@ namespace IrisFBT {
         return str + ']';
     }
 
+    json Mat4x4::to_json() const
+    {
+        json res = json::array();
+        for (int i = 0; i < 4; i++) {
+            res[i] = json::array();
+            for (int j = 0; j < 4; j++) {
+                res[i][j] = m[i][j];
+            }
+        }
+        return res;
+    }
+
 
     vr::HmdQuaternion_t mRot2Quat(const Mat3x3& m) {
         vr::HmdQuaternion_t q{ };

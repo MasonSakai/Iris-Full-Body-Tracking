@@ -2,6 +2,7 @@
 #include <openvr_driver.h>
 #include <string>
 #include <cmath>
+#include "ClientConfig.h"
 using std::string;
 
 using namespace IrisFBT;
@@ -10,7 +11,19 @@ namespace IrisFBT {
 	std::unique_ptr<IrisCalibrator> iris_calib = nullptr;
 }
 
-IrisFBT::IrisCalibrator::IrisCalibrator(DeviceProvider* provider) : provider_(provider) {}
+IrisFBT::IrisCalibrator::IrisCalibrator(DeviceProvider* provider) : provider_(provider) {
+	if (Config_SteamVR.Get().contains("calib_mat")) {
+		mServerToDriver_ = Mat4x4(Config_SteamVR.Get()["calib_mat"]);
+		is_calibrating = false;
+	}
+	if (Config_SteamVR.Get().contains("calib_required")) {
+		is_calibrating = Config_SteamVR.Get()["calib_required"].get<bool>();
+	}
+	if (is_calibrating)
+		vr::VRDriverLog()->Log("Requires Calibration!");
+	else
+		vr::VRDriverLog()->Log("Got Previous Calibration");
+}
 
 void IrisCalibrator::RecacheDevices() {
 	if (last_recache_ < next_recache_) {
@@ -182,12 +195,12 @@ void IrisFBT::IrisCalibrator::Calibrate()
 		calib_dir_list_iris_, calib_dir_list_vr_,
 		norm_iris, norm_vr, k_unCalibListLen,
 		pos_loc, pos_trans);
-	vr::VRDriverLog()->Log(("calib pos loc " + pos_loc.to_string()).c_str());
-	vr::VRDriverLog()->Log(("calib pos trans " + pos_trans.to_string()).c_str());
 
 	pos_trans += mat_rot_ref * pos_loc;
 
 	mServerToDriver_ = Mat4x4(mat_rot, pos_trans);
 
-	vr::VRDriverLog()->Log(("calib complete " + mServerToDriver_.to_string()).c_str());
+	Config_SteamVR.Get()["calib_mat"] = mServerToDriver_.to_json();
+	Config_SteamVR.Get()["calib_required"] = false;
+	Config_SteamVR.Save();
 }

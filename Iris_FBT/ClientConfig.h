@@ -12,16 +12,20 @@ namespace IrisFBT {
 	{
 	public:
 
-		static bool Load();
-		static bool Save();
+		ClientConfig(wstring);
 
-		static json& Get();
+		bool Load();
+		bool Save() const;
+
+		json& Get();
 
 	private:
 
-		static json config_;
+		json config_;
 
-		static wstring path_;
+		wstring path_;
 	};
+
+	extern ClientConfig Config_SteamVR;
 
 }

@@ -13,7 +13,7 @@ IrisSocketClient::IrisSocketClient(DeviceProvider* provider)
 {
     this->provider = provider;
 
-    json& config = ClientConfig::Get();
+    json& config = Config_SteamVR.Get();
     if (!config.contains("core_url")) {
         config["core_url"] = "http://localhost:2674";
     }
