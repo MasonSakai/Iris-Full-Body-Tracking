@@ -1,3 +1,16 @@
+# Iris Full Body Tracking
+
+Iris FBT is a camera based full body tracking program written in python utilizing pose estimation models.<br>
+Other programs can utilize the tracking provided by Iris; a Steam VR driver is provided along side the server.
+
+At least two cameras are needed, the more the better.<br>
+While higher resolutions are better for calibration, the models themselves run on 640x480 images.
+
+## Because of school, development will be slow for some time
+
+<hr>
+Old description:
+
 # VR-AI-Full-Body-Tracking
 ## This is in the process of being rewritten, should have a driver version (no input emulator!) soon
 
