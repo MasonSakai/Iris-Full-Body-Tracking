@@ -1,5 +1,5 @@
 # VR-AI-Full-Body-Tracking
-## This is in the process of being rewritten, should have a driver version (no input emulator!) by the end of June
+## This is in the process of being rewritten, should have a driver version (no input emulator!) soon
 
 An AI driven, camera based Full Body tracking solution for VR systems
 
