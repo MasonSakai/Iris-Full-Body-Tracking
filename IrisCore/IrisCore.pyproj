@@ -44,6 +44,11 @@
     <Compile Include="app\main\math_worker.py" />
     <Compile Include="app\main\models.py" />
     <Compile Include="app\main\routes.py" />
+    <Compile Include="app\posehelpers\arms.py" />
+    <Compile Include="app\posehelpers\legs.py" />
+    <Compile Include="app\posehelpers\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="modules\CameraWebsite\CamWebModule.py" />
     <Compile Include="modules\CameraWebsite\CamWebSocket.py" />
     <Compile Include="modules\CameraWebsite\models.py" />
@@ -112,6 +117,7 @@
     <Folder Include="app\dataproviders\" />
     <Folder Include="app\main\" />
     <Folder Include="app\main\templates\" />
+    <Folder Include="app\posehelpers\" />
     <Folder Include="modules\CameraWebsite\" />
     <Folder Include="modules\CameraWebsite\templates\" />
     <Folder Include="modules\CameraWebsite\static\" />

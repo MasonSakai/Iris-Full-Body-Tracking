@@ -140,8 +140,8 @@ class MathWorker:
                     print('should update', source, e)
         return False
 
-    pose_data: dict[str, np.array] = {}
-    last_pose_data: dict[str, np.array] = {}
+    pose_data: dict[str, np.ndarray] = {}
+    last_pose_data: dict[str, np.ndarray] = {}
 
     def CalculatePositions(self):
         self.pose_data.clear()
@@ -204,23 +204,35 @@ class MathWorker:
             self.pose_data['head'] = (self.pose_data['left_ear'] + self.pose_data['right_ear']) / 2
 
     def CalculateRotations(self): #+x left, -y up, -z forward
-        pose = {}
-        for ident, data in self.pose_data.items(): #remove, do last to unknowns?
-            trans = np.identity(4)
-            trans[:3, 3] = data
-            pose[ident] = trans
-        self.pose_data = pose
+        #pose = {}
+        #for ident, data in self.pose_data.items(): #remove, do last to unknowns?
+        #    trans = np.identity(4)
+        #    trans[:3, 3] = data
+        #    pose[ident] = trans
+        #self.pose_data = pose
         
         #self.do_head('head', 'left_ear', ['nose', 'left_eye', 'right_eye'], ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear'])
 
         self.do_chest_hip('hip', 'chest', 'left_hip', False)
         self.do_chest_hip('chest', 'hip', 'left_shoulder', True)
 
-        self.do_three_point('left_shoulder', 'left_elbow', 'left_wrist', 'chest', False, 1, 2, 3, 3)
-        self.do_three_point('right_shoulder', 'right_elbow', 'right_wrist', 'chest', False, -1, -2, 3, 3)
+        do_arm_rotation(self, 'left_shoulder', 'left_elbow', 'left_wrist', 'chest', False)
+        do_arm_rotation(self, 'right_shoulder', 'right_elbow', 'right_wrist', 'chest', True)
+
         
-        self.do_three_point('left_hip', 'left_knee', 'left_ankle', 'hip', True, 2, 1, -3, 3)
-        self.do_three_point('right_hip', 'right_knee', 'right_ankle', 'hip', True, 2, 1, -3, 3)
+        do_leg_rotation(self, 'left_hip', 'left_knee', 'left_ankle', 'hip')
+        do_leg_rotation(self, 'right_hip', 'right_knee', 'right_ankle', 'hip')
+
+        
+        pose = {}
+        for ident, data in self.pose_data.items(): #remove, make clients handle this
+            if data.size > 3:
+                pose[ident] = data
+                continue
+            trans = np.identity(4)
+            trans[:3, 3] = data
+            pose[ident] = trans
+        self.pose_data = pose
 
     def do_head(self, key_head: str, key_left: str, keys_forward: list[str], rot_copy: list[str]):
         if key_head in self.pose_data:
@@ -253,9 +265,13 @@ class MathWorker:
 
     def do_chest_hip(self, key_source: str, key_target: str, key_left: str, inv_target: bool):
         if key_source in self.pose_data and key_target in self.pose_data and key_left in self.pose_data:
-            pos_source = self.pose_data[key_source][:3, 3]
-            pos_target = self.pose_data[key_target][:3, 3]
-            pos_left = self.pose_data[key_left][:3, 3]
+            pos_source = self.pose_data[key_source]
+            pos_target = self.pose_data[key_target]
+            if pos_target.size > 3:
+                pos_target = pos_target[:3, 3]
+            pos_left = self.pose_data[key_left]
+            if pos_left.size > 3:
+                pos_left = pos_left[:3, 3]
 
             d_target = pos_target - pos_source
             d_target /= np.linalg.norm(d_target)
@@ -270,39 +286,12 @@ class MathWorker:
             d_x = np.cross(d_z, d_target)
             d_x /= np.linalg.norm(d_x)
             
-            self.pose_data[key_source][:3, 0] = d_x
-            self.pose_data[key_source][:3, 1] = -d_target
-            self.pose_data[key_source][:3, 2] = d_z
-        else:
-            pass
-
-    def do_three_point(self, key_start: str, key_center: str, key_end: str, key_ref: str,
-                       curve_out: bool, axis_len: int, axis_norm: int, axis_rem: int, axis_ref: int):
-        if key_start in self.pose_data and key_center in self.pose_data and key_end in self.pose_data:
-            pos_start = self.pose_data[key_start][:3, 3]
-            pos_center = self.pose_data[key_center][:3, 3]
-            pos_end = self.pose_data[key_end][:3, 3]
-
-            d_sc = pos_center - pos_start
-            d_sc /= np.linalg.norm(d_sc)
-            d_ce = pos_end - pos_center
-            d_ce /= np.linalg.norm(d_ce)
-
-            norm = np.cross(d_sc, d_ce)
-            norm /= np.linalg.norm(norm)
-
-            self.pose_data[key_start][:3, abs(axis_len)-1] = d_sc * (1 if axis_len > 0 else -1)
-            self.pose_data[key_start][:3, abs(axis_norm)-1] = norm * (1 if axis_norm > 0 else -1)
-            self.pose_data[key_start][:3, abs(axis_rem)-1] = np.cross(d_sc, norm) * (1 if axis_rem > 0 else -1)
-
-            self.pose_data[key_center][:3, abs(axis_len)-1] = d_ce * (1 if axis_len > 0 else -1)
-            self.pose_data[key_center][:3, abs(axis_norm)-1] = norm * (1 if axis_norm > 0 else -1)
-            self.pose_data[key_center][:3, abs(axis_rem)-1] = np.cross(d_ce, norm) * (1 if axis_rem > 0 else -1)
-
-            self.pose_data[key_end][:3, abs(axis_len)-1] = d_ce * (1 if axis_len > 0 else -1)
-            self.pose_data[key_end][:3, abs(axis_norm)-1] = norm * (1 if axis_norm > 0 else -1)
-            self.pose_data[key_end][:3, abs(axis_rem)-1] = np.cross(d_ce, norm) * (1 if axis_rem > 0 else -1)
-
+            pose = np.identity(4)
+            pose[:3, 0] = d_x
+            pose[:3, 1] = -d_target
+            pose[:3, 2] = d_z
+            pose[:3, 3] = pos_source
+            self.pose_data[key_source] = pose
         else:
             pass
 
@@ -320,6 +309,8 @@ class MathWorker:
         for p in self.publishers:
             p(self.post_data)
 
+from app.posehelpers.legs import do_leg_rotation
+from app.posehelpers.arms import do_arm_rotation
 
 math_worker = MathWorker()
 @socketio.on('connect', namespace='*')
