@@ -65,6 +65,7 @@
     </Compile>
     <Compile Include="config.py" />
     <Compile Include="iris_core.py" />
+    <Compile Include="modules\VMCProtocol\__init__.py" />
     <Compile Include="modules\SocketIO\__init__.py">
       <SubType>Code</SubType>
     </Compile>
@@ -128,6 +129,7 @@
     <Folder Include="app\main\static\js\" />
     <Folder Include="app\main\static\img\" />
     <Folder Include="modules\" />
+    <Folder Include="modules\VMCProtocol\" />
     <Folder Include="modules\SocketIO\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

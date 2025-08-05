@@ -14,3 +14,4 @@ opencv-python
 vmcp[osc4py3]
 pupil-apriltags
 moms-apriltag
+numpy-quaternion

@@ -204,12 +204,6 @@ class MathWorker:
             self.pose_data['head'] = (self.pose_data['left_ear'] + self.pose_data['right_ear']) / 2
 
     def CalculateRotations(self): #+x left, -y up, -z forward
-        #pose = {}
-        #for ident, data in self.pose_data.items(): #remove, do last to unknowns?
-        #    trans = np.identity(4)
-        #    trans[:3, 3] = data
-        #    pose[ident] = trans
-        #self.pose_data = pose
         
         #self.do_head('head', 'left_ear', ['nose', 'left_eye', 'right_eye'], ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear'])
 
