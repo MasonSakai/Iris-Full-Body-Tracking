@@ -58,4 +58,5 @@ def initDB(*args, **kwargs):
 
 
 if __name__ == "__main__":
+    print("DO: https://youtube.com/shorts/SUOEgaPL6xM")
     start_app(app, Config)
