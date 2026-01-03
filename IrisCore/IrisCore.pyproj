@@ -30,6 +30,10 @@
     <Compile Include="app\apriltag\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\cameras\routes.py" />
+    <Compile Include="app\cameras\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\dataprocessing\rollingaverage.py" />
     <Compile Include="app\dataprocessing\__init__.py">
       <SubType>Code</SubType>
@@ -40,13 +44,44 @@
     <Compile Include="app\dataproviders\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\IrisModules.py" />
+    <Compile Include="utils\debug\DebugViewSettings.py" />
+    <Compile Include="utils\debug\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="utils\modulemanager\IrisModules.py" />
+    <Compile Include="utils\Log\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\main\math_worker.py" />
-    <Compile Include="app\main\models.py" />
+    <Compile Include="app\cameras\models.py" />
     <Compile Include="app\main\routes.py" />
+    <Compile Include="utils\modulemanager\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\posehelpers\arms.py" />
     <Compile Include="app\posehelpers\legs.py" />
     <Compile Include="app\posehelpers\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="utils\registry\ThingDatabaseInternal.py" />
+    <Compile Include="utils\registry\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="utils\scribe\internal\CrossRefHandler.py" />
+    <Compile Include="utils\scribe\internal\LoadIDsWantedBank.py" />
+    <Compile Include="utils\scribe\internal\ParseHelper.py" />
+    <Compile Include="utils\scribe\internal\PostLoadIniter.py" />
+    <Compile Include="utils\scribe\internal\ScribeExtractor.py" />
+    <Compile Include="utils\scribe\internal\ScribeSaver.py" />
+    <Compile Include="utils\scribe\internal\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="utils\scribe\internal\ScribeLoader.py" />
+    <Compile Include="utils\scribe\Scribe_References.py" />
+    <Compile Include="utils\scribe\Scribe_Deep.py" />
+    <Compile Include="utils\scribe\Scribe_Collections.py" />
+    <Compile Include="utils\scribe\Scribe_Values.py" />
+    <Compile Include="utils\scribe\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="modules\CameraWebsite\CamWebModule.py" />
@@ -67,6 +102,9 @@
     <Compile Include="iris_core.py" />
     <Compile Include="modules\VMCProtocol\__init__.py" />
     <Compile Include="modules\SocketIO\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="utils\__init__.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -114,11 +152,20 @@
     <Folder Include="app\apriltag\static\js\" />
     <Folder Include="app\apriltag\static\pdf\" />
     <Folder Include="app\apriltag\templates\" />
+    <Folder Include="app\cameras\" />
+    <Folder Include="app\cameras\templates\" />
+    <Folder Include="app\cameras\static\" />
     <Folder Include="app\dataprocessing\" />
     <Folder Include="app\dataproviders\" />
+    <Folder Include="utils\debug\" />
+    <Folder Include="utils\Log\" />
     <Folder Include="app\main\" />
     <Folder Include="app\main\templates\" />
+    <Folder Include="utils\modulemanager\" />
     <Folder Include="app\posehelpers\" />
+    <Folder Include="utils\registry\" />
+    <Folder Include="utils\scribe\" />
+    <Folder Include="utils\scribe\internal\" />
     <Folder Include="modules\CameraWebsite\" />
     <Folder Include="modules\CameraWebsite\templates\" />
     <Folder Include="modules\CameraWebsite\static\" />
@@ -131,6 +178,7 @@
     <Folder Include="modules\" />
     <Folder Include="modules\VMCProtocol\" />
     <Folder Include="modules\SocketIO\" />
+    <Folder Include="utils\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

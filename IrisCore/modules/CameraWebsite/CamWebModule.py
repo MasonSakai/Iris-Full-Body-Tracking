@@ -1,4 +1,4 @@
-from app.IrisModules import IrisModule
+from utils.modulemanager.IrisModules import IrisModule
 from app import Config
 
 from CameraWebsite import cam_web_blueprint as bp_cam

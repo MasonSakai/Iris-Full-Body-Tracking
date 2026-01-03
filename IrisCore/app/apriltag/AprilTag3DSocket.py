@@ -1,13 +1,12 @@
 from flask import flash, redirect, render_template, request, url_for, Response
 from pupil_apriltags import Detection, Detector
-import sqlalchemy as sqla
 import numpy as np
 import cv2 as cv
 
-from app import db, socketio
+from app import socketio
 from app.apriltag import apriltag_blueprint as bp_aptg, found_tags, seen_tags
 from app.apriltag.models import AprilTag
-from app.main.models import Camera
+from app.cameras.models import Camera
 from app.main.math_worker import math_worker
 
 def det_to_mat(det: Detection):

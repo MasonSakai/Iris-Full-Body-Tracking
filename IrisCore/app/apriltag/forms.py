@@ -2,9 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, FloatField, BooleanField
 from wtforms.validators import DataRequired, NumberRange
 
-from app import db
 from app.apriltag.models import AprilTagDetector, AprilTag
-import sqlalchemy as sqla
 
 class DetectorForm(FlaskForm):
     

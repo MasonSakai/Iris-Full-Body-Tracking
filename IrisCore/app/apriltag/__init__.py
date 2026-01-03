@@ -4,7 +4,7 @@ import numpy as np
 
 apriltag_blueprint = Blueprint('apriltag', __name__, static_folder='static', template_folder='templates', url_prefix='/apriltag')
 
-from app.main.models import Camera
+from app.cameras.models import Camera
 from pupil_apriltags import Detection
 
 found_tags: list[tuple[Detection, float, dict[Camera, Detection]]] = []

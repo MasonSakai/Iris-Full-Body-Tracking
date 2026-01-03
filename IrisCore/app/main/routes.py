@@ -1,7 +1,5 @@
 from flask import render_template, flash, redirect, url_for, jsonify, request, abort
-import sqlalchemy as sqla
 
-from app import db
 from app.main import main_blueprint as bp_main
 #from app.main.models import ResearchField, ProgrammingLanguage, ResearchPosition, ResearchApplication
 

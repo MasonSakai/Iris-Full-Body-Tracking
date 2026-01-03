@@ -1,10 +1,9 @@
-from app import db, socketio
-import sqlalchemy as sqla
+from app import socketio
 from flask import request
 import numpy as np
 import cv2 as cv
 import base64
-from CameraWebsite.models import WebsiteCamera
+from CameraWebsite.models import WebsiteCameraReference
 from app.apriltag.calibration import CalculateCameraPose
 from app.dataproviders.position import RayPositionSource, ScoredPositionSource
 from flask_socketio import disconnect
@@ -17,7 +16,7 @@ sockets: dict[int, 'CamWebSocket'] = {}
 class CamWebSocket(RayPositionSource, ScoredPositionSource, TimestampedDataSource):
     
     sid: str
-    cam: WebsiteCamera
+    cam: WebsiteCameraReference
     camCaps: dict[str, dict | int | float] | None = None
 
     def __init__(self, sid, cam):
@@ -60,7 +59,7 @@ class CamWebSocket(RayPositionSource, ScoredPositionSource, TimestampedDataSourc
                         pose_scores[key] = pose[key]['score']
                         pose_positions.append([pose[key]['x'], pose[key]['y']])
                 
-                    pose_positions = np.array(self.cam.undistortPoints(pose_positions, camera_matrix, dist_coeffs))
+                    pose_positions = np.array(self.cam.UndistortPoints(pose_positions, camera_matrix, dist_coeffs))
                     if (len(pose_positions.shape) == 1):
                         pose_positions = pose_positions.reshape(1, -1)
                     pose_positions = np.append(pose_positions, np.ones((len(pose_positions), 1)), axis=1)
@@ -127,7 +126,7 @@ def on_connect(auth):
             raise ConnectionRefusedError('Camera already taken')
 
     sid_dict[request.sid] = auth['id']
-    sockets[auth['id']] = CamWebSocket(request.sid, db.session.get(WebsiteCamera, auth['id']))
+    sockets[auth['id']] = CamWebSocket(request.sid, db.session.get(WebsiteCameraReference, auth['id']))
 
 @socketio.on('disconnect', namespace='/camsite')
 def on_disconnect(reason):
