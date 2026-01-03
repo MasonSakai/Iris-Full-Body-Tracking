@@ -34,8 +34,8 @@ def SaveableFromNode[T](subNode: ET.ElementBase, vType: Type[T], *args, **kwargs
 		return None
 	else:
 		try:
-			attribName = subNode.get("Class")
-			providedType = ParseHelper.GetTypeFromName(attribName) if attribName is None else vType
+			attribName = subNode.get("class")
+			providedType = vType if attribName is None else ParseHelper.GetTypeFromName(attribName)
 			obj = providedType(*args, **kwargs)
 			Scribe.loader.crossRefs.RegisterForCrossRefResolve(obj)
 			curXmlParent = Scribe.loader.curXmlParent

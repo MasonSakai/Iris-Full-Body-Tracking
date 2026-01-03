@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 from typing import Type
 from utils import Log
 from utils.scribe import IExposable, ILoadReferenceable, Scribe, LoadSaveMode, Scribe_Deep, Scribe_Values, Scribe_References
@@ -6,10 +6,9 @@ from utils.scribe.internal import ScribeExtractor
 
 
 class LookMode(Enum):
-	Undefined = 0
-	Value = 1
-	Deep = 2
-	Reference = 3
+	Value = auto()
+	Deep = auto()
+	Reference = auto()
 
 def LookList[T](value: list[T], label: str, vType: Type[T], lookMode: LookMode, *args, **kwargs) -> list[T]:
 	if Scribe.EnterNode(label):

@@ -12,6 +12,7 @@
     <Name>IrisCore</Name>
     <RootNamespace>IrisCore</RootNamespace>
     <InterpreterId>MSBuild|venv|$(MSBuildProjectFullPath)</InterpreterId>
+    <TestFramework>unittest</TestFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -47,6 +48,7 @@
     <Compile Include="tests\scribe\test_scribe_base.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\scribe\test_scribe_deep.py" />
     <Compile Include="tests\scribe\test_scribe_modes.py">
       <SubType>Code</SubType>
     </Compile>
@@ -57,6 +59,7 @@
     <Compile Include="utils\debug\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="utils\Log\LogSimple.py" />
     <Compile Include="utils\modulemanager\IrisModules.py" />
     <Compile Include="utils\Log\__init__.py">
       <SubType>Code</SubType>
@@ -77,6 +80,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="utils\scribe\internal\CrossRefHandler.py" />
+    <Compile Include="utils\scribe\internal\DebugLoadIDsSavingErrorsChecker.py" />
     <Compile Include="utils\scribe\internal\LoadIDsWantedBank.py" />
     <Compile Include="utils\scribe\internal\ParseHelper.py" />
     <Compile Include="utils\scribe\internal\PostLoadIniter.py" />

@@ -4,6 +4,7 @@ from lxml import etree as ET
 from utils import Log
 from utils.scribe import IExposable, LoadSaveMode, Scribe, Scribe_Deep
 from utils.scribe.internal import ParseHelper
+from utils.scribe.internal.DebugLoadIDsSavingErrorsChecker import DebugLoadIDsSavingErrorsChecker
 
 
 class ScribeSaver:
@@ -14,6 +15,11 @@ class ScribeSaver:
 
 	savingForDebug: bool
 	anyInternalException: bool
+
+	loadIDsErrorsChecker: DebugLoadIDsSavingErrorsChecker
+
+	def __init__(self):
+		self.loadIDsErrorsChecker = DebugLoadIDsSavingErrorsChecker()
 	
 	def InitSaving(self, documentElementName: str) -> None:
 		if Scribe.mode != LoadSaveMode.Inactive:
@@ -41,6 +47,7 @@ class ScribeSaver:
 
 				Scribe.mode = LoadSaveMode.Inactive;
 				self.savingForDebug = False
+				self.loadIDsErrorsChecker.CheckForErrorsAndClear()
 				self.curXmlParent = None
 				self.baseXmlTree = None
 				self.curPathRelToParent = None
@@ -105,6 +112,7 @@ class ScribeSaver:
 		self.baseXmlTree = None
 		self.savingForDebug = False
 		self.anyInternalException = False
+		self.loadIDsErrorsChecker.Clear()
 		if Scribe.mode != LoadSaveMode.Saving:
 			return
 		Scribe.mode = LoadSaveMode.Inactive

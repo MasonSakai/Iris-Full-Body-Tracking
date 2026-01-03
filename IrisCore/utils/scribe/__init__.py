@@ -4,18 +4,18 @@ A Rimworld-based xml loading system
 
 from __future__ import annotations
 from asyncio import Lock
-from enum import Enum
+from enum import Enum, auto
 from abc import ABC, abstractmethod
 
 class LoadSaveMode(Enum):
 	"""
 	Enum for the current state of the Scribe
 	"""
-	Inactive = 0
-	Saving = 1
-	LoadingVars = 2
-	ResolvingCrossRefs = 3
-	PostLoadInit = 4
+	Inactive = auto()
+	Saving = auto()
+	LoadingVars = auto()
+	ResolvingCrossRefs = auto()
+	PostLoadInit = auto()
 
 class IExposable:
 	"""

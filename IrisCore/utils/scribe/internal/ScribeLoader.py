@@ -32,6 +32,7 @@ class ScribeLoader:
 		try:
 			tree = ET.parse(filePath)
 			self.curXmlParent = tree.getroot()
+			self.curPathRelToParent = ''
 			Scribe.mode = LoadSaveMode.LoadingVars
 		except Exception as ex:
 			Log.Error(Log.LogLevel.Critical, f"Exception while init loading file: {filePath}\n{str(ex)}")

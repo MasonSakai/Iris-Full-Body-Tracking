@@ -10,7 +10,7 @@ def Look(target: T, label: str, vType: Type[T], *args, **kwargs) -> T:
 	match Scribe.mode:
 		case LoadSaveMode.Saving:
 			if not isinstance(target, IExposable):
-				Log.Error(f"Cannot use LookDeep to save non-IExposable non-null {label} of type {vType}")
+				Log.Error(Log.LogLevel.Critical, f"Cannot use LookDeep to save non-IExposable non-null {label} of type {vType}")
 				return target
 			if target is None:
 				if Scribe.EnterNode(label):
@@ -21,10 +21,10 @@ def Look(target: T, label: str, vType: Type[T], *args, **kwargs) -> T:
 			elif Scribe.EnterNode(label):
 				try:
 					if type(target) != vType:
-						Scribe.saver.WriteAttribute("Class", ParseHelper.GetQualifiedName(target));
+						Scribe.saver.WriteAttribute("class", ParseHelper.GetQualifiedName(type(target)));
 					target.ExposeData()
 				except Exception as ex:
-					Log.Error(f"Exception while saving {Log.ToStringSafe(target, IExposable)}: {ex}");
+					Log.Error(Log.LogLevel.Critical, f"Exception while saving {Log.ToStringSafe(target, IExposable)}: {ex}");
 				finally:
 					Scribe.ExitNode()
 			Scribe.saver.loadIDsErrorsChecker.RegisterDeepSaved(target, label)
@@ -32,8 +32,8 @@ def Look(target: T, label: str, vType: Type[T], *args, **kwargs) -> T:
 			try:
 				#if isinstance(target, IDisposable):
 				#	target.Dispose()
-				target = ScribeExtractor.SaveableFromNode(Scribe.loader.curXmlParent[label], vType, *args, **kwargs)
+				target = ScribeExtractor.SaveableFromNode(Scribe.loader.curXmlParent.find(label), vType, *args, **kwargs)
 			except Exception as ex:
-				Log.Error(f"Exception while loading {Log.ToStringSafe(Scribe.loader.curXmlParent[label], ET.ElementBase)}: {ex}")
+				Log.Error(Log.LogLevel.Critical, f"Exception while loading {Log.ToStringSafe(Scribe.loader.curXmlParent[label], ET.ElementBase)}: {ex}")
 				target = vType()
 	return target

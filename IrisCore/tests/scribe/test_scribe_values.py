@@ -6,7 +6,6 @@ from tests.scribe.test_scribe_base import test_scribe_base
 from utils.Log import LogLevel
 from utils.debug import DebugViewSettings
 from utils.scribe import Scribe, Scribe_Values
-from utils.scribe.internal.LoadIDsWantedBank import LoadIDsWantedBank
 
 #DebugViewSettings.logLoadLevel = LogLevel.Critical
 
@@ -123,18 +122,21 @@ class test_scribe_values(test_scribe_base):
         Scribe.loader.FinalizeLoading()
         self.assertIs(loaded_value, int)
 
+    class Test6DummyClass:
+        pass
+
     def test_6_type_complex(self):
         path = self.temp_path('dummy.xml')
 
         Scribe.saver.InitSaving("root")
-        value = LoadIDsWantedBank.IdListRecord  # example type
+        value = test_scribe_values.Test6DummyClass  # example type
         value = Scribe_Values.Look(value, "myType", type, defaultValue=None)
 
         root_elem = Scribe.saver.baseXmlTree.getroot()
         node = root_elem.find("myType")
         self.assertIsNotNone(node)
-        # Example: saved as "utils.scribe.internal.LoadIDsWantedBank:LoadIDsWantedBank.IdListRecord"
-        self.assertEqual(node.text, "utils.scribe.internal.LoadIDsWantedBank:LoadIDsWantedBank.IdListRecord")
+        # Example: saved as "test_scribe_values:test_scribe_values.Test6DummyClass"
+        self.assertEqual(node.text, "test_scribe_values:test_scribe_values.Test6DummyClass")
         
         Scribe.saver.FinalizeSaving(path)
 
@@ -143,7 +145,7 @@ class test_scribe_values(test_scribe_base):
         loaded_value = None
         loaded_value = Scribe_Values.Look(loaded_value, "myType", type, defaultValue=None)
         Scribe.loader.FinalizeLoading()
-        self.assertIs(loaded_value, LoadIDsWantedBank.IdListRecord)
+        self.assertIs(loaded_value, test_scribe_values.Test6DummyClass)
 
     def test_7_numpy_array_serialization(self):
         path = self.temp_path('dummy.xml')
