@@ -34,7 +34,25 @@ class ScribeLoader:
 			self.curXmlParent = tree.getroot()
 			Scribe.mode = LoadSaveMode.LoadingVars
 		except Exception as ex:
-			Log.Error(Log.LogLevel.Critical, "Exception while init loading file: {filePath}\n{str(ex)}")
+			Log.Error(Log.LogLevel.Critical, f"Exception while init loading file: {filePath}\n{str(ex)}")
+			self.ForceStop()
+			raise
+		
+	def InitLoadingFromString(self, data: str) -> None:
+		if Scribe.mode != LoadSaveMode.Inactive:
+			Log.Error(Log.LogLevel.Critical, f"Called InitLoading() but current mode is {Scribe.mode.name}")
+			Scribe.ForceStop()
+		if self.curParent is not None:
+			Log.Error(Log.LogLevel.Critical, "Current parent is not null in InitLoading");
+			self.curParent = None
+		if self.curPathRelToParent != None:
+			Log.Error(Log.LogLevel.Critical, "Current path relative to parent is not null in InitLoading")
+			self.curPathRelToParent = None
+		try:
+			self.curXmlParent = ET.fromstring(data)
+			Scribe.mode = LoadSaveMode.LoadingVars
+		except Exception as ex:
+			Log.Error(Log.LogLevel.Critical, f"Exception while init loading string: {data}\n{str(ex)}")
 			self.ForceStop()
 			raise
 

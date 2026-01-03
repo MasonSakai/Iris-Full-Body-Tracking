@@ -44,6 +44,15 @@
     <Compile Include="app\dataproviders\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\scribe\test_scribe_base.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\scribe\test_scribe_modes.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\scribe\test_scribe_values.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="utils\debug\DebugViewSettings.py" />
     <Compile Include="utils\debug\__init__.py">
       <SubType>Code</SubType>
@@ -157,6 +166,8 @@
     <Folder Include="app\cameras\static\" />
     <Folder Include="app\dataprocessing\" />
     <Folder Include="app\dataproviders\" />
+    <Folder Include="tests\" />
+    <Folder Include="tests\scribe\" />
     <Folder Include="utils\debug\" />
     <Folder Include="utils\Log\" />
     <Folder Include="app\main\" />

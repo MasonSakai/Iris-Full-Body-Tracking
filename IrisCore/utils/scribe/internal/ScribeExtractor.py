@@ -14,18 +14,18 @@ def ValueFromNode[T](subNode: ET.ElementBase, vType: Type[T], defaultValue: T) -
 		return None
 	try:
 		try:
-			return ParseHelper.FromString(''.join(subNode.itertext()), vType)
+			return ParseHelper.FromString(subNode.text, subNode.attrib, vType)
 		except Exception as ex:
-			Log.Error(f"Exception parsing node {ET.tostring(subNode)} into a {vType}:\n{ex}")
-		return vType()
+			Log.Error(Log.LogLevel.Critical, f"Exception parsing node {ET.tostring(subNode)} into a {vType}:\n{ex}")
+		return defaultValue
 	except Exception as ex:
-		Log.Error(f"Exception loading XML: {ex}")
+		Log.Error(Log.LogLevel.Critical, f"Exception loading XML: {ex}")
 		return defaultValue
 
 
 def SaveableFromNode[T](subNode: ET.ElementBase, vType: Type[T], *args, **kwargs) -> T:
 	if Scribe.mode != LoadSaveMode.LoadingVars:
-		Log.Error(f"Called SaveableFromNode(), but mode is {Scribe.mode.name}");
+		Log.Error(Log.LogLevel.Critical, f"Called SaveableFromNode(), but mode is {Scribe.mode.name}");
 		return None
 	if subNode is None:
 		return None
@@ -53,5 +53,5 @@ def SaveableFromNode[T](subNode: ET.ElementBase, vType: Type[T], *args, **kwargs
 			Scribe.loader.initer.RegisterForPostLoadInit(obj)
 			return obj
 		except Exception as ex:
-			Log.Error(f"SaveableFromNode exception: {ex}\nSubnode:\n{ET.tostring(subNode)}")
+			Log.Error(Log.LogLevel.Critical, f"SaveableFromNode exception: {ex}\nSubnode:\n{ET.tostring(subNode)}")
 			return None

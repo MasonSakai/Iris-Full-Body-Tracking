@@ -1,35 +1,14 @@
 import os
-import shutil
-import tempfile
 import unittest
 
+from tests.scribe.test_scribe_base import test_scribe_base
 from utils.Log import LogLevel
 from utils.debug import DebugViewSettings
 from utils.scribe import LoadSaveMode, Scribe
 
 #DebugViewSettings.logLoadLevel = LogLevel.Error
 
-class test_scribe_modes(unittest.TestCase):
-
-    def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
-
-        Scribe.ForceStop()
-
-    def tearDown(self):
-        Scribe.ForceStop()
-
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
-
-    def temp_path(self, filename: str) -> str:
-        return os.path.join(self.temp_dir, filename)
-
-    def temp_dummy(self, filename: str) -> str:
-        path = self.temp_path("minimal.xml")
-        with open(path, "w", encoding="utf-8") as f:
-            f.write("<Root />")
-        return path
-
+class test_scribe_modes(test_scribe_base):
 
     def test_1_force_stop_resets_state(self):
         Scribe.mode = LoadSaveMode.Saving

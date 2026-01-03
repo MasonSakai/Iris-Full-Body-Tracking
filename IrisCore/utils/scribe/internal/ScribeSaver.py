@@ -1,12 +1,14 @@
+from typing import Type
 from lxml import etree as ET
 
 from utils import Log
 from utils.scribe import IExposable, LoadSaveMode, Scribe, Scribe_Deep
+from utils.scribe.internal import ParseHelper
 
 
 class ScribeSaver:
 	
-	baseXmlTree: ET.ElementTree
+	baseXmlTree: ET.ElementBase
 	curXmlParent: ET.ElementBase
 	curPathRelToParent: str
 
@@ -48,12 +50,20 @@ class ScribeSaver:
 				self.ForceStop()
 				raise
 
-	def WriteElement(self, elementName: str, value: str) -> None:
+	def WriteElement[T](self, elementName: str, value: T, vType: Type[T]) -> None:
 		if self.curXmlParent is None:
 			Log.Error(Log.LogLevel.Error, "Called WriteElemenet(), but writer is null.")
 		else:
 			try:
-				ET.SubElement(self.curXmlParent, elementName).text = value
+				node: ET.ElementBase = ET.SubElement(self.curXmlParent, elementName)
+				o = ParseHelper.ToString(value, vType)
+				if isinstance(o, str):
+					node.text = o
+				else:
+					(text, attrs) = o
+					node.text = text
+					for (k, v) in attrs:
+						node.set(k, v)
 			except Exception as ex:
 				self.anyInternalException = True
 				raise

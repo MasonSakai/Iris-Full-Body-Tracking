@@ -11,7 +11,7 @@ def Look[T](value: T, label: str, vType: Type[T], defaultValue: T = None, forceS
 			if issubclass(vType, IExposable):
 				Log.Error(f"Using Scribe_Values with a IExposable reference {label}. Use Scribe_References or Scribe_Deep instead.");
 				return value
-			if (not forceSave) and (value is not None or defaultValue is None) and (value is None or value == defaultValue):
+			if (not forceSave) and (value is not None or defaultValue is None) and (value is None or value is defaultValue):
 				return value
 			if value is None:
 				if not Scribe.EnterNode(label):
@@ -21,7 +21,7 @@ def Look[T](value: T, label: str, vType: Type[T], defaultValue: T = None, forceS
 				finally:
 					Scribe.ExitNode();
 			else:
-				Scribe.saver.WriteElement(label, str(value))
+				Scribe.saver.WriteElement(label, value, vType)
 		case LoadSaveMode.LoadingVars:
-			value = ScribeExtractor.ValueFromNode(Scribe.loader.curXmlParent[label], vType, defaultValue);
+			value = ScribeExtractor.ValueFromNode(Scribe.loader.curXmlParent.find(label), vType, defaultValue);
 	return value
