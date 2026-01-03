@@ -53,7 +53,7 @@ class CrossRefHandler:
 		for referencingExposable in self.crossReferencingExposables:
 			if isinstance(referencingExposable, ILoadReferenceable):
 				Log.Message(Log.LogLevel.Verbose, f"RegisterLoaded {type(referencingExposable)}")
-				self.loadedObjectDirectory.RegisterLoaded(referencingExposable)
+				self.allObjectsByLoadID[referencingExposable.GetUniqueLoadID()] = referencingExposable
 		Log.Message(Log.LogLevel.Verbose, "==================Fill all cross-references to the saveables")
 		for referencingExposable in self.crossReferencingExposables:
 			Log.Message(Log.LogLevel.Verbose, f"ResolvingCrossRefs ExposeData {referencingExposable}")
@@ -73,5 +73,5 @@ class CrossRefHandler:
 			self.loadIDs.ConfirmClear()
 		else:
 			self.loadIDs.Clear()
-		self.crossReferencingExposables.Clear()
-		self.loadedObjectDirectory.Clear()
+		self.crossReferencingExposables.clear()
+		self.allObjectsByLoadID.clear()

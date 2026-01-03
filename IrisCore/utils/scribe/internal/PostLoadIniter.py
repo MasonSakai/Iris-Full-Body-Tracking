@@ -36,4 +36,4 @@ class PostLoadIniter:
 		Scribe.mode = LoadSaveMode.Inactive
 
 	def Clear(self) -> None:
-	   self.saveablesToPostLoad.Clear()
+	   self.saveablesToPostLoad.clear()

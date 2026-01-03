@@ -61,9 +61,9 @@ class Scribe:
 		match Scribe.mode:
 			case LoadSaveMode.Inactive:
 				return False
-			case Scribe.Saving:
+			case LoadSaveMode.Saving:
 				return Scribe.saver.EnterNode(nodeName)
-			case Scribe.LoadingVars | Scribe.ResolvingCrossRefs | Scribe.PostLoadInit:
+			case LoadSaveMode.LoadingVars | LoadSaveMode.ResolvingCrossRefs | LoadSaveMode.PostLoadInit:
 				return Scribe.loader.EnterNode(nodeName)
 			case _:
 			  return True
@@ -74,7 +74,7 @@ class Scribe:
 		match Scribe.mode:
 			case LoadSaveMode.Saving:
 				Scribe.saver.ExitNode()
-			case Scribe.LoadingVars | Scribe.ResolvingCrossRefs | Scribe.PostLoadInit:
+			case LoadSaveMode.LoadingVars | LoadSaveMode.ResolvingCrossRefs | LoadSaveMode.PostLoadInit:
 				Scribe.loader.ExitNode()
 			case _:
 				pass

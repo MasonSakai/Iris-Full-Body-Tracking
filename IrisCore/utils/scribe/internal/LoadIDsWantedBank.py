@@ -5,7 +5,7 @@ from typing import Type
 from utils import Log
 from utils.scribe import IExposable, Scribe
 
-
+@dataclass
 class LoadIDsWantedBank:
 	
 	idsRead: dict[tuple[IExposable, str], LoadIDsWantedBank.IdRecord] = field(init=False, default_factory=dict)

@@ -6,6 +6,7 @@ from utils.scribe import IExposable, LoadSaveMode, Scribe, Scribe_Deep
 
 class ScribeSaver:
 	
+	baseXmlTree: ET.ElementTree
 	curXmlParent: ET.ElementBase
 	curPathRelToParent: str
 
@@ -19,6 +20,7 @@ class ScribeSaver:
 		try:
 			Scribe.mode = LoadSaveMode.Saving
 			self.EnterNode(documentElementName)
+			self.baseXmlTree = ET.ElementTree(self.curXmlParent)
 		except Exception as ex:
 			Log.Error(Log.LogLevel.Critical, f"Exception while init saving\n{ex}")
 			self.ForceStop()
@@ -30,15 +32,15 @@ class ScribeSaver:
 		else:
 			if self.anyInternalException:
 				self.ForceStop();
-				raise Exception(Log.LogLevel.Critical, f"Can't finalize saving due to internal exception. The whole file would be most likely corrupted anyway. File path: {filePath}")
+				raise Exception(f"Can't finalize saving due to internal exception. The whole file would be most likely corrupted anyway. File path: {filePath}")
 			try:
 				self.ExitNode();
-				ET.ElementTree(self.curPathRelToParent).write(filePath, encoding="utf-8", xml_declaration=True, pretty_print=True)
+				self.baseXmlTree.write(filePath, encoding="utf-8", xml_declaration=True, pretty_print=True)
 
 				Scribe.mode = LoadSaveMode.Inactive;
 				self.savingForDebug = False
 				self.curXmlParent = None
-				self.curParent = None
+				self.baseXmlTree = None
 				self.curPathRelToParent = None
 				self.anyInternalException = False
 			except Exception as ex:
@@ -65,29 +67,6 @@ class ScribeSaver:
 			except Exception as ex:
 				self.anyInternalException = True
 				raise
-
-	# def DebugOutputFor(self, saveable: IExposable) -> str:
-	# 	if Scribe.mode != LoadSaveMode.Inactive:
-	# 		Log.Error(Log.LogLevel.Error, "DebugOutput needs current mode to be Inactive")
-	# 		return ""
-	# 	try:
-	# 		with StringWriter() as output:
-	# 			settings = XmlWriterSettings()
-	# 			settings.Indent = True
-	# 			settings.IndentChars = "  "
-	# 			settings.OmitXmlDeclaration = True
-	# 			try:
-	# 				with  XmlWriter.Create(output, settings) as self.writer:
-	# 					Scribe.mode = LoadSaveMode.Saving
-	# 					self.savingForDebug = True
-	# 					Scribe_Deep.Look(saveable, saveable.__qualname__, IExposable)
-	# 				return output.ToString()
-	# 			finally:
-	# 				self.ForceStop()
-	# 	except Exception as ex:
-	# 		Log.Error(Log.LogLevel.Error, f"Exception while getting debug output: {ex}")
-	# 		self.ForceStop()
-	# 		return ""
 		
 	def EnterNode(self, nodeName: str) -> bool:
 		try:
@@ -112,8 +91,8 @@ class ScribeSaver:
 
 	def ForceStop(self) -> None:
 		self.curXmlParent = None
-		self.curParent = None
 		self.curPathRelToParent = None
+		self.baseXmlTree = None
 		self.savingForDebug = False
 		self.anyInternalException = False
 		if Scribe.mode != LoadSaveMode.Saving:

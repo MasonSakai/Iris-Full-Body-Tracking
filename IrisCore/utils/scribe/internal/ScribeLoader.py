@@ -34,13 +34,13 @@ class ScribeLoader:
 			self.curXmlParent = tree.getroot()
 			Scribe.mode = LoadSaveMode.LoadingVars
 		except Exception as ex:
-			Log.Error(f"Exception while init loading file: {filePath}\n{str(ex)}")
+			Log.Error(Log.LogLevel.Critical, "Exception while init loading file: {filePath}\n{str(ex)}")
 			self.ForceStop()
 			raise
 
 	def FinalizeLoading(self) -> None:
 		if Scribe.mode != LoadSaveMode.LoadingVars:
-			Log.Error(f"Called FinalizeLoading() but current mode is {Scribe.mode.name}")
+			Log.Error(Log.LogLevel.Critical, f"Called FinalizeLoading() but current mode is {Scribe.mode.name}")
 		else:
 			try:
 				Scribe.ExitNode()
