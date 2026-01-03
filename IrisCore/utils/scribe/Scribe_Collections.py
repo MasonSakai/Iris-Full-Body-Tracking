@@ -39,14 +39,14 @@ def LookList[T](value: list[T], label: str, vType: Type[T], lookMode: LookMode, 
 					attribNull = curXmlParent.get("IsNull")
 					if attribNull is not None and attribNull.casefold() == 'true':
 						if lookMode == LookMode.Reference:
-							Scribe.loader.crossRefs.loadIDs.RegisterLoadIDListReadFromXml(None, None);
+							Scribe.loader.crossRefs.loadIDs.RegisterLoadIDListReadFromXml(None, None)
 						return None
 					match lookMode:
 						case LookMode.Value:
 							value = []
 							try:
 								for child in curXmlParent:
-									obj = ScribeExtractor.ValueFromNode(child, vType, vType());
+									obj = ScribeExtractor.ValueFromNode(child, vType, vType())
 									value.append(obj)
 								return value
 							finally:
@@ -55,7 +55,7 @@ def LookList[T](value: list[T], label: str, vType: Type[T], lookMode: LookMode, 
 							value = []
 							try:
 								for child in curXmlParent:
-									obj = ScribeExtractor.SaveableFromNode(child, vType, *args, **kwargs);
+									obj = ScribeExtractor.SaveableFromNode(child, vType, *args, **kwargs)
 									value.append(obj)
 								return value
 							finally:
@@ -64,7 +64,7 @@ def LookList[T](value: list[T], label: str, vType: Type[T], lookMode: LookMode, 
 							targetLoadIDList = []
 							for childNode in curXmlParent:
 								targetLoadIDList.append(childNode.InnerText)
-							Scribe.loader.crossRefs.loadIDs.RegisterLoadIDListReadFromXml(targetLoadIDList, "");
+							Scribe.loader.crossRefs.loadIDs.RegisterLoadIDListReadFromXml(targetLoadIDList, "")
 							return value
 				
 						case _:
@@ -72,7 +72,7 @@ def LookList[T](value: list[T], label: str, vType: Type[T], lookMode: LookMode, 
 				case LoadSaveMode.ResolvingCrossRefs:
 					match lookMode:
 						case LookMode.Reference:
-							value = Scribe.loader.crossRefs.TakeResolvedRefList("", vType);
+							value = Scribe.loader.crossRefs.TakeResolvedRefList("", vType)
 							return value
 						case _:
 							return value
@@ -82,7 +82,7 @@ def LookList[T](value: list[T], label: str, vType: Type[T], lookMode: LookMode, 
 		if Scribe.mode != LoadSaveMode.LoadingVars:
 			return value
 		if lookMode == LookMode.Reference:
-			Scribe.loader.crossRefs.loadIDs.RegisterLoadIDListReadFromXml(None, label);
+			Scribe.loader.crossRefs.loadIDs.RegisterLoadIDListReadFromXml(None, label)
 		value = None
 	return value
 

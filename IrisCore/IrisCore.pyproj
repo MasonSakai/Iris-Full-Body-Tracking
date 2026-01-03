@@ -48,6 +48,7 @@
     <Compile Include="tests\scribe\test_scribe_base.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\scribe\test_scribe_collections.py" />
     <Compile Include="tests\scribe\test_scribe_deep.py" />
     <Compile Include="tests\scribe\test_scribe_modes.py">
       <SubType>Code</SubType>
