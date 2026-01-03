@@ -42,6 +42,8 @@ class LoadIDsWantedBank:
 
 	def RegisterLoadIDReadFromXmlCurrent(self, targetLoadID: str, targetType: Type, toAppendToPathRelToParent: str) -> None:
 		pathRelToParent = Scribe.loader.curPathRelToParent
+		if pathRelToParent is None:
+			pathRelToParent = ''
 		if toAppendToPathRelToParent:
 			pathRelToParent += f"/{toAppendToPathRelToParent}"
 		self.RegisterLoadIDReadFromXml(targetLoadID, targetType, pathRelToParent, Scribe.loader.curParent)
@@ -59,11 +61,11 @@ class LoadIDsWantedBank:
 			pathRelToParent += f"/{toAppendToPathRelToParent}"
 		self.RegisterLoadIDListReadFromXmlList(targetLoadIDList, pathRelToParent, Scribe.loader.curParent);
 
-	def Take[T](self, pathRelToParent: str, parent: IExposable, pType: Type[T]) -> str:
+	def Take(self, pathRelToParent: str, parent: IExposable) -> str:
 		if idRecord := self.idsRead.get((parent, pathRelToParent)):
 			targetLoadId = idRecord.targetLoadID;
-			if pType != idRecord.targetType:
-				Log.Error(Log.LogLevel.Error, f"Trying to get load ID of object of type {pType}, but it was registered as {idRecord.targetType}. pathRelToParent={pathRelToParent}, parent={Log.ToStringSafe(parent, IExposable)}")
+			if type(parent) != idRecord.targetType:
+				Log.Error(Log.LogLevel.Error, f"Trying to get load ID of object of type {type(parent)}, but it was registered as {idRecord.targetType}. pathRelToParent={pathRelToParent}, parent={Log.ToStringSafe(parent, IExposable)}")
 			del self.idsRead[(parent, pathRelToParent)]
 			return targetLoadId
 		Log.Error(Log.LogLevel.Error, "Could not get load ID. We're asking for something which was never added during LoadingVars. pathRelToParent=" + pathRelToParent + ", parent=" + parent.ToStringSafe<IExposable>());

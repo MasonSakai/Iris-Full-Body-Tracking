@@ -1,3 +1,4 @@
+import traceback
 from lxml import etree as ET
 from typing import Type, TypeVar
 from utils import Log
@@ -30,10 +31,9 @@ def Look(target: T, label: str, vType: Type[T], *args, **kwargs) -> T:
 			Scribe.saver.loadIDsErrorsChecker.RegisterDeepSaved(target, label)
 		case LoadSaveMode.LoadingVars:
 			try:
-				#if isinstance(target, IDisposable):
-				#	target.Dispose()
+				del target
 				target = ScribeExtractor.SaveableFromNode(Scribe.loader.curXmlParent.find(label), vType, *args, **kwargs)
 			except Exception as ex:
-				Log.Error(Log.LogLevel.Critical, f"Exception while loading {Log.ToStringSafe(Scribe.loader.curXmlParent[label], ET.ElementBase)}: {ex}")
+				Log.Error(Log.LogLevel.Critical, f"Exception while loading {Log.ToStringSafe(Scribe.loader.curXmlParent.find(label), ET.ElementBase)}: {ex}\n{traceback.format_exc()}")
 				target = vType()
 	return target

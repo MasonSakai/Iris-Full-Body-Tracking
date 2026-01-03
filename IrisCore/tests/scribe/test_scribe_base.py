@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import unittest
 
+from utils.Log import LogLevel, LogSimple
 from utils.scribe import Scribe
 
 class test_scribe_base(unittest.TestCase):
@@ -11,9 +12,11 @@ class test_scribe_base(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
 
         Scribe.ForceStop()
+        LogSimple.FlushToStandardLog(LogLevel.Verbose)
 
     def tearDown(self):
         Scribe.ForceStop()
+        LogSimple.FlushToStandardLog(LogLevel.Off)
 
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 

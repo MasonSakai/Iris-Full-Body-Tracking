@@ -1,3 +1,4 @@
+import traceback
 from typing import Type
 import lxml.etree as ET
 
@@ -53,5 +54,5 @@ def SaveableFromNode[T](subNode: ET.ElementBase, vType: Type[T], *args, **kwargs
 			Scribe.loader.initer.RegisterForPostLoadInit(obj)
 			return obj
 		except Exception as ex:
-			Log.Error(Log.LogLevel.Critical, f"SaveableFromNode exception: {ex}\nSubnode:\n{ET.tostring(subNode)}")
+			Log.Error(Log.LogLevel.Critical, f"SaveableFromNode exception: {ex}\nSubnode:\n{ET.tostring(subNode)}\n{traceback.format_exc()}")
 			return None
