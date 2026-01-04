@@ -10,8 +10,8 @@ T = TypeVar('T_Expo', bound=IExposable)
 def Look(target: T, label: str, vType: Type[T], *args, **kwargs) -> T:
 	match Scribe.mode:
 		case LoadSaveMode.Saving:
-			if not isinstance(target, IExposable):
-				Log.Error(Log.LogLevel.Critical, f"Cannot use LookDeep to save non-IExposable non-null {label} of type {vType}")
+			if target and not isinstance(target, IExposable):
+				Log.Error(Log.LogLevel.Critical, f"Cannot use LookDeep to save non-IExposable non-null {label} of type {type(target)}")
 				return target
 			if target is None:
 				if Scribe.EnterNode(label):

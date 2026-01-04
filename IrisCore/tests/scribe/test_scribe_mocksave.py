@@ -86,7 +86,7 @@ class RootSave(IExposable):
 
 class test_scribe_mocksave(test_scribe_base):
 
-    def test_full_mock_save_load(self):
+    def test_1_full_mock_save_load(self):
         path = self.temp_path("full_mock_save.xml")
 
         # --- Construct object graph ---
@@ -145,6 +145,118 @@ class test_scribe_mocksave(test_scribe_base):
 
         # PostLoadInit logic ran
         self.assertTrue(loaded.nested.post_loaded)
+
+    def test_2_loadsession_single_file_equivalence(self):
+        path = self.temp_path("single_session.xml")
+
+        obj = RootSave()
+        obj.name = "Test"
+
+        # Save
+        Scribe.saver.InitSaving("root")
+        Scribe_Deep.Look(obj, "root", RootSave)
+        Scribe.saver.FinalizeSaving(path)
+
+        # Load via LoadSession
+        Scribe.loader.BeginLoadSession()
+        Scribe.loader.LoadFile(path)
+
+        loaded = None
+        loaded = Scribe_Deep.Look(loaded, "root", RootSave)
+
+        Scribe.loader.EndLoadSession()
+
+        self.assertEqual(loaded.name, "Test")
+
+    def test_3_loadsession_cross_file_references(self):
+        defs_path = self.temp_path("defs.xml")
+        refs_path = self.temp_path("refs.xml")
+
+        # --- File A: definitions ---
+        ref1 = RefThing("R1", 100)
+        ref2 = RefThing("R2", 200)
+
+        Scribe.saver.InitSaving("defs")
+        Scribe_Collections.LookList(
+            [ref1, ref2],
+            "allRefs",
+            RefThing,
+            Scribe_Collections.LookMode.Deep
+        )
+        Scribe.saver.FinalizeSaving(defs_path)
+
+        # --- File B: references ---
+        holder = NestedData()
+        holder.ref_map = {
+            "a": ref1,
+            "b": ref2,
+        }
+
+        Scribe.saver.InitSaving("refs")
+        Scribe_Deep.Look(holder, "holder", NestedData)
+        Scribe.saver.FinalizeSaving(refs_path)
+
+        # --- Load both ---
+        Scribe.loader.BeginLoadSession()
+
+        Scribe.loader.LoadFile(defs_path)
+
+        loaded_defs = Scribe_Collections.LookList(
+            None,
+            "allRefs",
+            RefThing,
+            Scribe_Collections.LookMode.Deep
+        )
+        
+        Scribe.loader.LoadFile(refs_path)
+
+        loaded_holder = None
+        loaded_holder = Scribe_Deep.Look(
+            loaded_holder, "holder", NestedData
+        )
+
+        Scribe.loader.EndLoadSession()
+
+        # --- Assertions ---
+        self.assertEqual(
+            loaded_holder.ref_map["a"].value, 100
+        )
+        self.assertEqual(
+            loaded_holder.ref_map["b"].value, 200
+        )
+
+    def test_4_loadsession_no_early_reference_resolution(self):
+        path = self.temp_path("early.xml")
+
+        ref = RefThing("R1", 42)
+        holder = NestedData()
+        holder.ref_map = {"x": ref}
+
+        # Save
+        Scribe.saver.InitSaving("root")
+        Scribe_Deep.Look(ref, "ref", RefThing)
+        Scribe_Deep.Look(holder, "holder", NestedData)
+        Scribe.saver.FinalizeSaving(path)
+
+        # Load
+        Scribe.loader.BeginLoadSession()
+        Scribe.loader.LoadFile(path)
+
+        loaded_ref = Scribe_Deep.Look(None, "ref", RefThing)
+
+        loaded_holder = None
+        loaded_holder = Scribe_Deep.Look(
+            loaded_holder, "holder", NestedData
+        )
+
+        # Still unresolved
+        self.assertIsNone(loaded_holder.ref_map["x"])
+
+        Scribe.loader.EndLoadSession()
+
+        # Now resolved
+        self.assertIsNotNone(loaded_holder.ref_map["x"])
+        self.assertEqual(loaded_holder.ref_map["x"].value, 42)
 
 
 
