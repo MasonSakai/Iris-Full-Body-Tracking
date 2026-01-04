@@ -85,7 +85,7 @@ class ScribeSaver:
 				self.anyInternalException = True
 				raise
 		
-	def EnterNode(self, nodeName: str) -> bool:
+	def EnterNode(self, nodeName: str | int) -> bool:
 		try:
 			if self.curXmlParent is None:
 				self.curXmlParent = ET.Element(nodeName)

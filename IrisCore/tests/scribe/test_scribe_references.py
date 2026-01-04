@@ -40,6 +40,20 @@ class RefListHolder(IExposable):
             Scribe_Collections.LookMode.Reference
         )
 
+class RefDictHolder(IExposable):
+    def __init__(self):
+        self.targets = {}
+
+    def ExposeData(self):
+        self.targets = Scribe_Collections.LookDict(
+            self.targets,
+            "targets",
+            str,
+            RefTarget,
+            Scribe_Collections.LookMode.Value,
+            Scribe_Collections.LookMode.Reference
+        )
+
 
 class test_scribe_references(test_scribe_base):
 
@@ -127,8 +141,6 @@ class test_scribe_references(test_scribe_base):
             "Target_1"
         )
 
-        Scribe.loader.FinalizeLoading()
-
     def test_05_reference_list_saves_ids(self):
         path = self.temp_path("ref_list_save.xml")
 
@@ -210,8 +222,6 @@ class test_scribe_references(test_scribe_base):
             ["A", "B"]
         )
 
-        Scribe.loader.FinalizeLoading()
-
     def test_08_reference_missing_target(self):
         path = self.temp_path("ref_missing_target.xml")
 
@@ -236,8 +246,6 @@ class test_scribe_references(test_scribe_base):
         LogSimple.FlushToStandardLog(LogLevel.Off)
 
         self.assertEqual(holder.targets, [None])
-
-        Scribe.loader.FinalizeLoading()
 
     def test_09_reference_empty_entry(self):
         path = self.temp_path("ref_empty.xml")
@@ -264,8 +272,6 @@ class test_scribe_references(test_scribe_base):
 
         self.assertEqual(holder.targets, [None])
 
-        Scribe.loader.FinalizeLoading()
-
     def test_10_reference_duplicate_ids(self):
         path = self.temp_path("ref_duplicates.xml")
 
@@ -288,7 +294,48 @@ class test_scribe_references(test_scribe_base):
 
         self.assertIs(loaded.targets[0], loaded.targets[1])
 
+    def test_11_lookdict_value_reference(self):
+        path = self.temp_path("dict_value_reference.xml")
+
+        t1 = RefTarget("A")
+        t2 = RefTarget("B")
+
+        holder = RefDictHolder()
+        holder.targets = {
+            "first": t1,
+            "second": t2,
+        }
+
+        # --- Save ---
+        Scribe.saver.InitSaving("root")
+        t1 = Scribe_Deep.Look(t1, 't1', RefTarget)
+        t2 = Scribe_Deep.Look(t2, 't2', RefTarget)
+        holder = Scribe_Deep.Look(holder, "holder", RefDictHolder)
+        Scribe.saver.FinalizeSaving(path)
+
+        # --- Load ---
+        Scribe.loader.InitLoading(path)
+
+        loaded = None
+        loaded = Scribe_Deep.Look(loaded, "holder", RefDictHolder)
+        
+        loaded_t1 = None
+        loaded_t2 = None
+        loaded_t1 = Scribe_Deep.Look(loaded_t1, 't1', RefTarget)
+        loaded_t2 = Scribe_Deep.Look(loaded_t2, 't2', RefTarget)
+
+        # During LoadingVars, references unresolved
+        self.assertIsNone(loaded.targets["first"])
+        self.assertIsNone(loaded.targets["second"])
+
         Scribe.loader.FinalizeLoading()
+        LogSimple.FlushToStandardLog(LogLevel.Off)
+
+        self.assertIsNotNone(loaded.targets["first"])
+        self.assertIsNotNone(loaded.targets["second"])
+        self.assertEqual(loaded.targets["first"], loaded_t1)
+        self.assertEqual(loaded.targets["second"], loaded_t2)
+
 
 
 if __name__ == '__main__':

@@ -29,7 +29,7 @@ class ContainerExposable(IExposable):
 
 class test_scribe_collections(test_scribe_base):
 
-    def test_1_looklist_value_saving(self):
+    def test_01_looklist_value_saving(self):
         path = self.temp_path("list_values.xml")
 
         values = [1, 2, 3]
@@ -50,7 +50,7 @@ class test_scribe_collections(test_scribe_base):
         self.assertEqual(len(elems), 3)
         self.assertEqual([e.text for e in elems], ["1", "2", "3"])
 
-    def test_2_looklist_value_loading(self):
+    def test_02_looklist_value_loading(self):
         path = self.temp_path("list_values_load.xml")
 
         with open(path, "w", encoding="utf-8") as f:
@@ -72,7 +72,7 @@ class test_scribe_collections(test_scribe_base):
 
         self.assertEqual(values, [4, 5])
 
-    def test_3_looklist_missing_node(self):
+    def test_03_looklist_missing_node(self):
         path = self.temp_dummy("list_missing.xml")
 
         Scribe.loader.InitLoading(path)
@@ -84,7 +84,7 @@ class test_scribe_collections(test_scribe_base):
 
         self.assertIsNone(values)
 
-    def test_4_looklist_deep_saving(self):
+    def test_04_looklist_deep_saving(self):
         path = self.temp_path("list_deep.xml")
 
         values = [SimpleExposable(1), SimpleExposable(2)]
@@ -107,7 +107,7 @@ class test_scribe_collections(test_scribe_base):
         self.assertEqual(items[0].find("x").text, "1")
         self.assertEqual(items[1].find("x").text, "2")
 
-    def test_5_looklist_deep_loading(self):
+    def test_05_looklist_deep_loading(self):
         path = self.temp_path("list_deep_load.xml")
 
         with open(path, "w", encoding="utf-8") as f:
@@ -131,7 +131,7 @@ class test_scribe_collections(test_scribe_base):
         self.assertEqual(values[0].x, 10)
         self.assertEqual(values[1].x, 20)
 
-    def test_6_collection_restores_parent(self):
+    def test_06_collection_restores_parent(self):
         path = self.temp_path("list_parent.xml")
 
         obj = ContainerExposable()
@@ -148,8 +148,7 @@ class test_scribe_collections(test_scribe_base):
         self.assertIsNotNone(container.find("after"))
         self.assertIsNone(container.find("items/after"))
 
-    @unittest.skip("LookDict not implemented yet")
-    def test_7_lookdict_value_value(self):
+    def test_07_lookdict_value_value(self):
         path = self.temp_path("dict_value_value.xml")
 
         data = {"a": 1, "b": 2}
@@ -172,8 +171,7 @@ class test_scribe_collections(test_scribe_base):
         self.assertIsNotNone(node)
         self.assertEqual(len(node.findall("li")), 2)
 
-    @unittest.skip("LookDict not implemented yet")
-    def test_8_lookdict_value_deep(self):
+    def test_08_lookdict_value_deep(self):
         path = self.temp_path("dict_value_deep.xml")
 
         data = {"one": SimpleExposable(1)}
@@ -196,8 +194,7 @@ class test_scribe_collections(test_scribe_base):
         self.assertIsNotNone(val)
         self.assertEqual(val.text, "1")
 
-    @unittest.skip("LookDict not implemented yet")
-    def test_9_lookdict_missing_node(self):
+    def test_09_lookdict_missing_node(self):
         path = self.temp_dummy("dict_missing.xml")
 
         Scribe.loader.InitLoading(path)
@@ -214,8 +211,106 @@ class test_scribe_collections(test_scribe_base):
 
         self.assertIsNone(data)
 
+    def test_10_lookdict_value_value_roundtrip(self):
+        path = self.temp_path("dict_value_value.xml")
 
+        original = {
+            "a": 1,
+            "b": 2,
+        }
 
+        # --- Save ---
+        Scribe.saver.InitSaving("root")
+        saved = Scribe_Collections.LookDict(
+            original,
+            "myDict",
+            str,
+            int,
+            Scribe_Collections.LookMode.Value,
+            Scribe_Collections.LookMode.Value
+        )
+        Scribe.saver.FinalizeSaving(path)
+
+        # --- Load ---
+        Scribe.loader.InitLoading(path)
+        loaded = None
+        loaded = Scribe_Collections.LookDict(
+            loaded,
+            "myDict",
+            str,
+            int,
+            Scribe_Collections.LookMode.Value,
+            Scribe_Collections.LookMode.Value
+        )
+        Scribe.loader.FinalizeLoading()
+
+        self.assertIsInstance(loaded, dict)
+        self.assertEqual(loaded, original)
+        self.assertIsNot(loaded, original)
+
+    def test_11_lookdict_none_roundtrip(self):
+        path = self.temp_path("dict_none.xml")
+
+        value = None
+
+        # --- Save ---
+        Scribe.saver.InitSaving("root")
+        value = Scribe_Collections.LookDict(
+            value,
+            "myDict",
+            str,
+            int,
+            Scribe_Collections.LookMode.Value,
+            Scribe_Collections.LookMode.Value
+        )
+        Scribe.saver.FinalizeSaving(path)
+
+        # --- Load ---
+        Scribe.loader.InitLoading(path)
+
+        loaded = {}
+        loaded = Scribe_Collections.LookDict(
+            loaded,
+            "myDict",
+            str,
+            int,
+            Scribe_Collections.LookMode.Value,
+            Scribe_Collections.LookMode.Value
+        )
+
+        Scribe.loader.FinalizeLoading()
+
+        self.assertIsNone(loaded)
+
+    def test_lookdict_non_value_key_mode_logs_and_continues(self):
+        path = self.temp_path("dict_bad_key_mode.xml")
+
+        data = {"a": 1}
+
+        Scribe.saver.InitSaving("root")
+        Scribe_Collections.LookDict(
+            data,
+            "myDict",
+            str,
+            int,
+            Scribe_Collections.LookMode.Reference,  # invalid
+            Scribe_Collections.LookMode.Value
+        )
+        Scribe.saver.FinalizeSaving(path)
+
+        Scribe.loader.InitLoading(path)
+        loaded = None
+        loaded = Scribe_Collections.LookDict(
+            loaded,
+            "myDict",
+            str,
+            int,
+            Scribe_Collections.LookMode.Reference,
+            Scribe_Collections.LookMode.Value
+        )
+        Scribe.loader.FinalizeLoading()
+
+        self.assertEqual(loaded, data)
 
 
 
