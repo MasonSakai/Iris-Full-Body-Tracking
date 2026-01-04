@@ -6,13 +6,15 @@ from typing import Generic, Iterable, Type, TypeVar
 
 from utils import Log
 from utils.registry import IThing
-from utils.scribe import IExposable, LoadSaveMode, Scribe, Scribe_Collections, Scribe_Values
 
 T = TypeVar('T_Thing', bound=IThing)
 
-class ThingDatabaseInternal(Generic[T], IExposable):
+class ThingDatabaseInternal(Generic[T]):
 	"""
-	Rimworld-style database for global storage of things of a specific type
+	ThingDatabaseInternal is a mutable, runtime-global registry.
+	- Name conflicts are allowed (last wins). [may have optional behavior later]
+	- Indices are not stable across mutations.
+	- SetIndices() is optional and caller-controlled.
 	"""
 	
 	__thingList: list[T] = []
@@ -22,15 +24,6 @@ class ThingDatabaseInternal(Generic[T], IExposable):
 	def __init__(self, t: T):
 		super().__init__()
 		self.__my_type = t
-
-	def ExposeData(self):
-		if Scribe.mode == LoadSaveMode.PostLoadInit:
-			for index in range(len(self.__thingList)):
-				thing = self.__thingList[index]
-				self.__thingsByName[thing.ThingName()] = thing
-				thing._index = index
-
-		self.__thingList = Scribe_Collections.LookList(self.__thingList, 'ThingList', self.__my_type, Scribe_Collections.LookMode.Deep)
 
 	def AllThings(self) -> Iterable[T]:
 		"""
@@ -48,9 +41,7 @@ class ThingDatabaseInternal(Generic[T], IExposable):
 	def ThingCount(self) -> int:
 		return len(self.__thingList)
 
-	#def AddAll
-
-	def Add(self, *things: T) -> None:
+	def Add(self, *things: T) -> None: #add conflict check?
 		for thing in things:
 			if not isinstance(thing, self.__my_type):
 				Log.Error(Log.LogLevel.Error, f"ThingDatabase failed to add {thing.ThingName()} because {type(thing)} is not {self.__my_type}")
@@ -62,7 +53,7 @@ class ThingDatabaseInternal(Generic[T], IExposable):
 	def Remove(self, *things: T) -> None:
 		for thing in things:
 			self.__thingList.remove(thing)
-			del self.__thingsByName[thing.ThingName]
+			del self.__thingsByName[thing.ThingName()]
 
 	def SetIndices(self) -> None:
 		for index in range(len(self.__thingList)):
@@ -82,4 +73,4 @@ class ThingDatabaseInternal(Generic[T], IExposable):
 		return self.__thingsByName[name]
 
 	def GetRandom(self) -> T:
-		return random.choice(self.__thingsByName)
+		return random.choice(self.__thingList)

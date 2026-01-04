@@ -45,6 +45,9 @@
     <Compile Include="app\dataproviders\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\registry\test_thing_db.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\scribe\test_scribe_base.py">
       <SubType>Code</SubType>
     </Compile>
@@ -175,6 +178,7 @@
     <Folder Include="app\dataprocessing\" />
     <Folder Include="app\dataproviders\" />
     <Folder Include="tests\" />
+    <Folder Include="tests\registry\" />
     <Folder Include="tests\scribe\" />
     <Folder Include="utils\debug\" />
     <Folder Include="utils\Log\" />
