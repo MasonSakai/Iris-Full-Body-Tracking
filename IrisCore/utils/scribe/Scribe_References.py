@@ -11,7 +11,7 @@ def Look(refee: T, label: str, vType: Type[T]) -> T:
 	match Scribe.mode:
 		case LoadSaveMode.Saving:
 			if refee is None:
-				Scribe.saver.WriteElement(label, "null")
+				Scribe.saver.WriteElement(label, "null", str)
 				return refee
 			uniqueLoadId = refee.GetUniqueLoadID()
 			Scribe.saver.WriteElement(label, uniqueLoadId, str);

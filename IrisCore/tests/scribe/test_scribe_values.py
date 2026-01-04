@@ -1,5 +1,7 @@
-﻿import unittest
+﻿from enum import Enum
+import unittest
 
+from lxml import etree as ET
 import numpy as np
 
 from tests.scribe.test_scribe_base import test_scribe_base
@@ -9,9 +11,13 @@ from utils.scribe import Scribe, Scribe_Values
 
 #DebugViewSettings.logLoadLevel = LogLevel.Critical
 
+class TestEnum(Enum):
+    A = 1
+    B = 2
+
 class test_scribe_values(test_scribe_base):
 
-    def test_1_saving_and_loading_int(self):
+    def test_01_saving_and_loading_int(self):
         path = self.temp_path('dummy.xml')
 
         # --- Saving ---
@@ -35,7 +41,7 @@ class test_scribe_values(test_scribe_base):
         Scribe.loader.FinalizeLoading()
         self.assertEqual(loaded_value, 42)
 
-    def test_2_default_value_handling(self):
+    def test_02_default_value_handling(self):
         path = self.temp_path('dummy.xml')
 
         # Should not write default unless forceSave=True
@@ -61,7 +67,7 @@ class test_scribe_values(test_scribe_base):
 
         Scribe.saver.FinalizeSaving(path)
 
-    def test_3_loading_missing_and_invalid(self):
+    def test_03_loading_missing_and_invalid(self):
         # Missing node → returns default
         xml_missing = "<root />"
         Scribe.loader.InitLoadingFromString(xml_missing)
@@ -78,7 +84,7 @@ class test_scribe_values(test_scribe_base):
         Scribe.loader.FinalizeLoading()
         self.assertEqual(val, 7)
 
-    def test_4_string_newline_handling(self):
+    def test_04_string_newline_handling(self):
         path = self.temp_path('dummy.xml')
 
         Scribe.saver.InitSaving("root")
@@ -100,7 +106,7 @@ class test_scribe_values(test_scribe_base):
         Scribe.loader.FinalizeLoading()
         self.assertEqual(loaded_value, "line1\nline2")
 
-    def test_5_type_serialization(self):
+    def test_05_type_serialization(self):
         path = self.temp_path('dummy.xml')
 
         Scribe.saver.InitSaving("root")
@@ -125,7 +131,7 @@ class test_scribe_values(test_scribe_base):
     class Test6DummyClass:
         pass
 
-    def test_6_type_complex(self):
+    def test_06_type_complex(self):
         path = self.temp_path('dummy.xml')
 
         Scribe.saver.InitSaving("root")
@@ -147,7 +153,7 @@ class test_scribe_values(test_scribe_base):
         Scribe.loader.FinalizeLoading()
         self.assertIs(loaded_value, test_scribe_values.Test6DummyClass)
 
-    def test_7_numpy_array_serialization(self):
+    def test_07_numpy_array_serialization(self):
         path = self.temp_path('dummy.xml')
 
         Scribe.saver.InitSaving("root")
@@ -160,7 +166,7 @@ class test_scribe_values(test_scribe_base):
         # Typically saved as CSV string
         self.assertIsNotNone(node.text)
         self.assertEqual(node.get('dtype'), 'numpy.dtypes:Int64DType')
-        self.assertEqual(node.get('shape'), '(2, 2)')
+        self.assertEqual(node.get('shape'), '2, 2')
         
         Scribe.saver.FinalizeSaving(path)
 
@@ -170,6 +176,68 @@ class test_scribe_values(test_scribe_base):
         loaded_value = Scribe_Values.Look(loaded_value, "myArray", np.ndarray, defaultValue=None)
         Scribe.loader.FinalizeLoading()
         np.testing.assert_array_equal(loaded_value, np.array([[1, 2], [3, 4]]))
+
+    def test_08_enum_saving(self):
+        path = self.temp_path("enum_save.xml")
+
+        value = TestEnum.B
+
+        Scribe.saver.InitSaving("root")
+        value = Scribe_Values.Look(
+            value, "enumVal", TestEnum, defaultValue=TestEnum.A
+        )
+        Scribe.saver.FinalizeSaving(path)
+
+        tree = ET.parse(path)
+        root = tree.getroot()
+
+        node = root.find("enumVal")
+        self.assertIsNotNone(node)
+        self.assertEqual(node.text, "B")
+
+    def test_09_enum_loading(self):
+        path = self.temp_path("enum_load.xml")
+
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("""
+            <root>
+                <enumVal>B</enumVal>
+            </root>
+            """)
+
+        Scribe.loader.InitLoading(path)
+
+        value = TestEnum.A
+        value = Scribe_Values.Look(
+            value, "enumVal", TestEnum, defaultValue=TestEnum.A
+        )
+
+        Scribe.loader.FinalizeLoading()
+
+        self.assertEqual(value, TestEnum.B)
+
+    def test_10_enum_invalid_returns_default(self):
+        path = self.temp_path("enum_invalid.xml")
+
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("""
+            <root>
+                <enumVal>INVALID</enumVal>
+            </root>
+            """)
+
+        Scribe.loader.InitLoading(path)
+
+        value = TestEnum.B
+        value = Scribe_Values.Look(
+            value, "enumVal", TestEnum, defaultValue=TestEnum.A
+        )
+
+        Scribe.loader.FinalizeLoading()
+
+        self.assertEqual(value, TestEnum.A)
+
+
 
 if __name__ == '__main__':
     unittest.main()
