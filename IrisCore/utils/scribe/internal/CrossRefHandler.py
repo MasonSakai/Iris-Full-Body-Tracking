@@ -90,20 +90,40 @@ class CrossRefHandler:
 	@overload
 	def TakeResolvedRef[T](self, toAppendToPathRelToParent: str) -> T: ...
 	def TakeResolvedRef[T](self, path: str, parent: IExposable = None) -> T:
-		if parent is not None:
-			loadID = self.loadIDs.Take(path, parent)
-			if loadID in self.allObjectsByLoadID:
-				return self.allObjectsByLoadID[loadID]
-			else:
-				Log.Warning(Log.LogLevel.Critical, f"Could not resolve reference to object with loadID {loadID} of type {type(parent)}. Was it compressed away, destroyed, had no ID number, or not saved/loaded right? curParent={Log.ToStringSafe(Scribe.loader.curParent, IExposable)} curPathRelToParent={Scribe.loader.curPathRelToParent}")
-				return None
+		if parent is None:
+			pathRelToParent = Scribe.loader.curPathRelToParent or ''
+			if path:
+				pathRelToParent += f"/{path}"
+				path = pathRelToParent
+				parent = Scribe.loader.curParent
 
-		pathRelToParent = Scribe.loader.curPathRelToParent
-		if pathRelToParent is None:
-			pathRelToParent = ''
-		if path:
-			pathRelToParent += f"/{path}"
-		return self.TakeResolvedRef(pathRelToParent, Scribe.loader.curParent)
+		loadID = self.loadIDs.Take(path, parent)
+		if loadID in self.allObjectsByLoadID:
+			return self.allObjectsByLoadID[loadID]
+		else:
+			Log.Warning(Log.LogLevel.Critical, f"Could not resolve reference to object with loadID {loadID} of type {type(parent)}. Was it compressed away, destroyed, had no ID number, or not saved/loaded right? curParent={Log.ToStringSafe(Scribe.loader.curParent, IExposable)} curPathRelToParent={Scribe.loader.curPathRelToParent}")
+			return None
+
+
+	
+	@overload
+	def TakeResolvedRefList[T](self, pathRelToParent: str, parent: IExposable) -> list[T]: ...
+	@overload
+	def TakeResolvedRefList[T](self, toAppendToPathRelToParent: str) -> list[T]: ...
+	def TakeResolvedRefList[T](self, path: str, parent: IExposable = None) -> list[T]:
+		if parent is None:
+			pathRelToParent = Scribe.loader.curPathRelToParent or ''
+			if path:
+				pathRelToParent += f"/{path}"
+			path = pathRelToParent
+			parent = Scribe.loader.curParent
+
+		id_list: list[str] = self.loadIDs.TakeList(path, parent)
+		resolvedRefList: list[T] = []
+		if id_list is not None:
+			for id in id_list:
+				resolvedRefList.append(self.allObjectsByLoadID.get(id))
+		return resolvedRefList
 
 	def Clear(self, errorIfNotEmpty: bool) -> None:
 		if errorIfNotEmpty:

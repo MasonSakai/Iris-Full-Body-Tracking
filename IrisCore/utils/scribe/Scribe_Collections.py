@@ -63,7 +63,7 @@ def LookList[T](value: list[T], label: str, vType: Type[T], lookMode: LookMode, 
 						case LookMode.Reference:
 							targetLoadIDList = []
 							for childNode in curXmlParent:
-								targetLoadIDList.append(childNode.InnerText)
+								targetLoadIDList.append(childNode.text)
 							Scribe.loader.crossRefs.loadIDs.RegisterLoadIDListReadFromXml(targetLoadIDList, "")
 							return value
 				
@@ -72,7 +72,7 @@ def LookList[T](value: list[T], label: str, vType: Type[T], lookMode: LookMode, 
 				case LoadSaveMode.ResolvingCrossRefs:
 					match lookMode:
 						case LookMode.Reference:
-							value = Scribe.loader.crossRefs.TakeResolvedRefList("", vType)
+							value = Scribe.loader.crossRefs.TakeResolvedRefList("")
 							return value
 						case _:
 							return value

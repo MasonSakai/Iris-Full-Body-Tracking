@@ -74,7 +74,7 @@ class ScribeLoader:
 				self.initer.DoAllPostLoadInits()
 				#DeepProfiler.End()
 			except Exception as ex:
-				Log.Error(f"Exception in FinalizeLoading(): {str(ex)}")
+				Log.Error(Log.LogLevel.Critical, f"Exception in FinalizeLoading(): {ex}")
 				self.ForceStop()
 				raise
 
@@ -86,6 +86,8 @@ class ScribeLoader:
 			if childNode is None:
 				return False
 			self.curXmlParent = childNode
+		if self.curPathRelToParent is None:
+			self.curPathRelToParent = ''
 		self.curPathRelToParent += '/' + nodeName
 		return True
 
