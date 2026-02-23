@@ -1,0 +1,24 @@
+
+Calibration (images or live)
+local AI
+apriltag editor proper
+
+logger
+	registered per-module w/ module name
+	log level
+	extra tags
+	saved locally AND can be seen live on site (remote saving and downloading)
+
+Introduction w/ flask session
+	goes through full setup
+	can handle fresh start and some things already setup (but confirms settings are correct)
+	handles local, stream, and in-site
+	needs to handle multi-device where applicable
+	handle other modules? (vr, other trackers)
+
+User data gathering?
+	gauge effectiveness and weaknesses of systems
+	records setup, hardware & performance, pose data from AI (and other inputs), and final output
+	all data opt-in and configurable; constant or bad tracking only
+	needs central server of some kind, good for crash logs too
+	if used offline, hold sessions until online

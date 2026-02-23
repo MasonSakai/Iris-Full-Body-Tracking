@@ -157,6 +157,7 @@
     <Content Include="app\main\templates\base.html" />
     <Content Include="app\main\templates\bootstrap_wtf.html" />
     <Content Include="app\main\templates\_popup.html" />
+    <Content Include="featureNotes_tmp.txt" />
     <Content Include="modules\CameraWebsite\templates\_cam_box.html" />
     <Content Include="modules\CameraWebsite\templates\camsite.html" />
     <Content Include="modules\CameraWebsite\static\css\camsite.css" />
@@ -164,6 +165,7 @@
     <Content Include="modules\CameraWebsite\static\js\camsite.js" />
     <Content Include="app\main\static\img\c8753add5bdefd40f3846900900fb75f.jpg" />
     <Content Include="requirements.txt" />
+    <Content Include="ModuleDocs.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\" />

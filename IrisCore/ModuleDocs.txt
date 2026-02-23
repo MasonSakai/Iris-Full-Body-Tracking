@@ -1,0 +1,57 @@
+
+
+Modules:
+	
+	ModInfo.xml:
+		required to be seen as module
+
+		display data (name, description, ID, etc)
+		Dependencies (ID, maybe multiple acceptable IDs for single "dep")
+		Load Order Rules (LoadBefore, LoadAfter, Incompatible)
+		Substitutions (can satisfy dependencies in place of, does not load in place of)
+			check feasability
+			declare modules (self and subs) under first-come-first-served (with priority) IDs
+			imports use getModule("modID")
+
+	__init__.py:
+		holds all module related API calls
+		will only be initilized if called upon
+
+		Module Class Type-hint:
+			RegisterDefTypes(self) -> None
+			LoadData(self) -> None
+			SaveData(self) -> None
+			RegisterFlask(self) -> None
+
+
+Startup Map:
+	Init loadedModules from mod list:
+		does not attempt to modify list
+		will not check dependencies or load order
+
+	Load Defs:
+		For module in loadedModules:
+			RegisterDefTypes (RegisterDefType("xmlTag", tDef, silentFailure))
+			Apply Patches
+			Collect names and organize load order (inheritence)
+			Resolve new defs
+
+		Patches:
+			based on rimworld
+			target path
+			operation type
+			new data
+			not retroactive to inherited classes
+
+		Def Resolution:
+			Copy parent (if applicable, assume parent is resolved)
+			Update data from file
+
+	RegisterFlask:
+		Handles blueprints
+		homepage cards as defs?
+
+	Load SaveData:
+		Start Scribe
+		Load files from loadedModules
+		Finalize Scribe
