@@ -141,8 +141,8 @@ class test_scribe_values(test_scribe_base):
         root_elem = Scribe.saver.baseXmlTree.getroot()
         node = root_elem.find("myType")
         self.assertIsNotNone(node)
-        # Example: saved as "test_scribe_values:test_scribe_values.Test6DummyClass"
-        self.assertEqual(node.text, "test_scribe_values:test_scribe_values.Test6DummyClass")
+        # Example: saved as "scribe.test_scribe_values:test_scribe_values.Test6DummyClass"
+        self.assertEqual(node.text, "scribe.test_scribe_values:test_scribe_values.Test6DummyClass")
         
         Scribe.saver.FinalizeSaving(path)
 

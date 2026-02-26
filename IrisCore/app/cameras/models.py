@@ -8,6 +8,7 @@ import numpy as np
 
 from app.dataproviders import IDataSource
 from app.synchronize import source_registry_lock
+from utils.defs import RegisterDefType, ThingDef
 from utils.registry import CreateThingDatabase, IThing, ThingDatabase
 from utils.scribe import  IExposable, ILoadReferenceable, LoadSaveMode, Scribe, Scribe_Values, Scribe_Collections
 
@@ -194,3 +195,8 @@ class CVUndistortableCamera(Camera):
 			data = np.array(data)
 
 		return np.squeeze(cv.undistortPoints(data, camera_matrix, dist_coeffs))
+
+class CameraDef(ThingDef):
+	pass
+
+RegisterDefType("CameraDef", CameraDef)

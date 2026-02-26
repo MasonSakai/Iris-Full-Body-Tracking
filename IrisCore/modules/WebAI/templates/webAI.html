@@ -2,7 +2,7 @@
 
 {% block stylesheets %}
 {{ super() }}
-<link rel="stylesheet" href="{{ url_for('CameraWebsite.static', filename='css/camsite.css') }}">
+<link rel="stylesheet" href="{{ url_for('WebAI.static', filename='css/camsite.css') }}">
 {% endblock %}
 
 {% block navbar %}
@@ -75,5 +75,5 @@
 	<option>0.3</option>
 </datalist>
 
-<script src="{{ url_for('CameraWebsite.static', filename='js/camsite.js') }}"></script>
+<script src="{{ url_for('WebAI.static', filename='js/camsite.js') }}"></script>
 {% endblock %}

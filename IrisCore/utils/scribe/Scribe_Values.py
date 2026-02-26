@@ -1,8 +1,8 @@
 
 from typing import Callable, Type
-from utils import Log
+from utils import Log, ParseHelper
 from utils.scribe import IExposable, Scribe, LoadSaveMode
-from utils.scribe.internal import ParseHelper, ScribeExtractor
+from utils.scribe.internal import ScribeExtractor
 
 
 def Look[T](value: T, label: str, vType: Type[T], defaultValue: T = None, forceSave: bool = False) -> T:

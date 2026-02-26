@@ -10,7 +10,7 @@ from utils.scribe import LoadSaveMode, Scribe, Scribe_Values
 from app.synchronize import source_registry_lock
 from app.apriltag.calibration import CalculateCameraPose
 
-class WebsiteCameraReference(CameraReference):
+class WebAICameraReference(CameraReference):
 
 	parent: CVUndistortableCamera
 
@@ -28,7 +28,7 @@ class WebsiteCameraReference(CameraReference):
 		super().ExposeData()
 		self.confidence_threshold = Scribe_Values.Look(self.confidence_threshold, 'ConfidenceThreshold', int)
 		if Scribe.mode == LoadSaveMode.LoadingVars:
-			ThingDatabase(WebsiteCameraReference).Add(self)
+			ThingDatabase(WebAICameraReference).Add(self)
 
 	def RequestStart(self, *args, **kwargs) -> bool:
 		self.socket_sid = kwargs['sid']
@@ -116,4 +116,4 @@ class WebsiteCameraReference(CameraReference):
 		}
 
 
-CreateThingDatabase(WebsiteCameraReference)
+CreateThingDatabase(WebAICameraReference)

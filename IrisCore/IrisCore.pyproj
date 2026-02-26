@@ -45,6 +45,7 @@
     <Compile Include="tests\registry\test_thing_db.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\registry\__init__.py" />
     <Compile Include="tests\scribe\test_scribe_base.py">
       <SubType>Code</SubType>
     </Compile>
@@ -59,6 +60,8 @@
     <Compile Include="tests\scribe\test_scribe_values.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\scribe\__init__.py" />
+    <Compile Include="tests\__init__.py" />
     <Compile Include="utils\debug\DebugViewSettings.py" />
     <Compile Include="utils\debug\__init__.py">
       <SubType>Code</SubType>
@@ -86,7 +89,7 @@
     <Compile Include="utils\scribe\internal\CrossRefHandler.py" />
     <Compile Include="utils\scribe\internal\DebugLoadIDsSavingErrorsChecker.py" />
     <Compile Include="utils\scribe\internal\LoadIDsWantedBank.py" />
-    <Compile Include="utils\scribe\internal\ParseHelper.py" />
+    <Compile Include="utils\ParseHelper.py" />
     <Compile Include="utils\scribe\internal\PostLoadIniter.py" />
     <Compile Include="utils\scribe\internal\ScribeExtractor.py" />
     <Compile Include="utils\scribe\internal\ScribeSaver.py" />
@@ -101,11 +104,11 @@
     <Compile Include="utils\scribe\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="modules\CameraWebsite\CamWebModule.py" />
-    <Compile Include="modules\CameraWebsite\CamWebSocket.py" />
-    <Compile Include="modules\CameraWebsite\models.py" />
-    <Compile Include="modules\CameraWebsite\routes.py" />
-    <Compile Include="modules\CameraWebsite\__init__.py">
+    <Compile Include="modules\WebAI\WebAIModule.py" />
+    <Compile Include="modules\WebAI\WebAISocket.py" />
+    <Compile Include="modules\WebAI\models.py" />
+    <Compile Include="modules\WebAI\routes.py" />
+    <Compile Include="modules\WebAI\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\synchronize.py" />
@@ -154,13 +157,14 @@
     <Content Include="app\main\static\img\github-mark.png" />
     <Content Include="app\main\templates\base.html" />
     <Content Include="app\main\templates\bootstrap_wtf.html" />
+    <Content Include="app\main\templates\index.html" />
     <Content Include="app\main\templates\_popup.html" />
     <Content Include="featureNotes_tmp.txt" />
-    <Content Include="modules\CameraWebsite\templates\_cam_box.html" />
-    <Content Include="modules\CameraWebsite\templates\camsite.html" />
-    <Content Include="modules\CameraWebsite\static\css\camsite.css" />
-    <Content Include="modules\CameraWebsite\static\js\CameraWorker.js" />
-    <Content Include="modules\CameraWebsite\static\js\camsite.js" />
+    <Content Include="modules\WebAI\templates\_cam_box.html" />
+    <Content Include="modules\WebAI\templates\webAI.html" />
+    <Content Include="modules\WebAI\static\css\camsite.css" />
+    <Content Include="modules\WebAI\static\js\CameraWorker.js" />
+    <Content Include="modules\WebAI\static\js\camsite.js" />
     <Content Include="app\main\static\img\c8753add5bdefd40f3846900900fb75f.jpg" />
     <Content Include="requirements.txt" />
     <Content Include="ModuleDocs.txt" />
@@ -173,6 +177,7 @@
     <Folder Include="app\apriltag\static\pdf\" />
     <Folder Include="app\apriltag\templates\" />
     <Folder Include="app\cameras\" />
+    <Folder Include="app\cameras\defs\" />
     <Folder Include="app\cameras\templates\" />
     <Folder Include="app\cameras\static\" />
     <Folder Include="app\dataprocessing\" />
@@ -181,6 +186,7 @@
     <Folder Include="tests\registry\" />
     <Folder Include="tests\scribe\" />
     <Folder Include="utils\debug\" />
+    <Folder Include="utils\defs\" />
     <Folder Include="utils\Log\" />
     <Folder Include="app\main\" />
     <Folder Include="app\main\templates\" />
@@ -189,11 +195,11 @@
     <Folder Include="utils\registry\" />
     <Folder Include="utils\scribe\" />
     <Folder Include="utils\scribe\internal\" />
-    <Folder Include="modules\CameraWebsite\" />
-    <Folder Include="modules\CameraWebsite\templates\" />
-    <Folder Include="modules\CameraWebsite\static\" />
-    <Folder Include="modules\CameraWebsite\static\css\" />
-    <Folder Include="modules\CameraWebsite\static\js\" />
+    <Folder Include="modules\WebAI\" />
+    <Folder Include="modules\WebAI\templates\" />
+    <Folder Include="modules\WebAI\static\" />
+    <Folder Include="modules\WebAI\static\css\" />
+    <Folder Include="modules\WebAI\static\js\" />
     <Folder Include="app\main\static\" />
     <Folder Include="app\main\static\css\" />
     <Folder Include="app\main\static\js\" />

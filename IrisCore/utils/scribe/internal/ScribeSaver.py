@@ -2,8 +2,8 @@ from typing import Type
 from lxml import etree as ET
 
 from utils import Log
-from utils.scribe import IExposable, LoadSaveMode, Scribe, Scribe_Deep
-from utils.scribe.internal import ParseHelper
+from utils.scribe import LoadSaveMode, Scribe
+from utils import ParseHelper
 from utils.scribe.internal.DebugLoadIDsSavingErrorsChecker import DebugLoadIDsSavingErrorsChecker
 
 

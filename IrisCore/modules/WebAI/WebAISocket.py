@@ -1,11 +1,10 @@
 from app import socketio
 from flask import request
-from CameraWebsite.models import WebsiteCameraReference
 from flask_socketio import disconnect
-from modules.CameraWebsite.models import WebsiteCameraReference
+from modules.WebAI.models import WebAICameraReference
 from utils.registry import ThingDatabase
 
-sockets: dict[str, WebsiteCameraReference] = {}
+sockets: dict[str, WebAICameraReference] = {}
 
 @socketio.on('connect', namespace='/camsite')
 def on_connect(auth):
@@ -17,7 +16,7 @@ def on_connect(auth):
 		else:
 			raise ConnectionRefusedError('Camera already taken')
 
-	ref = ThingDatabase(WebsiteCameraReference).GetNamed(auth['name'])
+	ref = ThingDatabase(WebAICameraReference).GetNamed(auth['name'])
 	ref.RequestStart(sid=request.sid)
 	sockets[request.sid] = ref
 

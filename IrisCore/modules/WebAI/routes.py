@@ -1,15 +1,15 @@
 from flask import request, render_template, flash, redirect, url_for, jsonify, request, abort
 
-from CameraWebsite.models import WebsiteCameraReference
-from CameraWebsite import cam_web_blueprint as bp_cam
-from CamWebSocket import sockets
+from WebAI.models import WebAICameraReference
+from WebAI import cam_web_blueprint as bp_cam
+from WebAISocket import sockets
 from app.cameras.models import Camera, CameraReference
 from utils.registry import ThingDatabase
 
 
 @bp_cam.route('/')
 def index():
-	return render_template('camsite.html', title='Remote Camera Process')
+	return render_template('webAI.html', title='Web AI Camera')
 
 
 
@@ -18,7 +18,7 @@ def get_cameras():
 	data = []
 	cameraRefs = ThingDatabase(CameraReference).AllThingsListForReading()
 	for ref in cameraRefs:
-		if isinstance(ref, WebsiteCameraReference):
+		if isinstance(ref, WebAICameraReference):
 			data.append(ref.getConfig())
 		
 	return jsonify(data)
@@ -50,7 +50,7 @@ def on_image(id):
 @bp_cam.route('/cameras/new', methods=['POST'])
 def new_camera():
 	config = request.get_json()
-	camera = WebsiteCameraReference(config)
+	camera = WebAICameraReference(config)
 	db.session.add(camera)
 	db.session.commit()
 	return jsonify(camera.getConfig())

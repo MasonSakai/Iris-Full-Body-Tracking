@@ -4,7 +4,7 @@ import lxml.etree as ET
 
 from utils import Log
 from utils.scribe import LoadSaveMode, Scribe
-from utils.scribe.internal import ParseHelper
+from utils import ParseHelper
 
 
 def ValueFromNode[T](subNode: ET.ElementBase, vType: Type[T], defaultValue: T) -> T:

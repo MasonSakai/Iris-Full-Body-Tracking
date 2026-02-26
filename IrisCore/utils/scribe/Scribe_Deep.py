@@ -1,9 +1,9 @@
 import traceback
 from lxml import etree as ET
 from typing import Type, TypeVar
-from utils import Log
+from utils import Log, ParseHelper
 from utils.scribe import IExposable, LoadSaveMode, Scribe
-from utils.scribe.internal import ParseHelper, ScribeExtractor
+from utils.scribe.internal import ScribeExtractor
 
 T = TypeVar('T_Expo', bound=IExposable)
 

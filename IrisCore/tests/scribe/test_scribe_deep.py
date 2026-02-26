@@ -85,7 +85,7 @@ class test_scribe_deep(test_scribe_base):
 
         attrib = my_obj_node.get("class")
         self.assertIsNotNone(attrib)
-        self.assertEqual(attrib, 'test_scribe_deep:SimpleExposable')
+        self.assertEqual(attrib, 'scribe.test_scribe_deep:SimpleExposable')
 
 
         # --- Load ---
