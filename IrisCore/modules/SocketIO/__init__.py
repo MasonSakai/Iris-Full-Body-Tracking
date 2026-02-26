@@ -1,7 +1,7 @@
 from flask import request
 from app import Config, socketio
-from app.IrisModules import IrisModule
-from app.main.math_worker import math_worker
+from utils.modulemanager.IrisModules import IrisModule
+# from app.main.math_worker import math_worker
 import numpy as np
 
 
@@ -21,7 +21,7 @@ def publisher(pose: dict[str, np.array]):
     for ident, p in pose.items():
         data[ident] = p.tolist()
     socketio.emit('pose', data, namespace='/sioModule')
-math_worker.publishers.append(publisher)
+# math_worker.publishers.append(publisher)
 
 
 @socketio.on('connect', namespace='/sioModule')

@@ -3,11 +3,12 @@ from pupil_apriltags import Detection, Detector
 import numpy as np
 import cv2 as cv
 
+from utils.registry import ThingDatabase
 from app import socketio
 from app.apriltag import apriltag_blueprint as bp_aptg, found_tags, seen_tags
 from app.apriltag.models import AprilTag
 from app.cameras.models import Camera
-from app.main.math_worker import math_worker
+# from app.main.math_worker import math_worker
 
 def det_to_mat(det: Detection):
     mat = np.identity(4)
@@ -61,24 +62,18 @@ def update_from(src: Camera | AprilTag):
 def update_global(mat: np.array):
     def update(src: AprilTag | Camera):
         trans = src.get_transform()
-        if (trans.size > 0):
+        if trans:
             src.set_transform(np.linalg.matmul(mat, trans))
 
-    for src in db.session.scalars(sqla.select(AprilTag)).all(): update(src)
-    for src in db.session.scalars(sqla.select(Camera)).all(): update(src)
+    for src in ThingDatabase(AprilTag).AllThings(): update(src)
+    for src in ThingDatabase(Camera).AllThings(): update(src)
 
-    db.session.commit()
     get_tags()
     get_found_tags()
     get_cams()
         
 def get_by_ident(ident) -> Camera | AprilTag:
-    if isinstance(ident, str):
-        [family, tag_id] = ident.split(':')
-        tag_id = int(tag_id)
-        return db.session.scalar(sqla.select(AprilTag).where(AprilTag.tag_family == family).where(AprilTag.tag_id == tag_id))
-    else:
-        return db.session.get(Camera, ident)
+    return ThingDatabase(AprilTag).GetByULID(ident) or ThingDatabase(Camera).GetByULID(ident)
 
 @socketio.on('set-position', namespace='/apriltag') #0 1.334 -1.60
 def set_position(ident, pos, upd_glob):
@@ -101,7 +96,7 @@ def set_position(ident, pos, upd_glob):
         
 @socketio.on('set-position-axis', namespace='/apriltag')
 def set_position(ident, axis_index, pos, upd_glob):
-    if (pos == None): return
+    if pos is None: return
     src = get_by_ident(ident)
     
     trans: np.array[float] = src.get_transform()
@@ -122,18 +117,18 @@ def set_position(ident, axis_index, pos, upd_glob):
 
 @socketio.on('tags', namespace='/apriltag')
 def get_tags(sid = None):
-    db_tags = db.session.scalars(sqla.select(AprilTag)).all()
+    db_tags = ThingDatabase(AprilTag)
 
     tags = []
-    for tag in db_tags:
+    for tag in db_tags.AllThings():
         data = []
-        if tag.id in seen_tags:
-            for i in seen_tags[tag.id]:
-                data.append(i)
+        if tag in seen_tags:
+            for i in seen_tags[tag]:
+                data.append(i.GetUniqueLoadID())
         tags.append({
             'tag':
             {
-                'id': tag.id,
+                'id': tag.GetUniqueLoadID(),
                 'size': tag.tag_size,
                 'name': tag.display_name,
                 'ident': '{}:{}'.format(tag.tag_family, tag.tag_id),
@@ -153,9 +148,11 @@ def get_found_tags(sid = None):
         data = {}
         for source in sources:
             s_mat = source.get_transform()
-            if (s_mat.size == 0): data[source.id] = []
-            mat = det_to_mat(sources[source])
-            data[source.id] = np.linalg.matmul(s_mat, mat).tolist()
+            if not s_mat:
+                data[source.GetUniqueLoadID()] = None
+            else:
+                mat = det_to_mat(sources[source])
+                data[source.GetUniqueLoadID()] = np.linalg.matmul(s_mat, mat).tolist()
         tags.append({
             'ident': '{}:{}'.format(tag.tag_family.decode('utf-8'), tag.tag_id),
             'size': size,
@@ -166,21 +163,21 @@ def get_found_tags(sid = None):
     
 @socketio.on('cams', namespace='/apriltag')
 def get_cams(sid = None):
-    db_cams = db.session.scalars(sqla.select(Camera)).all()
+    db_cams = ThingDatabase(Camera)
 
     cams = []
-    for cam in db_cams:
+    for cam in db_cams.AllThings():
         cams.append({
-            'id': cam.id,
+            'id': cam.GetUniqueLoadID(),
             'name': cam.display_name,
             'transform': cam.get_transform().tolist()
         })
         
     socketio.emit('cams', cams, namespace='/apriltag', to=(sid if sid != None else request.sid))
 
-def post_pose(pose: dict[str, np.array]):
-    data = {}
-    for ident, p in pose.items():
-        data[ident] = p.tolist()
-    socketio.emit('pose', data, namespace='/apriltag')
-math_worker.publishers.append(post_pose)
+# def post_pose(pose: dict[str, np.array]):
+#     data = {}
+#     for ident, p in pose.items():
+#         data[ident] = p.tolist()
+#     socketio.emit('pose', data, namespace='/apriltag')
+# math_worker.publishers.append(post_pose)

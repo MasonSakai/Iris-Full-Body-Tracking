@@ -4,16 +4,17 @@ from moms_apriltag import TagGenerator2
 import numpy as np
 import cv2 as cv
 
+from utils.registry import ThingDatabase
 from app.apriltag import apriltag_blueprint as bp_aptg, found_tags, seen_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
-from app.apriltag.forms import DetectorForm, FoundTagForm, EditTagForm
+from app.apriltag.forms import DetectorForm, CreateDetectorForm, FoundTagForm, EditTagForm
 from app.cameras.models import Camera
 
 
 @bp_aptg.route('/')
 def index(popup_contents=''):
-    tags = db.session.scalars(sqla.select(AprilTag)).all()
-    detectors = db.session.scalars(sqla.select(AprilTagDetector)).all()
+    tags = ThingDatabase(AprilTag).AllThingsListForReading()
+    detectors = ThingDatabase(AprilTagDetector).AllThingsListForReading()
 
     return render_template('apriltag.html', title='April Tag Manager',
                            known_tags=tags, detectors=detectors, found_tags=found_tags,
@@ -31,9 +32,39 @@ def generate_tag_image(family, id, fileType):
     return Response(encoded_image.tobytes())
 
 
+@bp_aptg.route('/detectors/new', methods=['GET', 'POST'])
+def create_detector():
+    detector = AprilTagDetector()
+    form = CreateDetectorForm()
+    if form.validate_on_submit():
+        detector.display_name = form.display_name.data
+        detector.families = form.families.data
+        detector.nthreads = form.nthreads.data
+        detector.quad_decimate = form.quad_decimate.data
+        detector.quad_sigma = form.quad_sigma.data
+        detector.refine_edges = form.refine_edges.data
+        detector.decode_sharpening = form.decode_sharpening.data
+        detector.default_tag_size = form.default_tag_size.data / 100.
+
+        ThingDatabase(AprilTagDetector).Add(detector)
+        flash('Detector {} Created'.format(detector.display_name))
+        return redirect(url_for('apriltag.index'))
+    elif request.method == 'GET':
+        form.display_name.data = 'tag36h11'
+        form.families.data = 'tag36h11'
+        form.nthreads.data = detector.nthreads
+        form.quad_decimate.data = detector.quad_decimate
+        form.quad_sigma.data = detector.quad_sigma
+        form.refine_edges.data = detector.refine_edges
+        form.decode_sharpening.data = detector.decode_sharpening
+        form.default_tag_size.data = detector.default_tag_size * 100.
+        return render_template('_create_detector.html', form=form, detector=detector)
+
+    return index(popup_contents=render_template('_create_detector.html', form=form, detector=detector))
+
 @bp_aptg.route('/detectors/<id>', methods=['GET', 'POST'])
 def view_detector(id):
-    detector = db.session.get(AprilTagDetector, id)
+    detector = ThingDatabase(AprilTagDetector).GetNamed(id)
     form = DetectorForm()
     if form.validate_on_submit():
         detector.families = form.families.data
@@ -44,7 +75,6 @@ def view_detector(id):
         detector.decode_sharpening = form.decode_sharpening.data
         detector.default_tag_size = form.default_tag_size.data / 100.
 
-        db.session.commit()
         flash('Detector {} Updated'.format(detector.id))
         return redirect(url_for('apriltag.index'))
     elif request.method == 'GET':
@@ -59,18 +89,18 @@ def view_detector(id):
 
     return index(popup_contents=render_template('_view_detector.html', form=form, detector=detector))
 
-@bp_aptg.route('/detectors/<id>/delete', )
+@bp_aptg.route('/detectors/<id>/delete')
 def delete_detector(id):
-    detector = db.session.get(AprilTagDetector, id)
-    db.session.delete(detector)
-    db.session.commit()
+    db = ThingDatabase(AprilTagDetector)
+    detector = db.GetNamed(id)
+    db.Remove(detector)
     flash('Detector {} Deleted!'.format(id))
     return redirect(url_for('apriltag.index'))
 
 
 @bp_aptg.route('/tags/<id>', methods=['GET', 'POST'])
 def view_tag(id):
-    tag: AprilTag = db.session.get(AprilTag, id)
+    tag = ThingDatabase(AprilTag).GetByULID(id)
     form = EditTagForm()
     if form.validate_on_submit():
 
@@ -84,7 +114,6 @@ def view_tag(id):
         tag.display_name = form.display_name.data
         tag.ensure_static = form.ensure_static.data
 
-        db.session.commit()
         flash('Tag {} Updated'.format(tag.display_name))
         return redirect(url_for('apriltag.index'))
     
@@ -101,10 +130,10 @@ def view_tag(id):
 
 @bp_aptg.route('/tags/<id>/delete')
 def delete_tag(id):
-    tag = db.session.get(AprilTag, id)
+    db = ThingDatabase(AprilTag)
+    tag = db.GetByULID(id)
     name = tag.display_name
-    db.session.delete(tag)
-    db.session.commit()
+    db.Remove(tag)
     flash('Tag {} Deleted!'.format(name))
     return redirect(url_for('apriltag.index'))
 
@@ -134,8 +163,7 @@ def view_found_tag(family, id):
     if form.validate_on_submit():
         tag = AprilTag(tag_id = id, tag_family=family,
                        tag_size = form.tag_size.data / 100., display_name=form.display_name.data)
-        db.session.add(tag)
-        db.session.commit()
+        ThingDatabase(AprilTag).Add(tag)
         found_tags.pop(index)
         #move tag to seen_tags
         flash('Tag {} ({}:{}) Added'.format(tag.display_name, tag.tag_family, tag.tag_id))

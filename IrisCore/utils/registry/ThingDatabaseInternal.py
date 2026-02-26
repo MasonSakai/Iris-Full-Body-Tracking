@@ -4,6 +4,7 @@
 import random
 from typing import Generic, Iterable, Type, TypeVar
 
+from utils.scribe import ILoadReferenceable
 from utils import Log
 from utils.registry import IThing
 
@@ -17,13 +18,15 @@ class ThingDatabaseInternal(Generic[T]):
 	- SetIndices() is optional and caller-controlled.
 	"""
 	
-	__thingList: list[T] = []
-	__thingsByName: dict[str, T] = {}
+	__thingList: list[T]
+	__thingsByName: dict[str, T]
 	__my_type: type[T]
 
 	def __init__(self, t: T):
 		super().__init__()
 		self.__my_type = t
+		self.__thingList = []
+		self.__thingsByName = {}
 
 	def AllThings(self) -> Iterable[T]:
 		"""
@@ -68,9 +71,23 @@ class ThingDatabaseInternal(Generic[T]):
 	def GetNamed(self, name: str, errorOnFail: bool = True) -> T:
 		if name not in self.__thingsByName:
 			if errorOnFail:
-				Log.Error(Log.LogLevel.Error, f"Failed to find {self.__my_type} named {name}. There are {self.ThingCount} defs of this type loaded.")
+				Log.Error(Log.LogLevel.Error, f"Failed to find {self.__my_type} named {name}. There are {self.ThingCount()} defs of this type loaded.")
 			return None
 		return self.__thingsByName[name]
 
 	def GetRandom(self) -> T:
 		return random.choice(self.__thingList)
+
+	def GetByULID(self, ulid, errorOnFail: bool = True) -> T:
+		if not issubclass(self.__my_type, ILoadReferenceable):
+			if errorOnFail:
+				Log.Error(Log.LogLevel.Error, f"Cannot get UniqueLoadID, type {self.__my_type} is not an ILoadReferencable.")
+			return None
+
+		for thing in self.AllThingsListForReading():
+			if thing.GetUniqueLoadID() == ulid:
+				return thing
+			
+		if errorOnFail:
+			Log.Error(Log.LogLevel.Error, f"Failed to find {self.__my_type} with UniqueLoadID {ulid}. There are {self.ThingCount()} defs of this type loaded.")
+		return None

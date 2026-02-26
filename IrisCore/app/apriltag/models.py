@@ -1,8 +1,7 @@
-from typing import ClassVar
 import numpy as np
 from pupil_apriltags import Detection, Detector
 
-from utils.registry import IThing
+from utils.registry import CreateThingDatabase, IThing
 from utils.scribe import IExposable, ILoadReferenceable, Scribe_Values
 
 class AprilTag(IExposable, IThing, ILoadReferenceable):
@@ -40,11 +39,13 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 	def GetUniqueLoadID(self) -> str:
 		return f'{self.__qualname__}:{self.display_name}'
 
-	def set_transform(self, transform: np.array):
+	def set_transform(self, transform: np.ndarray):
 		self.transform = transform
 
-	def get_transform(self) -> np.array:
+	def get_transform(self) -> np.ndarray:
 		return self.transform
+
+CreateThingDatabase(AprilTag)
 
 class AprilTagDetector(IExposable, IThing):
 	display_name : str
@@ -117,3 +118,5 @@ class AprilTagDetector(IExposable, IThing):
 				tags.append((r, tag))
 
 		return (res, tags)
+
+CreateThingDatabase(AprilTagDetector)

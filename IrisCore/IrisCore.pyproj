@@ -39,9 +39,6 @@
     <Compile Include="app\dataprocessing\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\dataproviders\position.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="app\dataproviders\__init__.py">
       <SubType>Code</SubType>
     </Compile>
@@ -144,6 +141,7 @@
     <Content Include="app\apriltag\templates\apriltag_base.html" />
     <Content Include="app\apriltag\templates\apriltag3D.html" />
     <Content Include="app\apriltag\templates\_add_tag.html" />
+    <Content Include="app\apriltag\templates\_create_detector.html" />
     <Content Include="app\apriltag\templates\_view_tag.html" />
     <Content Include="app\main\static\css\form-decorators.css" />
     <Content Include="app\apriltag\static\pdf\april-tags-pairs.pdf" />

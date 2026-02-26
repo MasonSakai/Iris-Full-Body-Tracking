@@ -1,8 +1,8 @@
 import atexit
 from flask import Flask
 from app import Config
-from app.IrisModules import IrisModule
-from app.main.math_worker import math_worker
+from utils.modulemanager.IrisModules import IrisModule
+# from app.main.math_worker import math_worker
 import numpy as np
 import quaternion
 
@@ -79,7 +79,7 @@ def publisher(pose: dict[str, np.array]):
         data.append(Message(*time(Timestamp())))
         sender.send(data)
         server.run()
-math_worker.publishers.append(publisher)
+# math_worker.publishers.append(publisher)
 
 def on_close():
     if server and server.is_open:

@@ -7,6 +7,8 @@
 	<table class="w-100 text-center table table-hover caption-top">
 		<caption class="ps-3 border-bottom border-dark-subtle">
 			<h5>April tag detectors: {{ detectors | length }}</h5>
+			<span style="display: inline-block; width: 100px;">&nbsp;</span>
+			<button class="btn btn-outline-info me-2" onclick="openPopupURL('{{url_for('apriltag.create_detector')}}')">+</button>
 		</caption>
 		{% if detectors|length > 0 %}
 		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
@@ -18,8 +20,8 @@
 		</thead>
 		<tbody>
 			{% for detector in detectors %}
-			<tr id="detector-{{ detector.id }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_detector', id=detector.id)}}')">
-				<td class="p-2">{{ detector.id }}</td>
+			<tr id="detector-{{ detector.ThingName() }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_detector', id=detector.ThingName())}}')">
+				<td class="p-2">{{ detector.ThingName() }}</td>
 				<td class="p-2">{{ detector.families }}</td>
 				<td class="p-2">{{ (detector.default_tag_size * 100)  | round(2, 'floor') }}cm</td>
 			</tr>
@@ -43,7 +45,7 @@
 		</thead>
 		<tbody>
 			{% for tag in known_tags %}
-			<tr id="tag-{{ tag.id }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_tag', id=tag.id)}}')">
+			<tr id="tag-{{ tag.GetUniqueLoadID() }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_tag', id=tag.GetUniqueLoadID())}}')">
 				<td class="p-2">{{ tag.display_name }}</td>
 				<td class="p-2">{{ tag.tag_family }}</td>
 				<td class="p-2">{{ tag.tag_id }}</td>

@@ -3,14 +3,15 @@
 <div class="card popup-form">
 	<div class="card-header text-center">
 		<h4>
-			Edit Detector {{ detector.ThingName() }}
+			Create Detector
 			<a href="https://pupil-apriltags.readthedocs.io/en/stable/api.html#pupil_apriltags.Detector" target="_blank" class="badge rounded-pill text-bg-info fs-6">?</a>
 		</h4>
 	</div>
-	<form action="{{ url_for('apriltag.view_detector', id=detector.id) }}" method="POST">
+	<form action="{{ url_for('apriltag.create_detector', id=detector.id) }}" method="POST">
 		{{ form.hidden_tag() }}
 
 		<div class="card-body">
+			{{ wtf.form_field(form.display_name) }}
 			{{ wtf.form_field(form.families) }}
 			<div class="form-hor">
 				{{ wtf.form_field(form.nthreads) }}
@@ -29,8 +30,6 @@
 				{{ wtf.form_field(form.submit) }}
 				<button type="button" class="btn btn-secondary mb-3" onclick="closePopup()">Cancel</button>
 			</div>
-			<a href="{{ url_for('apriltag.delete_detector', id=detector.ThingName()) }}" class="btn btn-danger form-control mb-3"
-			   onclick="if (event.target.innerText == 'DELETE') { event.stopPropagation(); event.preventDefault(); event.target.innerText = 'ARE YOU SURE? (DELETE)' }">DELETE</a>
 		</div>
 	</form>
 </div>

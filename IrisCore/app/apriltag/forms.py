@@ -18,6 +18,21 @@ class DetectorForm(FlaskForm):
 
     #add families validator to prevent duplicates?
 
+class CreateDetectorForm(FlaskForm):
+    
+    display_name = StringField('Detector Name', validators=[DataRequired()])
+    families = StringField('Tag Families', validators=[DataRequired()])
+    nthreads = IntegerField('Number of threads', validators=[NumberRange(min=1)])
+    quad_decimate = FloatField('Quad Decimate', validators=[NumberRange(min=0)])
+    quad_sigma = FloatField('Quad Sigma', validators=[NumberRange(min=0)])
+    refine_edges = BooleanField('Refine Edges')
+    decode_sharpening = FloatField('Decode Sharpening', validators=[NumberRange(min=0)])
+    default_tag_size = FloatField('Default tag size (cm)', validators=[NumberRange(min=0)])
+
+    submit = SubmitField('Submit')
+
+    #add families validator to prevent duplicates?
+
 class FoundTagForm(FlaskForm):
     
     display_name = StringField('Display Name', validators=[DataRequired()])

@@ -1,46 +1,22 @@
-from threading import Lock
+from threading import RLock
 import time
-import numpy as np
+from utils.registry import IThing, CreateThingDatabase
 
-source_registry: list['DataSource'] = []
-
-class DataSource:
+class IDataSource(IThing):
     
-    source_pose_lock = Lock()
+    source_data_lock: RLock
 
-    def init(self):
+    def __init__(self):
+        super().__init__()
+        self.source_data_lock = RLock()
+
+    def HasUpdate(self) -> bool:
         pass
 
-    def should_update(self):
-        return True
-
-    def update(self):
+    def GetData(self):
         pass
 
-    def update_rare(self):
-        pass
-
-    def provider_flags(self):
-        return {}
-
-class TransformedDataSource(DataSource):
-    
-    worker_source_transform: np.array
-    def update(self):
-        with self.source_pose_lock:
-            self.worker_source_transform = self.get_source_transform()
-
-    def get_source_transform(self):
-        return np.identity(4)
-
-class TimestampedDataSource(DataSource):
-    
-    worker_timestamp: np.array
-    def update(self):
-        with self.source_pose_lock:
-            self.worker_timestamp = self.get_timestamp()
-
-    def get_timestamp(self):
+    def _GetTimestamp(self):
         return time.time()
 
-#add weighted?
+CreateThingDatabase(IDataSource)

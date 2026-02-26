@@ -6,22 +6,39 @@ from cv2_enumerate_cameras import enumerate_cameras
 from cv2_enumerate_cameras.camera_info import CameraInfo
 import numpy as np
 
+from app.dataproviders import IDataSource
+from app.synchronize import source_registry_lock
 from utils.registry import CreateThingDatabase, IThing, ThingDatabase
 from utils.scribe import  IExposable, ILoadReferenceable, LoadSaveMode, Scribe, Scribe_Values, Scribe_Collections
 
-class CameraReference(IExposable, IThing):
+class CameraReference(IDataSource, IExposable, IThing):
 	parent: Camera
 
 	autostart: bool
+	active: bool
+
+	def __init__(self):
+		super().__init__()
+		self.active = False
 
 	def ExposeData(self):
 		super().ExposeData()
 		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool)
 		if Scribe.mode == LoadSaveMode.PostLoadInit:
 			ThingDatabase(CameraReference).Add(self)
+			self._AutoStart()
 
 	def ThingName(self):
 		return f"{self.__qualname__}:{self.parent.ThingName()}"
+
+	def RequestStart(self, *args, **kwargs) -> bool:
+		pass
+	
+	def RequestStop(self, *args, **kwargs):
+		pass
+
+	def _AutoStart(self):
+		pass
 		
 CreateThingDatabase(CameraReference)
 
@@ -61,6 +78,34 @@ class LocalCameraReference(CameraReference):
 
 		return found, new
 
+	def RequestStart(self, *args, **kwargs):
+		return self._AutoStart()
+	
+	def RequestStop(self, *args, **kwargs):
+		if self.active:
+			self.cap.release()
+			self.active = False
+			with source_registry_lock:
+				ThingDatabase(IDataSource).Remove(self)
+
+	def _AutoStart(self):
+		for cam in enumerate_cameras():
+			if (cam.name, cam.vid, cam.pid) == (self.name, self.vid, self.pid):
+				break
+		if not cam:
+			return False
+		self.cap = cv.VideoCapture(cam.index, cam.backend) # add params?
+		# start thread
+		self.active = True
+		with source_registry_lock:
+			ThingDatabase(IDataSource).Add(self)
+		return True
+
+	def HasUpdate(self):
+		pass
+
+	def GetData(self):
+		pass
 
 class Camera(IExposable, IThing, ILoadReferenceable):
 	
@@ -87,6 +132,7 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 			db = ThingDatabase(CameraReference)
 			for ref in self.references:
 				ref.parent = self
+				db.Add(ref)
 	
 	def ThingName(self) -> str:
 		return self.display_name
@@ -94,30 +140,14 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 	def GetUniqueLoadID(self) -> str:
 		return f'{self.__qualname__}:{self.display_name}'
 
-	def set_transform(self, transform: np.ndarray):
-		self.transform = transform
-
-	def get_transform(self) -> np.array:
-		return self.transform
-
-	def getConfig(self) -> dict[str, Any]:
-		return {
-			'index': self._index,
-			'name': self.display_name
-		}
-	
-	def setConfig(self, config):
-		if 'name' in config:
-			self.display_name = config['name']
-
 CreateThingDatabase(Camera)
 
 class CVUndistortableCamera(Camera):
 
 	calib_res_width: int
 	calib_res_height: int
-	camera_matrix: np.ndarray
-	dist_coeffs: np.ndarray
+	camera_matrix: np.ndarray | None
+	dist_coeffs: np.ndarray | None
 
 	def __init__(self):
 		super().__init__()
@@ -158,7 +188,7 @@ class CVUndistortableCamera(Camera):
 	def UndistortPoints(self, data: np.ndarray):
 		return CVUndistortableCamera.UndistortPoints(data, *self.get_camera_params())
 
-		
+	@staticmethod
 	def UndistortPoints(data: np.ndarray, camera_matrix: np.ndarray, dist_coeffs: np.ndarray):
 		if data is not np.array:
 			data = np.array(data)

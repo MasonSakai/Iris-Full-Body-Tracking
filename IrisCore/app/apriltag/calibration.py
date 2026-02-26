@@ -1,11 +1,9 @@
-from app import db
-import sqlalchemy as sqla
 import numpy as np
 import cv2 as cv
 
 from app.apriltag import add_found_tag, add_seen_tags, clear_tags_for, drawTag
 from app.apriltag.models import AprilTagDetector
-from app.main.models import CVUndistortableCamera
+from app.cameras.models import CVUndistortableCamera
 
 
 def GetTags(cam: CVUndistortableCamera, img):

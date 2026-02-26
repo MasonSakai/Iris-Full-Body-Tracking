@@ -6,11 +6,11 @@ apriltag_blueprint = Blueprint('apriltag', __name__, static_folder='static', tem
 
 from app.cameras.models import Camera
 from pupil_apriltags import Detection
+from app.apriltag.models import AprilTag
 
 found_tags: list[tuple[Detection, float, dict[Camera, Detection]]] = []
-seen_tags: dict[int, dict[int, Detection]] = {}
+seen_tags: dict[AprilTag, dict[Camera, Detection]] = {}
 
-from app.apriltag.models import AprilTag
 from app.apriltag import routes, AprilTag3DSocket
 
 
