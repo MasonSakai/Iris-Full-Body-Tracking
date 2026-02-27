@@ -1,19 +1,18 @@
 from flask import request
-from app import Config, socketio
+from app import socketio
 from utils.modulemanager.IrisModules import IrisModule
 # from app.main.math_worker import math_worker
 import numpy as np
 
 
 class SocketIOModule(IrisModule):
-    def __init__(self, app, config_class=Config):
-        pass
+    pass
 socket_io_module: SocketIOModule = None
 
-def GetIrisModule(app, config_class=Config):
+def GetIrisModule(app):
     global socket_io_module
     if socket_io_module is None:
-        socket_io_module = SocketIOModule(app, config_class)
+        socket_io_module = SocketIOModule(app)
     return socket_io_module
 
 def publisher(pose: dict[str, np.array]):

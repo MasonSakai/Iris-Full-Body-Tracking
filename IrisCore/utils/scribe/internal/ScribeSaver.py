@@ -1,3 +1,4 @@
+import os
 from typing import Type
 from lxml import etree as ET
 
@@ -20,6 +21,12 @@ class ScribeSaver:
 
 	def __init__(self):
 		self.loadIDsErrorsChecker = DebugLoadIDsSavingErrorsChecker()
+		
+		self.curXmlParent = None
+		self.curPathRelToParent = None
+		self.baseXmlTree = None
+		self.savingForDebug = False
+		self.anyInternalException = False
 	
 	def InitSaving(self, documentElementName: str) -> None:
 		if Scribe.mode != LoadSaveMode.Inactive:
@@ -42,7 +49,10 @@ class ScribeSaver:
 				self.ForceStop();
 				raise Exception(f"Can't finalize saving due to internal exception. The whole file would be most likely corrupted anyway. File path: {filePath}")
 			try:
-				self.ExitNode();
+				self.ExitNode()
+				dirname = os.path.dirname(filePath)
+				if dirname:
+					os.makedirs(dirname, exist_ok=True)
 				self.baseXmlTree.write(filePath, encoding="utf-8", xml_declaration=True, pretty_print=True)
 
 				Scribe.mode = LoadSaveMode.Inactive;

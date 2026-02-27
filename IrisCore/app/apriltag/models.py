@@ -1,7 +1,8 @@
+from __future__ import annotations
 import numpy as np
 from pupil_apriltags import Detection, Detector
 
-from utils.registry import CreateThingDatabase, IThing
+from utils.registry import IThing, CreateThingDatabase, ThingDatabase
 from utils.scribe import IExposable, ILoadReferenceable, Scribe_Values
 
 class AprilTag(IExposable, IThing, ILoadReferenceable):
@@ -44,7 +45,7 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 
 	def get_transform(self) -> np.ndarray:
 		return self.transform
-
+	
 CreateThingDatabase(AprilTag)
 
 class AprilTagDetector(IExposable, IThing):
@@ -57,12 +58,11 @@ class AprilTagDetector(IExposable, IThing):
 	refine_edges : bool
 	decode_sharpening : float
 	default_tag_size : float
-
+	
 	_detector: Detector
 	
 	#functions
 	def __init__(self):
-		super().__init__()
 		self.nthreads = 1
 		self.quad_decimate = 2.0
 		self.quad_sigma = 0.0
@@ -75,7 +75,6 @@ class AprilTagDetector(IExposable, IThing):
 		return '<AprilTagDetector - {} "{}">'.format(self.display_name, self.families)
 
 	def ExposeData(self):
-		super().ExposeData()
 		self.display_name = Scribe_Values.Look(self.display_name, 'name', str)
 		self.families = Scribe_Values.Look(self.families, 'families', str)
 
@@ -85,7 +84,7 @@ class AprilTagDetector(IExposable, IThing):
 		self.refine_edges = Scribe_Values.Look(self.refine_edges, 'RefineEdges', bool, True)
 		self.decode_sharpening = Scribe_Values.Look(self.decode_sharpening, 'DecodeSharpening', float, 0.25)
 		self.default_tag_size = Scribe_Values.Look(self.default_tag_size, 'DefaultTagSize', float, 0.175)
-		
+
 	def ThingName(self) -> str:
 		return self.display_name
 
@@ -118,5 +117,5 @@ class AprilTagDetector(IExposable, IThing):
 				tags.append((r, tag))
 
 		return (res, tags)
-
+	
 CreateThingDatabase(AprilTagDetector)

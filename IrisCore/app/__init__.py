@@ -1,10 +1,15 @@
+import atexit
+import os
+import sys
 from flask import Flask
+from utils.modules.lifecycle import AppLifecycle
 from config import Config
 from flask_moment import Moment
 from flask_socketio import SocketIO
 
 moment = Moment()
 socketio = SocketIO()
+lifecycle = AppLifecycle()
 
 
 def create_app(config_class=Config):
@@ -13,28 +18,23 @@ def create_app(config_class=Config):
 
     moment.init_app(app)
     socketio.init_app(app)
+
+    from app.main import main_blueprint as bp_main
+    app.register_blueprint(bp_main)
     
     from utils import debug
     debug.LoadConfig(config_class)
 
-    # blueprint registration
-    from app.main import main_blueprint as main
-    app.register_blueprint(main)
-    # from app.main.math_worker import math_worker
-    # math_worker.init_app(app)
-
-    from app.apriltag import apriltag_blueprint as apriltag
-    app.register_blueprint(apriltag)
-    
-    from utils.modulemanager.IrisModules import getSubModules
-    getSubModules(app, config_class)
-
-    #Scribe.loader.InitLoading(config_class.CONFIG_FILE)
+    lifecycle.init_app(app)
     return app
 
 
-def start_app(app, config_class=Config):
+def initialize_runtime():
+    lifecycle.initialize()
+    def shutdown():
+        lifecycle.shutdown()
+    atexit.register(shutdown)
 
-    # Load camera, detector, and AI data and prime mathworker
-
-    socketio.run(app, debug=True, host='0.0.0.0', port=2674)
+def start_app(app):
+    initialize_runtime()
+    socketio.run(app, debug=True, use_reloader=False, host='0.0.0.0', port=2674)

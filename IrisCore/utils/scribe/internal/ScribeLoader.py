@@ -18,6 +18,11 @@ class ScribeLoader:
 	def __init__(self):
 		self.crossRefs = CrossRefHandler()
 		self.initer = PostLoadIniter()
+		
+		self.curXmlParent = None
+		self.curParent = None
+		self.curPathRelToParent = None
+		self.has_load_file = False
 
 	def BeginLoadSession(self) -> None:
 		if Scribe.mode != LoadSaveMode.Inactive:
@@ -26,7 +31,7 @@ class ScribeLoader:
 			
 		Scribe.mode = LoadSaveMode.LoadingVars
 		
-	def LoadFile(self, filePath: str) -> None:
+	def LoadFile(self, filePath: str, error_on_fail = False) -> bool:
 		if Scribe.mode != LoadSaveMode.LoadingVars:
 			Log.Error(Log.LogLevel.Critical, f"Called LoadFile() but current mode is {Scribe.mode.name}")
 			Scribe.ForceStop()
@@ -46,9 +51,11 @@ class ScribeLoader:
 			self.curPathRelToParent = ''
 			self.has_load_file = True
 		except Exception as ex:
-			Log.Error(Log.LogLevel.Critical, f"Exception while init loading file: {filePath}\n{ex}")
-			self.ForceStop()
-			raise
+			Log.Error(Log.LogLevel.Critical if error_on_fail else Log.LogLevel.Info, f"Exception while init loading file: {filePath}\n{ex}")
+			if error_on_fail:
+				self.ForceStop()
+				raise
+		return self.has_load_file
 		
 	def LoadString(self, data: str) -> None:
 		if Scribe.mode != LoadSaveMode.LoadingVars:

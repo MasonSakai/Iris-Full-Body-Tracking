@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Any
 import cv2 as cv
 from cv2.typing import MatLike
 from cv2_enumerate_cameras import enumerate_cameras
@@ -8,11 +7,10 @@ import numpy as np
 
 from app.dataproviders import IDataSource
 from app.synchronize import source_registry_lock
-from utils.defs import RegisterDefType, ThingDef
-from utils.registry import CreateThingDatabase, IThing, ThingDatabase
+from utils.registry import IThing, ThingDatabase
 from utils.scribe import  IExposable, ILoadReferenceable, LoadSaveMode, Scribe, Scribe_Values, Scribe_Collections
 
-class CameraReference(IDataSource, IExposable, IThing):
+class CameraReference(IExposable, IDataSource):
 	parent: Camera
 
 	autostart: bool
@@ -25,9 +23,6 @@ class CameraReference(IDataSource, IExposable, IThing):
 	def ExposeData(self):
 		super().ExposeData()
 		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool)
-		if Scribe.mode == LoadSaveMode.PostLoadInit:
-			ThingDatabase(CameraReference).Add(self)
-			self._AutoStart()
 
 	def ThingName(self):
 		return f"{self.__qualname__}:{self.parent.ThingName()}"
@@ -40,15 +35,19 @@ class CameraReference(IDataSource, IExposable, IThing):
 
 	def _AutoStart(self):
 		pass
-		
-CreateThingDatabase(CameraReference)
+	
+	def HasUpdate(self):
+		pass
 
+	def GetData(self):
+		pass
+		
 class LocalCameraReference(CameraReference):
 
 	name: str
 	vid: int
 	pid: int
-
+	
 	cap: cv.VideoCapture
 	
 	def ExposeData(self):
@@ -56,6 +55,34 @@ class LocalCameraReference(CameraReference):
 		self.name = Scribe_Values.Look(self.name, 'name', str)
 		self.vid = Scribe_Values.Look(self.vid, 'vid', int)
 		self.pid = Scribe_Values.Look(self.pid, 'pid', int)
+
+	def __init__(self, config: LocalCameraReference):
+		self.config = config
+		self.cap = None
+		self.active = False
+		
+	def RequestStart(self, *args, **kwargs):
+		return self._AutoStart()
+	
+	def RequestStop(self, *args, **kwargs):
+		if self.active:
+			self.cap.release()
+			self.active = False
+			with source_registry_lock:
+				ThingDatabase(IDataSource).Remove(self)
+
+	def _AutoStart(self):
+		for cam in enumerate_cameras():
+			if (cam.name, cam.vid, cam.pid) == (self.config.name, self.config.vid, self.config.pid):
+				break
+		if not cam:
+			return False
+		self.cap = cv.VideoCapture(cam.index, cam.backend) # add params?
+		# start thread
+		self.active = True
+		with source_registry_lock:
+			ThingDatabase(IDataSource).Add(self)
+		return True
 
 	@staticmethod
 	def EnumerateCameras() -> tuple[list[tuple[Camera, CameraInfo]], list[CameraInfo]]:
@@ -78,35 +105,7 @@ class LocalCameraReference(CameraReference):
 				new.append(cam)
 
 		return found, new
-
-	def RequestStart(self, *args, **kwargs):
-		return self._AutoStart()
 	
-	def RequestStop(self, *args, **kwargs):
-		if self.active:
-			self.cap.release()
-			self.active = False
-			with source_registry_lock:
-				ThingDatabase(IDataSource).Remove(self)
-
-	def _AutoStart(self):
-		for cam in enumerate_cameras():
-			if (cam.name, cam.vid, cam.pid) == (self.name, self.vid, self.pid):
-				break
-		if not cam:
-			return False
-		self.cap = cv.VideoCapture(cam.index, cam.backend) # add params?
-		# start thread
-		self.active = True
-		with source_registry_lock:
-			ThingDatabase(IDataSource).Add(self)
-		return True
-
-	def HasUpdate(self):
-		pass
-
-	def GetData(self):
-		pass
 
 class Camera(IExposable, IThing, ILoadReferenceable):
 	
@@ -130,19 +129,15 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 
 		self.references = Scribe_Collections.LookList(self.references, 'references', CameraReference, Scribe_Collections.LookMode.Deep)
 		if Scribe.mode == LoadSaveMode.LoadingVars:
-			db = ThingDatabase(CameraReference)
 			for ref in self.references:
 				ref.parent = self
-				db.Add(ref)
 	
 	def ThingName(self) -> str:
 		return self.display_name
 
 	def GetUniqueLoadID(self) -> str:
 		return f'{self.__qualname__}:{self.display_name}'
-
-CreateThingDatabase(Camera)
-
+	
 class CVUndistortableCamera(Camera):
 
 	calib_res_width: int
@@ -195,8 +190,3 @@ class CVUndistortableCamera(Camera):
 			data = np.array(data)
 
 		return np.squeeze(cv.undistortPoints(data, camera_matrix, dist_coeffs))
-
-class CameraDef(ThingDef):
-	pass
-
-RegisterDefType("CameraDef", CameraDef)

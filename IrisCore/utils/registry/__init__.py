@@ -62,6 +62,7 @@ def CreateThingDatabase(t: Type[T], db_factory: Callable[[Type[T]], ThingDatabas
 	if not isinstance(t, type):
 		t = type(t)
 	if not issubclass(t, IThing):
+		Log.Error(Log.LogLevel.Error, f'Failed to create ThingDatabase, {t} is not IThing')
 		return None
 	if t not in _internal_databases:
 		try:
@@ -70,3 +71,11 @@ def CreateThingDatabase(t: Type[T], db_factory: Callable[[Type[T]], ThingDatabas
 			Log.Error(Log.LogLevel.Error, f'Failed to create ThingDatabase with type {t}\n{ex}')
 			return None
 	return _internal_databases[t]
+
+def ClearAllThingDatabases():
+    for db in _internal_databases.values():
+        db.Clear()
+
+def RefreshAllThingIndeces():
+	for db in _internal_databases.values():
+		db.SetIndices()

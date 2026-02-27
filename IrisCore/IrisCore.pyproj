@@ -23,6 +23,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app\apriltag\module.py" />
+    <Compile Include="utils\modules\lifecycle.py" />
+    <Compile Include="app\cameras\module.py" />
     <Compile Include="app\apriltag\calibration.py" />
     <Compile Include="app\apriltag\forms.py" />
     <Compile Include="app\apriltag\models.py" />
@@ -67,14 +70,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="utils\Log\LogSimple.py" />
-    <Compile Include="utils\modulemanager\IrisModules.py" />
+    <Compile Include="utils\modules\iris_modules.py" />
     <Compile Include="utils\Log\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\main\math_worker.py" />
     <Compile Include="app\cameras\models.py" />
     <Compile Include="app\main\routes.py" />
-    <Compile Include="utils\modulemanager\__init__.py">
+    <Compile Include="utils\modules\module_manager.py" />
+    <Compile Include="utils\modules\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\posehelpers\arms.py" />
@@ -104,7 +108,7 @@
     <Compile Include="utils\scribe\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="modules\WebAI\WebAIModule.py" />
+    <Compile Include="modules\WebAI\module.py" />
     <Compile Include="modules\WebAI\WebAISocket.py" />
     <Compile Include="modules\WebAI\models.py" />
     <Compile Include="modules\WebAI\routes.py" />
@@ -140,12 +144,14 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\apriltag\ModInfo.xml" />
     <Content Include="app\apriltag\static\js\apriltag3D.js" />
     <Content Include="app\apriltag\templates\apriltag_base.html" />
     <Content Include="app\apriltag\templates\apriltag3D.html" />
     <Content Include="app\apriltag\templates\_add_tag.html" />
     <Content Include="app\apriltag\templates\_create_detector.html" />
     <Content Include="app\apriltag\templates\_view_tag.html" />
+    <Content Include="app\cameras\ModInfo.xml" />
     <Content Include="app\main\static\css\form-decorators.css" />
     <Content Include="app\apriltag\static\pdf\april-tags-pairs.pdf" />
     <Content Include="app\apriltag\static\pdf\april-tags-sixes.pdf" />
@@ -160,6 +166,7 @@
     <Content Include="app\main\templates\index.html" />
     <Content Include="app\main\templates\_popup.html" />
     <Content Include="featureNotes_tmp.txt" />
+    <Content Include="modules\WebAI\ModInfo.xml" />
     <Content Include="modules\WebAI\templates\_cam_box.html" />
     <Content Include="modules\WebAI\templates\webAI.html" />
     <Content Include="modules\WebAI\static\css\camsite.css" />
@@ -177,7 +184,6 @@
     <Folder Include="app\apriltag\static\pdf\" />
     <Folder Include="app\apriltag\templates\" />
     <Folder Include="app\cameras\" />
-    <Folder Include="app\cameras\defs\" />
     <Folder Include="app\cameras\templates\" />
     <Folder Include="app\cameras\static\" />
     <Folder Include="app\dataprocessing\" />
@@ -186,11 +192,10 @@
     <Folder Include="tests\registry\" />
     <Folder Include="tests\scribe\" />
     <Folder Include="utils\debug\" />
-    <Folder Include="utils\defs\" />
     <Folder Include="utils\Log\" />
     <Folder Include="app\main\" />
     <Folder Include="app\main\templates\" />
-    <Folder Include="utils\modulemanager\" />
+    <Folder Include="utils\modules\" />
     <Folder Include="app\posehelpers\" />
     <Folder Include="utils\registry\" />
     <Folder Include="utils\scribe\" />

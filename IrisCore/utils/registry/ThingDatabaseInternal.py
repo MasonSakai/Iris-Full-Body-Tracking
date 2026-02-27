@@ -57,6 +57,7 @@ class ThingDatabaseInternal(Generic[T]):
 		for thing in things:
 			self.__thingList.remove(thing)
 			del self.__thingsByName[thing.ThingName()]
+		self.SetIndices()
 
 	def SetIndices(self) -> None:
 		for index in range(len(self.__thingList)):

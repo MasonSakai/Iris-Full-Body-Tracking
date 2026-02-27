@@ -13,16 +13,6 @@ Modules:
 			declare modules (self and subs) under first-come-first-served (with priority) IDs
 			imports use getModule("modID")
 
-	__init__.py:
-		holds all module related API calls
-		will only be initilized if called upon
-
-		Module Class Type-hint:
-			RegisterDefTypes(self) -> None
-			LoadData(self) -> None
-			SaveData(self) -> None
-			RegisterFlask(self) -> None
-
 
 Startup Map:
 	Init loadedModules from mod list:

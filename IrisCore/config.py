@@ -1,7 +1,7 @@
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-appdata_dir = os.path.join(os.getenv('APPDATA'), '/IrisFBT/')
+appdata_dir = os.path.join(os.getenv('APPDATA'), 'IrisFBT')
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'

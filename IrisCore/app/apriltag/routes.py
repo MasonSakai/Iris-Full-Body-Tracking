@@ -1,15 +1,16 @@
-from flask import flash, redirect, render_template, request, url_for, Response
+from flask import Blueprint, flash, redirect, render_template, request, url_for, Response
 from pupil_apriltags import Detector
 from moms_apriltag import TagGenerator2
 import numpy as np
 import cv2 as cv
 
 from utils.registry import ThingDatabase
-from app.apriltag import apriltag_blueprint as bp_aptg, found_tags, seen_tags
+from app.apriltag import found_tags, seen_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
 from app.apriltag.forms import DetectorForm, CreateDetectorForm, FoundTagForm, EditTagForm
 from app.cameras.models import Camera
 
+bp_aptg = Blueprint('apriltag', __name__, static_folder='static', template_folder='templates', url_prefix='/apriltag')
 
 @bp_aptg.route('/')
 def index(popup_contents=''):
