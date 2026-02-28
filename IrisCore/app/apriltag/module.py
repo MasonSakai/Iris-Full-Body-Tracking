@@ -1,5 +1,7 @@
 from __future__ import annotations
 import os
+
+from flask import url_for
 from utils.modules.iris_modules import IrisModule
 from utils.registry import ThingDatabase
 from utils.scribe import Scribe_Collections
@@ -28,6 +30,9 @@ class AprilTagModule(IrisModule):
 	def build_runtime(self):
 		from app.apriltag import routes, AprilTag3DSocket
 		self.app.register_blueprint(routes.bp_aptg)
+
+	def get_index_content(self):
+		return f'<a href="{url_for('apriltag.index')}">Apriltags</a>'
 
 def create_module(app) -> IrisModule:
 	return AprilTagModule(app)

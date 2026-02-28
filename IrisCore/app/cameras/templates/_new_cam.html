@@ -1,0 +1,18 @@
+<h2>New Camera</h2>
+
+<form method="POST" action="{{ url_for('cameras.new_camera') }}">
+	<!--{ { form.hidden_tag() }}
+
+	<div>
+		{ { form.name.label }}
+		{ { form.name() }}
+		{ % for error in form.name.errors %}
+		<div style="color:red">{ { error }}</div>
+		{ % endfor %}
+	</div>-->
+
+	<button type="submit">{{ count }}</button>
+	<button type="button" onclick="cancelModal()">
+		Cancel
+	</button>
+</form>

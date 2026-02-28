@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Blueprint, Flask
 from abc import ABC, abstractmethod
 
 
@@ -49,4 +49,9 @@ class IrisModule(ABC):
 		"""
 		Gracefully stop runtime systems.
 		"""
+		pass
+
+	# ---------- Flask ----------
+
+	def get_index_content(self) -> str | None:
 		pass

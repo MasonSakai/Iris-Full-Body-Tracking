@@ -1,5 +1,7 @@
 from __future__ import annotations
 import os
+
+from flask import url_for
 from utils.modules.iris_modules import IrisModule
 from utils.registry import CreateThingDatabase, ThingDatabase
 from utils.scribe import Scribe, Scribe_Collections
@@ -35,14 +37,17 @@ class CameraModule(IrisModule):
 			Scribe.saver.FinalizeSaving(os.path.join(self.app.config['APPDATA_PATH'], 'cameras.xml'))
 
 	def build_runtime(self):
-		from app.cameras import routes
-		self.app.register_blueprint(routes.bp_cam)
+		from app.cameras.routes import bp_cam
+		self.app.register_blueprint(bp_cam)
 
 	def start_runtime(self):
 		for cam in ThingDatabase(Camera).AllThings():
 			for ref in cam.references:
 				if ref.autostart and ref.RequestAutoStart():
 					break
+
+	def get_index_content(self):
+		return f'<a href="{url_for('cameras.index')}">Cameras</a>'
 
 
 def create_module(app) -> IrisModule:

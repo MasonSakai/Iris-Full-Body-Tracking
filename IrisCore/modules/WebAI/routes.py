@@ -64,4 +64,4 @@ def get_camera_html(id):
 
 @bp_webai.route('/CameraWorker.js')
 def get_camera_worker():
-	return redirect(url_for('CameraWebsite.static', filename='js/CameraWorker.js'))
+	return redirect(url_for('WebAI.static', filename='js/CameraWorker.js'))

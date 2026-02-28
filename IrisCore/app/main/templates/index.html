@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 
-{% block navbar %}
+{% block content %}
 {{ super() }}
-<li class="nav-item">
-	<a class="nav-link" href="{{ url_for('WebAI.index') }}">WebAI</a>
-</li>
-<li class="nav-item">
-	<a class="nav-link" href="{{ url_for('apriltag.index') }}">Apriltags</a>
-</li>
+
+{% for content in module_content %}
+{{ content | safe }}<br/>
+{% endfor %}
 {% endblock %}

@@ -8,7 +8,7 @@
 		<caption class="ps-3 border-bottom border-dark-subtle">
 			<h5>April tag detectors: {{ detectors | length }}</h5>
 			<span style="display: inline-block; width: 100px;">&nbsp;</span>
-			<button class="btn btn-outline-info me-2" onclick="openPopupURL('{{url_for('apriltag.create_detector')}}')">+</button>
+			<button class="btn btn-outline-info me-2" onclick="Modal.open('{{url_for('apriltag.create_detector')}}')">+</button>
 		</caption>
 		{% if detectors|length > 0 %}
 		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
@@ -20,8 +20,8 @@
 		</thead>
 		<tbody>
 			{% for detector in detectors %}
-			<tr id="detector-{{ detector.ThingName() }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_detector', id=detector.ThingName())}}')">
-				<td class="p-2">{{ detector.ThingName() }}</td>
+			<tr id="detector-{{ detector.ThingID() }}" class="p-1 border-bottom border-dark-subtle" onclick="Modal.open('{{url_for('apriltag.view_detector', id=detector.ThingID())}}')">
+				<td class="p-2">{{ detector.display_name }}</td>
 				<td class="p-2">{{ detector.families }}</td>
 				<td class="p-2">{{ (detector.default_tag_size * 100)  | round(2, 'floor') }}cm</td>
 			</tr>
@@ -45,7 +45,7 @@
 		</thead>
 		<tbody>
 			{% for tag in known_tags %}
-			<tr id="tag-{{ tag.GetUniqueLoadID() }}" class="p-1 border-bottom border-dark-subtle" onclick="openPopupURL('{{url_for('apriltag.view_tag', id=tag.GetUniqueLoadID())}}')">
+			<tr id="tag-{{ tag.ThingID() }}" class="p-1 border-bottom border-dark-subtle" onclick="Modal.open('{{url_for('apriltag.view_tag', id=tag.ThingID())}}')">
 				<td class="p-2">{{ tag.display_name }}</td>
 				<td class="p-2">{{ tag.tag_family }}</td>
 				<td class="p-2">{{ tag.tag_id }}</td>
@@ -77,7 +77,7 @@
 		<tbody>
 			{% for (tag, size, sources) in found_tags %}
 			<tr id="tag-{{ tag.tag_family.decode("utf-8") }}:{{ tag.id }}" class="p-1 border-bottom border-dark-subtle"
-				onclick="openPopupURL('{{url_for('apriltag.view_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id)}}')">
+				onclick="Modal.open('{{url_for('apriltag.view_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id)}}')">
 				<td class="p-2">{{ tag.tag_family.decode("utf-8") }}</td>
 				<td class="p-2">{{ tag.tag_id }}</td>
 				<td class="p-2">
@@ -92,10 +92,15 @@
 	</table>
 </div>
 
-{% include '_popup.html' %}
 {% endblock %}
 
 {% block stylesheets %}
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/form-decorators.css') }}">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}">
+{% endblock %}
+
+{% block javascript %}
+{{ super() }}
+<script src="{{ url_for('main.static', filename='js/modal.js') }}"></script>
 {% endblock %}

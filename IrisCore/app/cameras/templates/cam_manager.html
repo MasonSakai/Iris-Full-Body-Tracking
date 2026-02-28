@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+{{ super() }}
+
+<form method="POST">
+	<select name="camera_id" id="camera_select">
+		{% for camera in cameras %}
+		<option value="{{ camera.id }}">{{ camera.name }}</option>
+		{% endfor %}
+	</select>
+
+	<button type="button" onclick="addCamera()">+ New Camera</button>
+
+	<button type="submit">Submit</button>
+</form>
+
+<script>
+	function addCamera() {
+		openModal('/cameras/new')
+			.then(camera => {
+				const sel = document.getElementById('camera_select');
+
+				let opt = sel.querySelector(`option[value="${camera.id}"]`);
+				if (!opt) {
+					opt = document.createElement('option');
+					opt.value = camera.id;
+					opt.textContent = camera.name;
+					sel.appendChild(opt);
+				}
+
+				opt.selected = true;
+			})
+			.catch(() => { });
+	}
+</script>
+
+{% include '_popup.html' %}
+{% endblock %}

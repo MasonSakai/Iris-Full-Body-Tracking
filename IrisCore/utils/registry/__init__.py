@@ -7,26 +7,13 @@ class IThing(ABC):
 	"""
 	Interface for ThingDatabase
 	"""
-	_index: int
-	"""
-	internal database index
-	NOT PERSISTENT
-	"""
-
-	def __init__(self):
-		super().__init__()
-		self._index = -1
 
 	@abstractmethod
-	def ThingName(self) -> str:
+	def ThingID(self) -> str:
 		"""
-		Unique name for this item in the database
+		Unique id for this item in the database
 		"""
-
-	def PostSetIndices(self) -> None:
-		"""
-		callback by ThingDatabase when indices are recalculated
-		"""
+		raise NotImplementedError(f"{type(self).__qualname__} has not implemented ThingID")
 	
 from utils.registry.ThingDatabaseInternal import ThingDatabaseInternal
 
@@ -75,7 +62,3 @@ def CreateThingDatabase(t: Type[T], db_factory: Callable[[Type[T]], ThingDatabas
 def ClearAllThingDatabases():
     for db in _internal_databases.values():
         db.Clear()
-
-def RefreshAllThingIndeces():
-	for db in _internal_databases.values():
-		db.SetIndices()

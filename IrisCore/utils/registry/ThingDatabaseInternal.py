@@ -13,20 +13,17 @@ T = TypeVar('T_Thing', bound=IThing)
 class ThingDatabaseInternal(Generic[T]):
 	"""
 	ThingDatabaseInternal is a mutable, runtime-global registry.
-	- Name conflicts are allowed (last wins). [may have optional behavior later]
-	- Indices are not stable across mutations.
-	- SetIndices() is optional and caller-controlled.
 	"""
 	
 	__thingList: list[T]
-	__thingsByName: dict[str, T]
+	__thingsByID: dict[str, T]
 	__my_type: type[T]
 
 	def __init__(self, t: T):
 		super().__init__()
 		self.__my_type = t
 		self.__thingList = []
-		self.__thingsByName = {}
+		self.__thingsByID = {}
 
 	def AllThings(self) -> Iterable[T]:
 		"""
@@ -47,48 +44,26 @@ class ThingDatabaseInternal(Generic[T]):
 	def Add(self, *things: T) -> None: #add conflict check?
 		for thing in things:
 			if not isinstance(thing, self.__my_type):
-				Log.Error(Log.LogLevel.Error, f"ThingDatabase failed to add {thing.ThingName()} because {type(thing)} is not {self.__my_type}")
+				Log.Error(Log.LogLevel.Error, f"ThingDatabase failed to add {thing.ThingID()} because {type(thing)} is not {self.__my_type}")
 				continue
 			self.__thingList.append(thing)
-			self.__thingsByName[thing.ThingName()] = thing
-			thing._index = len(self.__thingList) - 1
+			self.__thingsByID[thing.ThingID()] = thing
 
 	def Remove(self, *things: T) -> None:
 		for thing in things:
 			self.__thingList.remove(thing)
-			del self.__thingsByName[thing.ThingName()]
-		self.SetIndices()
-
-	def SetIndices(self) -> None:
-		for index in range(len(self.__thingList)):
-			self.__thingList[index]._index = index
-		for thing in self.__thingList:
-			thing.PostSetIndices()
+			del self.__thingsByID[thing.ThingID()]
 
 	def Clear(self) -> None:
 		self.__thingList.clear()
-		self.__thingsByName.clear()
+		self.__thingsByID.clear()
 
-	def GetNamed(self, name: str, errorOnFail: bool = True) -> T:
-		if name not in self.__thingsByName:
+	def Get(self, id: str, errorOnFail: bool = True) -> T:
+		if id not in self.__thingsByID:
 			if errorOnFail:
-				Log.Error(Log.LogLevel.Error, f"Failed to find {self.__my_type} named {name}. There are {self.ThingCount()} defs of this type loaded.")
+				Log.Error(Log.LogLevel.Error, f"Failed to find {self.__my_type} with ID {id}. There are {self.ThingCount()} things of this type loaded.")
 			return None
-		return self.__thingsByName[name]
+		return self.__thingsByID[id]
 
 	def GetRandom(self) -> T:
 		return random.choice(self.__thingList)
-
-	def GetByULID(self, ulid, errorOnFail: bool = True) -> T:
-		if not issubclass(self.__my_type, ILoadReferenceable):
-			if errorOnFail:
-				Log.Error(Log.LogLevel.Error, f"Cannot get UniqueLoadID, type {self.__my_type} is not an ILoadReferencable.")
-			return None
-
-		for thing in self.AllThingsListForReading():
-			if thing.GetUniqueLoadID() == ulid:
-				return thing
-			
-		if errorOnFail:
-			Log.Error(Log.LogLevel.Error, f"Failed to find {self.__my_type} with UniqueLoadID {ulid}. There are {self.ThingCount()} defs of this type loaded.")
-		return None

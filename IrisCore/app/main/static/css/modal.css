@@ -1,0 +1,10 @@
+
+dialog.app-modal {
+	max-width: 95%;
+	border: none;
+	padding: 0;
+}
+
+dialog.app-modal::backdrop {
+	background: rgba(0, 0, 0, 0.40);
+}

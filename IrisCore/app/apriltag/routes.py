@@ -1,9 +1,10 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for, Response
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for, Response
 from pupil_apriltags import Detector
 from moms_apriltag import TagGenerator2
 import numpy as np
 import cv2 as cv
 
+from app.main.modal import modal_redirect
 from utils.registry import ThingDatabase
 from app.apriltag import found_tags, seen_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
@@ -13,13 +14,12 @@ from app.cameras.models import Camera
 bp_aptg = Blueprint('apriltag', __name__, static_folder='static', template_folder='templates', url_prefix='/apriltag')
 
 @bp_aptg.route('/')
-def index(popup_contents=''):
+def index():
     tags = ThingDatabase(AprilTag).AllThingsListForReading()
     detectors = ThingDatabase(AprilTagDetector).AllThingsListForReading()
 
     return render_template('apriltag.html', title='April Tag Manager',
-                           known_tags=tags, detectors=detectors, found_tags=found_tags,
-                           popup_contents=popup_contents)
+                           known_tags=tags, detectors=detectors, found_tags=found_tags)
 
 @bp_aptg.route('/3D')
 def index3d():
@@ -49,7 +49,7 @@ def create_detector():
 
         ThingDatabase(AprilTagDetector).Add(detector)
         flash('Detector {} Created'.format(detector.display_name))
-        return redirect(url_for('apriltag.index'))
+        return modal_redirect('apriltag.index')
     elif request.method == 'GET':
         form.display_name.data = 'tag36h11'
         form.families.data = 'tag36h11'
@@ -61,11 +61,11 @@ def create_detector():
         form.default_tag_size.data = detector.default_tag_size * 100.
         return render_template('_create_detector.html', form=form, detector=detector)
 
-    return index(popup_contents=render_template('_create_detector.html', form=form, detector=detector))
+    return render_template('_create_detector.html', form=form, detector=detector)
 
 @bp_aptg.route('/detectors/<id>', methods=['GET', 'POST'])
 def view_detector(id):
-    detector = ThingDatabase(AprilTagDetector).GetNamed(id)
+    detector = ThingDatabase(AprilTagDetector).Get(id)
     form = DetectorForm()
     if form.validate_on_submit():
         detector.families = form.families.data
@@ -76,8 +76,8 @@ def view_detector(id):
         detector.decode_sharpening = form.decode_sharpening.data
         detector.default_tag_size = form.default_tag_size.data / 100.
 
-        flash('Detector {} Updated'.format(detector.id))
-        return redirect(url_for('apriltag.index'))
+        flash('Detector {} Updated'.format(detector.display_name))
+        return modal_redirect('apriltag.index')
     elif request.method == 'GET':
         form.families.data = detector.families
         form.nthreads.data = detector.nthreads
@@ -88,14 +88,15 @@ def view_detector(id):
         form.default_tag_size.data = detector.default_tag_size * 100
         return render_template('_view_detector.html', form=form, detector=detector)
 
-    return index(popup_contents=render_template('_view_detector.html', form=form, detector=detector))
+    return render_template('_view_detector.html', form=form, detector=detector)
 
 @bp_aptg.route('/detectors/<id>/delete')
 def delete_detector(id):
     db = ThingDatabase(AprilTagDetector)
-    detector = db.GetNamed(id)
+    detector = db.Get(id)
+    name = detector.display_name
     db.Remove(detector)
-    flash('Detector {} Deleted!'.format(id))
+    flash('Detector {} Deleted!'.format(name))
     return redirect(url_for('apriltag.index'))
 
 

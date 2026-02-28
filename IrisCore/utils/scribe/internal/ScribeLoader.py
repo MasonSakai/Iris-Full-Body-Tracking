@@ -109,9 +109,9 @@ class ScribeLoader:
 				self.ForceStop()
 				raise
 
-	def InitLoading(self, path: str) -> None:
+	def InitLoading(self, path: str, error_on_fail = False) -> bool:
 		self.BeginLoadSession()
-		self.LoadFile(path)
+		return self.LoadFile(path, error_on_fail)
 
 	def InitLoadingFromString(self, data: str) -> None:
 		self.BeginLoadSession()

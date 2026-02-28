@@ -26,8 +26,8 @@ class CameraReference(IExposable, IDataSource):
 		super().ExposeData()
 		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool, False)
 
-	def ThingName(self):
-		return f"{self.__qualname__}:{self.parent.ThingName()}"
+	def ThingID(self):
+		return f"{type(self).__qualname__}:{self.parent.ThingID()}"
 
 	def RequestStart(self, *args, **kwargs) -> bool:
 		return False
@@ -138,11 +138,11 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 			for ref in self.references:
 				ref.parent = self
 	
-	def ThingName(self) -> str:
-		return self.display_name
+	def ThingID(self) -> str:
+		return self.GetUniqueLoadID()
 
 	def GetUniqueLoadID(self) -> str:
-		return f'{self.__qualname__}:{self.display_name}'
+		return f'{type(self).__qualname__}:{self.display_name}'
 	
 class CVUndistortableCamera(Camera):
 

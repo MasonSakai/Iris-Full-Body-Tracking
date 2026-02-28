@@ -7,7 +7,7 @@
 			<a href="https://pupil-apriltags.readthedocs.io/en/stable/api.html#pupil_apriltags.Detector" target="_blank" class="badge rounded-pill text-bg-info fs-6">?</a>
 		</h4>
 	</div>
-	<form action="{{ url_for('apriltag.create_detector', id=detector.id) }}" method="POST">
+	<form action="{{ url_for('apriltag.create_detector') }}" method="POST">
 		{{ form.hidden_tag() }}
 
 		<div class="card-body">
@@ -28,7 +28,7 @@
 		<div class="card-footer">
 			<div class="form-hor">
 				{{ wtf.form_field(form.submit) }}
-				<button type="button" class="btn btn-secondary mb-3" onclick="closePopup()">Cancel</button>
+				<button type="button" class="btn btn-secondary mb-3" data-modal-close>Cancel</button>
 			</div>
 		</div>
 	</form>

@@ -7,13 +7,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Iris_VR_Driver", "Iris_FBT\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraCalib", "CameraCalib\CameraCalib.vcxproj", "{F8FEB13C-21B5-4DD9-9384-050914310A0A}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "RemoteCamProcessing", "RemoteCamProcessing\RemoteCamProcessing.esproj", "{37B8C923-5215-2410-75C7-FCFBE257CBA3}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "WebAI", "RemoteCamProcessing\WebAI.esproj", "{37B8C923-5215-2410-75C7-FCFBE257CBA3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraCalibrator-Standalone", "CameraCalibrator-Standalone\CameraCalibrator-Standalone.vcxproj", "{16141EBC-262E-45E2-B466-EF6206793F07}"
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "IrisCore", "IrisCore\IrisCore.pyproj", "{38D44C74-9D91-486D-BD9E-189EBE58551C}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "AprilTagSite", "AprilTagSite\AprilTagSite.esproj", "{0F0444EC-C1DE-75BF-66ED-5480D34FD4E8}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "CameraSite", "CameraSite\CameraSite.esproj", "{11CD666E-6823-9508-699B-ECFB0D96C777}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,6 +105,24 @@ Global
 		{0F0444EC-C1DE-75BF-66ED-5480D34FD4E8}.Release|x86.ActiveCfg = Release|Any CPU
 		{0F0444EC-C1DE-75BF-66ED-5480D34FD4E8}.Release|x86.Build.0 = Release|Any CPU
 		{0F0444EC-C1DE-75BF-66ED-5480D34FD4E8}.Release|x86.Deploy.0 = Release|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Debug|x64.Build.0 = Debug|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Debug|x86.Build.0 = Debug|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Release|x64.ActiveCfg = Release|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Release|x64.Build.0 = Release|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Release|x64.Deploy.0 = Release|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Release|x86.ActiveCfg = Release|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Release|x86.Build.0 = Release|Any CPU
+		{11CD666E-6823-9508-699B-ECFB0D96C777}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

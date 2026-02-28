@@ -38,7 +38,7 @@ class test_scribe_modes(test_scribe_base):
         path = self.temp_path("does_not_exist.xml")
 
         with self.assertRaises(Exception):
-            Scribe.loader.InitLoading(path)
+            Scribe.loader.InitLoading(path, True)
 
         # State must be clean afterward
         self.assertEqual(Scribe.mode, LoadSaveMode.Inactive)

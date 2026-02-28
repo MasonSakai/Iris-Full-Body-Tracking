@@ -1,6 +1,6 @@
 from flask import Flask
 from utils.modules.module_manager import ModuleManager
-from utils.registry import ClearAllThingDatabases, RefreshAllThingIndeces
+from utils.registry import ClearAllThingDatabases
 from utils.scribe import Scribe
 
 
@@ -21,7 +21,6 @@ class AppLifecycle:
         for module in self.module_manager.modules:
             module.load()
         Scribe.loader.EndLoadSession()
-        RefreshAllThingIndeces()
 
         for module in self.module_manager.modules:
             module.build_runtime()

@@ -4,8 +4,7 @@ const path = require('path');
 base_exp = {
     mode: 'production',
     entry: {
-        camsite: './build/camsite.js',
-        CameraWorker: './build/CameraWorker.js'
+        camwin: './build/camwin.js',
     }
 }
 
@@ -20,7 +19,7 @@ dist_exp = {
 core_exp = {
     ...base_exp,
     output: {
-        path: path.resolve(__dirname, '../IrisCore/modules/WebAI/static/js'),
+        path: path.resolve(__dirname, '../IrisCore/app/cameras/static/js'),
         filename: '[name].js' // [name] will be replaced by the entry key
     }
 }

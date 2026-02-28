@@ -26,7 +26,7 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 		self.transform = None
 
 	def __repr__(self):
-		return '<AprilTag - {} "{}">'.format(self.index, self.display_name)
+		return '<AprilTag "{}">'.format(self.display_name)
 	
 	def ExposeData(self):
 		super().ExposeData()
@@ -39,11 +39,11 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 		self.ensure_static = Scribe_Values.Look(self.ensure_static, 'EnsureStatic', bool, False)
 		self.transform = Scribe_Values.Look(self.transform, 'transform', np.ndarray)
 		
-	def ThingName(self) -> str:
-		return self.display_name
+	def ThingID(self) -> str:
+		return self.GetUniqueLoadID()
 
 	def GetUniqueLoadID(self) -> str:
-		return f'{self.__qualname__}:{self.display_name}'
+		return f'{type(self).__qualname__}:{self.display_name}'
 
 	def set_transform(self, transform: np.ndarray):
 		self.transform = transform
@@ -92,8 +92,8 @@ class AprilTagDetector(IExposable, IThing):
 		self.decode_sharpening = Scribe_Values.Look(self.decode_sharpening, 'DecodeSharpening', float, 0.25)
 		self.default_tag_size = Scribe_Values.Look(self.default_tag_size, 'DefaultTagSize', float, 0.175)
 
-	def ThingName(self) -> str:
-		return self.display_name
+	def ThingID(self) -> str:
+		return f'{type(self).__qualname__}:{self.display_name}'
 
 	def getDetector(self) -> Detector:
 		if not self._detector:

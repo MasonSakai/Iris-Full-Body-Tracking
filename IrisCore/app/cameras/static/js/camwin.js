@@ -1,0 +1,1 @@
+(()=>{"use strict";document.getElementById("test")?.addEventListener("click",()=>{var e;e={id:"test_id",name:"test_name"},window.parent.postMessage({type:"camera:selected",payload:{id:e.id,name:e.name}},location.origin)})})();

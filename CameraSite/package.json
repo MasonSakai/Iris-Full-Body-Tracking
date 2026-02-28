@@ -1,0 +1,21 @@
+{
+	"name": "camerasite",
+	"version": "1.0.0",
+	"main": "app.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "tsc --build && npx webpack",
+		"clean": "tsc --build --clean"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@types/node": "^25.3.2",
+		"eslint": "^10.0.2",
+		"typescript": "^5.9.3",
+		"webpack": "^5.97.1",
+		"webpack-cli": "^5.1.4"
+	}
+}

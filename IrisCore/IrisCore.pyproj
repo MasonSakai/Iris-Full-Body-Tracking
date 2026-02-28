@@ -24,6 +24,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app\apriltag\module.py" />
+    <Compile Include="app\main\modal.py" />
     <Compile Include="utils\modules\lifecycle.py" />
     <Compile Include="app\cameras\module.py" />
     <Compile Include="app\apriltag\calibration.py" />
@@ -152,19 +153,21 @@
     <Content Include="app\apriltag\templates\_create_detector.html" />
     <Content Include="app\apriltag\templates\_view_tag.html" />
     <Content Include="app\cameras\ModInfo.xml" />
+    <Content Include="app\cameras\static\js\camwin.js" />
+    <Content Include="app\cameras\templates\cam_manager.html" />
     <Content Include="app\main\static\css\form-decorators.css" />
     <Content Include="app\apriltag\static\pdf\april-tags-pairs.pdf" />
     <Content Include="app\apriltag\static\pdf\april-tags-sixes.pdf" />
     <Content Include="app\apriltag\templates\apriltag.html" />
     <Content Include="app\apriltag\templates\_view_detector.html" />
     <Content Include="app\main\static\css\main.css" />
-    <Content Include="app\main\static\css\popup.css" />
+    <Content Include="app\main\static\css\modal.css" />
     <Content Include="app\main\static\img\github-mark-white.png" />
     <Content Include="app\main\static\img\github-mark.png" />
+    <Content Include="app\main\static\js\modal.js" />
     <Content Include="app\main\templates\base.html" />
     <Content Include="app\main\templates\bootstrap_wtf.html" />
     <Content Include="app\main\templates\index.html" />
-    <Content Include="app\main\templates\_popup.html" />
     <Content Include="featureNotes_tmp.txt" />
     <Content Include="modules\WebAI\ModInfo.xml" />
     <Content Include="modules\WebAI\templates\_cam_box.html" />
@@ -173,6 +176,7 @@
     <Content Include="modules\WebAI\static\js\CameraWorker.js" />
     <Content Include="modules\WebAI\static\js\camsite.js" />
     <Content Include="app\main\static\img\c8753add5bdefd40f3846900900fb75f.jpg" />
+    <Content Include="app\cameras\templates\_new_cam.html" />
     <Content Include="requirements.txt" />
     <Content Include="ModuleDocs.txt" />
   </ItemGroup>
@@ -184,6 +188,7 @@
     <Folder Include="app\apriltag\static\pdf\" />
     <Folder Include="app\apriltag\templates\" />
     <Folder Include="app\cameras\" />
+    <Folder Include="app\cameras\static\js\" />
     <Folder Include="app\cameras\templates\" />
     <Folder Include="app\cameras\static\" />
     <Folder Include="app\dataprocessing\" />

@@ -3,6 +3,13 @@
 {% block stylesheets %}
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('WebAI.static', filename='css/camsite.css') }}">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/form-decorators.css') }}">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}">
+{% endblock %}
+
+{% block javascript %}
+{{ super() }}
+<script src="{{ url_for('main.static', filename='js/modal.js') }}"></script>
 {% endblock %}
 
 {% block navbar %}
@@ -25,7 +32,7 @@
 <div id="camera-box-tmp" class="d-none"></div>
 
 
-<script> console.warn("TODO: USE _POPUP.HTML") </script>
+<script>console.warn("TODO: USE _POPUP.HTML")</script>
 <div id="Window_NewConfig" class="d-none">
 	<div class="card camera-card">
 		<h4 class="card-header">Configure Camera</h4>

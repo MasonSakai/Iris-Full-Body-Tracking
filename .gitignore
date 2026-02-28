@@ -9,12 +9,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-venv
-lib/OpenCV/build/*
-lib/OpenCV/install/*
-RemoteCamProcessing/src/*
-*/Iris_FBT/dist/*
-!Iris_FBT/Iris_FBT/bin/*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -367,3 +361,13 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Custom/autogen
+venv
+lib/OpenCV/build/*
+lib/OpenCV/install/*
+*/Iris_FBT/dist/*
+!Iris_FBT/Iris_FBT/bin/*
+/CameraSite/build
+/RemoteCamProcessing/build
+*.LICENSE.txt

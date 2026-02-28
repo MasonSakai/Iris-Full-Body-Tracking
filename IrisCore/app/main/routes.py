@@ -1,12 +1,15 @@
 from flask import render_template, flash, redirect, url_for, jsonify, request, abort
 
+from app import lifecycle
 from app.main import main_blueprint as bp_main
 #from app.main.models import ResearchField, ProgrammingLanguage, ResearchPosition, ResearchApplication
 
 
 @bp_main.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    return render_template('index.html',
+        module_content=[c for m in lifecycle.module_manager.modules if (c := m.get_index_content())]
+    )
 
 
 @bp_main.app_errorhandler(404)
