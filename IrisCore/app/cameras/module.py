@@ -38,12 +38,12 @@ class CameraModule(IrisModule):
 		from app.cameras import routes
 		self.app.register_blueprint(routes.bp_cam)
 
-
 	def start_runtime(self):
 		for cam in ThingDatabase(Camera).AllThings():
 			for ref in cam.references:
-				if ref.autostart:
-					ref.RequestStart()
+				if ref.autostart and ref.RequestAutoStart():
+					break
+
 
 def create_module(app) -> IrisModule:
 	return CameraModule(app)

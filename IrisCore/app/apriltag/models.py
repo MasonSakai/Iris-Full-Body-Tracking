@@ -18,7 +18,12 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 	
 	def __init__(self):
 		super().__init__()
+		self.tag_id = None
+		self.tag_family = None
 		self.tag_size = 0.1125
+		self.display_name = None
+		self.ensure_static = False
+		self.transform = None
 
 	def __repr__(self):
 		return '<AprilTag - {} "{}">'.format(self.index, self.display_name)
@@ -31,7 +36,7 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 		self.tag_family = Scribe_Values.Look(self.tag_family, 'TagFamily', str)
 		self.tag_size = Scribe_Values.Look(self.tag_size, 'TagSize', float)
 
-		self.ensure_static = Scribe_Values.Look(self.ensure_static, 'EnsureStatic', bool)
+		self.ensure_static = Scribe_Values.Look(self.ensure_static, 'EnsureStatic', bool, False)
 		self.transform = Scribe_Values.Look(self.transform, 'transform', np.ndarray)
 		
 	def ThingName(self) -> str:
@@ -63,6 +68,8 @@ class AprilTagDetector(IExposable, IThing):
 	
 	#functions
 	def __init__(self):
+		self.display_name = None
+		self.families = None
 		self.nthreads = 1
 		self.quad_decimate = 2.0
 		self.quad_sigma = 0.0

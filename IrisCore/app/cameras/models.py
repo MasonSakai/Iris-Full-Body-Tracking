@@ -18,26 +18,28 @@ class CameraReference(IExposable, IDataSource):
 
 	def __init__(self):
 		super().__init__()
+		self.autostart = False
 		self.active = False
+
 
 	def ExposeData(self):
 		super().ExposeData()
-		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool)
+		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool, False)
 
 	def ThingName(self):
 		return f"{self.__qualname__}:{self.parent.ThingName()}"
 
 	def RequestStart(self, *args, **kwargs) -> bool:
-		pass
+		return False
 	
 	def RequestStop(self, *args, **kwargs):
 		pass
 
-	def _AutoStart(self):
-		pass
+	def RequestAutoStart(self) -> bool:
+		return False
 	
-	def HasUpdate(self):
-		pass
+	def HasUpdate(self) -> bool:
+		return False
 
 	def GetData(self):
 		pass
@@ -49,20 +51,22 @@ class LocalCameraReference(CameraReference):
 	pid: int
 	
 	cap: cv.VideoCapture
+
+	def __init__(self):
+		super().__init__()
+		self.name = None
+		self.vid = None
+		self.pid = None
+		self.cap = None
 	
 	def ExposeData(self):
 		super().ExposeData()
 		self.name = Scribe_Values.Look(self.name, 'name', str)
 		self.vid = Scribe_Values.Look(self.vid, 'vid', int)
 		self.pid = Scribe_Values.Look(self.pid, 'pid', int)
-
-	def __init__(self, config: LocalCameraReference):
-		self.config = config
-		self.cap = None
-		self.active = False
 		
 	def RequestStart(self, *args, **kwargs):
-		return self._AutoStart()
+		return self.RequestAutoStart()
 	
 	def RequestStop(self, *args, **kwargs):
 		if self.active:
@@ -71,7 +75,7 @@ class LocalCameraReference(CameraReference):
 			with source_registry_lock:
 				ThingDatabase(IDataSource).Remove(self)
 
-	def _AutoStart(self):
+	def RequestAutoStart(self):
 		for cam in enumerate_cameras():
 			if (cam.name, cam.vid, cam.pid) == (self.config.name, self.config.vid, self.config.pid):
 				break
@@ -110,13 +114,15 @@ class LocalCameraReference(CameraReference):
 class Camera(IExposable, IThing, ILoadReferenceable):
 	
 	display_name : str
-	transform: np.ndarray
+	transform: np.ndarray | None
 
 	references: list[CameraReference]
 	
 	#functions
 	def __init__(self):
 		super().__init__()
+		self.display_name = None
+		self.transform = None
 		self.references = []
 
 	def __repr__(self):
@@ -149,6 +155,8 @@ class CVUndistortableCamera(Camera):
 		super().__init__()
 		self.calib_res_width = 0
 		self.calib_res_height = 0
+		self.camera_matrix = None
+		self.dist_coeffs = None
 	
 	def ExposeData(self):
 		super().ExposeData()

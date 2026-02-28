@@ -10,9 +10,9 @@ class AprilTagModule(IrisModule):
 	def load(self):
 		if Scribe.loader.LoadFile(os.path.join(self.app.config['APPDATA_PATH'], 'apriltags.xml')):
 			tags = Scribe_Collections.LookList(None, 'tags', AprilTag, Scribe_Collections.LookMode.Deep)
-			ThingDatabase(AprilTag).Add(*tags)
+			if tags: ThingDatabase(AprilTag).Add(*tags)
 			detectors = Scribe_Collections.LookList(None, 'detectors', AprilTagDetector, Scribe_Collections.LookMode.Deep)
-			ThingDatabase(AprilTagDetector).Add(*detectors)
+			if detectors: ThingDatabase(AprilTagDetector).Add(*detectors)
 			Scribe.loader.CloseFile()
 			
 	def save(self):

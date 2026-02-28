@@ -19,24 +19,6 @@ Startup Map:
 		does not attempt to modify list
 		will not check dependencies or load order
 
-	Load Defs:
-		For module in loadedModules:
-			RegisterDefTypes (RegisterDefType("xmlTag", tDef, silentFailure))
-			Apply Patches
-			Collect names and organize load order (inheritence)
-			Resolve new defs
-
-		Patches:
-			based on rimworld
-			target path
-			operation type
-			new data
-			not retroactive to inherited classes
-
-		Def Resolution:
-			Copy parent (if applicable, assume parent is resolved)
-			Update data from file
-
 	RegisterFlask:
 		Handles blueprints
 		homepage cards as defs?
