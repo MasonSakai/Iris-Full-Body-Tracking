@@ -4,7 +4,7 @@ from moms_apriltag import TagGenerator2
 import numpy as np
 import cv2 as cv
 
-from app.main.modal import modal_redirect
+from app.main.modal import modal_redirect, modal_success
 from utils.registry import ThingDatabase
 from app.apriltag import found_tags, seen_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
@@ -49,7 +49,7 @@ def create_detector():
 
         ThingDatabase(AprilTagDetector).Add(detector)
         flash('Detector {} Created'.format(detector.display_name))
-        return modal_redirect('apriltag.index')
+        return modal_success(id=detector.ThingID())
     elif request.method == 'GET':
         form.display_name.data = 'tag36h11'
         form.families.data = 'tag36h11'
@@ -59,9 +59,8 @@ def create_detector():
         form.refine_edges.data = detector.refine_edges
         form.decode_sharpening.data = detector.decode_sharpening
         form.default_tag_size.data = detector.default_tag_size * 100.
-        return render_template('_create_detector.html', form=form, detector=detector)
 
-    return render_template('_create_detector.html', form=form, detector=detector)
+    return render_template('_create_detector.html', form=form)
 
 @bp_aptg.route('/detectors/<id>', methods=['GET', 'POST'])
 def view_detector(id):
@@ -77,7 +76,7 @@ def view_detector(id):
         detector.default_tag_size = form.default_tag_size.data / 100.
 
         flash('Detector {} Updated'.format(detector.display_name))
-        return modal_redirect('apriltag.index')
+        return modal_success(id=detector.ThingID())
     elif request.method == 'GET':
         form.families.data = detector.families
         form.nthreads.data = detector.nthreads
@@ -86,7 +85,6 @@ def view_detector(id):
         form.refine_edges.data = detector.refine_edges
         form.decode_sharpening.data = detector.decode_sharpening
         form.default_tag_size.data = detector.default_tag_size * 100
-        return render_template('_view_detector.html', form=form, detector=detector)
 
     return render_template('_view_detector.html', form=form, detector=detector)
 

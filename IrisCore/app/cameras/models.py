@@ -1,12 +1,15 @@
 from __future__ import annotations
+import os
+from pathlib import Path
 import cv2 as cv
-from cv2.typing import MatLike
+from cv2.typing import MatLike, Rect
 from cv2_enumerate_cameras import enumerate_cameras
 from cv2_enumerate_cameras.camera_info import CameraInfo
 import numpy as np
 
 from app.dataproviders import IDataSource
 from app.synchronize import source_registry_lock
+from app import lifecycle
 from utils.registry import IThing, ThingDatabase
 from utils.scribe import  IExposable, ILoadReferenceable, LoadSaveMode, Scribe, Scribe_Values, Scribe_Collections
 
@@ -24,7 +27,7 @@ class CameraReference(IExposable, IDataSource):
 
 	def ExposeData(self):
 		super().ExposeData()
-		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool, False)
+		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool, defaultValue=False)
 
 	def ThingID(self):
 		return f"{type(self).__qualname__}:{self.parent.ThingID()}"
@@ -116,21 +119,39 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 	display_name : str
 	transform: np.ndarray | None
 
+	calib_res_width: int
+	calib_res_height: int
+	camera_matrix: np.ndarray | None
+	dist_coeffs: np.ndarray | None
+	calib_err: float
+
 	references: list[CameraReference]
 	
 	#functions
 	def __init__(self):
 		super().__init__()
 		self.display_name = None
+		self.calib_res_width = 0
+		self.calib_res_height = 0
+		self.camera_matrix = None
+		self.dist_coeffs = None
+		self.calib_err = -1.0
 		self.transform = None
 		self.references = []
 
 	def __repr__(self):
-		return '<Camera - {} "{}">'.format(self._index, self.display_name)
+		return '<Camera - "{}">'.format(self.display_name)
 	
 	def ExposeData(self):
 		super().ExposeData()
 		self.display_name = Scribe_Values.Look(self.display_name, 'name', str)
+
+		self.calib_res_width = Scribe_Values.Look(self.calib_res_width, 'CalibResWidth', int, defaultValue=0)
+		self.calib_res_height = Scribe_Values.Look(self.calib_res_height, 'CalibResHeight', int, defaultValue=0)
+		self.camera_matrix = Scribe_Values.Look(self.camera_matrix, 'CameraMatrix', np.ndarray)
+		self.dist_coeffs = Scribe_Values.Look(self.dist_coeffs, 'DistCoeffs', np.ndarray)
+		self.calib_err = Scribe_Values.Look(self.calib_err, 'CalibError', float, -1.0)
+
 		self.transform = Scribe_Values.Look(self.transform, 'transform', np.ndarray)
 
 		self.references = Scribe_Collections.LookList(self.references, 'references', CameraReference, Scribe_Collections.LookMode.Deep)
@@ -139,36 +160,32 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 				ref.parent = self
 	
 	def ThingID(self) -> str:
-		return self.GetUniqueLoadID()
+		return self.display_name
+
+	def Rename(self, new_name: str) -> bool:
+		if ThingDatabase(Camera).Get(new_name):
+			return False
+		path, exists = self.get_file_path()
+		ThingDatabase(Camera).Remove(self)
+		self.display_name = new_name
+		ThingDatabase(Camera).Add(self)
+		if exists:
+			print(path, Path(path).rename(new_name).resolve())
+		return True
 
 	def GetUniqueLoadID(self) -> str:
 		return f'{type(self).__qualname__}:{self.display_name}'
-	
-class CVUndistortableCamera(Camera):
 
-	calib_res_width: int
-	calib_res_height: int
-	camera_matrix: np.ndarray | None
-	dist_coeffs: np.ndarray | None
+	def get_file_path(self, *path_ext: str) -> tuple[str, bool]:
+		path = os.path.join(lifecycle.app.config["APPDATA_PATH"], 'cameras', self.display_name, *path_ext)
+		return path, os.path.isdir(path)
 
-	def __init__(self):
-		super().__init__()
-		self.calib_res_width = 0
-		self.calib_res_height = 0
-		self.camera_matrix = None
-		self.dist_coeffs = None
-	
-	def ExposeData(self):
-		super().ExposeData()
-		self.calib_res_width = Scribe_Values.Look(self.calib_res_width, 'CalibResWidth', int, default_value=0)
-		self.calib_res_height = Scribe_Values.Look(self.calib_res_height, 'CalibResHeight', int, default_value=0)
-		self.camera_matrix = Scribe_Values.Look(self.camera_matrix, 'CameraMatrix', np.ndarray)
-		self.dist_coeffs = Scribe_Values.Look(self.dist_coeffs, 'DistCoeffs', np.ndarray)
-
-
-	def set_camera_params(self, camera_matrix: np.ndarray, dist_coeffs: np.ndarray):
+	def set_camera_params(self, height: int, width: int, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, error: float):
+		self.calib_res_width = width
+		self.calib_res_height = height
 		self.camera_matrix = camera_matrix
 		self.dist_coeffs = dist_coeffs
+		self.calib_err = error
 
 	def get_camera_params(self):
 		return (self.camera_matrix, self.dist_coeffs)
@@ -186,11 +203,21 @@ class CVUndistortableCamera(Camera):
 	def undistortImage(self, image: MatLike):
 		return self.undistortImage(image, *self.get_camera_params())
 		
-	def undistortImage(self, image: MatLike, camera_matrix: np.ndarray, dist_coeffs: np.ndarray):
-		return cv.undistort(image, camera_matrix, dist_coeffs)
+	def undistortImage(self, image: MatLike, camera_matrix: np.ndarray, dist_coeffs: np.ndarray) -> tuple[MatLike, Rect]:
+		"""
+		Undistorts an image and gives cropped rectangle
+
+		dst = cv.undistort(img, mtx, dist, None, newcameramtx)
+		# crop the image
+		x, y, w, h = roi
+		dst = dst[y:y+h, x:x+w]
+		"""
+		h, w = image.shape[:2]
+		newcameramtx, roi = cv.getOptimalNewCameraMatrix(camera_matrix, dist_coeffs, (w,h), 1, (w,h))
+		return cv.undistort(image, camera_matrix, dist_coeffs, None, newcameramtx), roi
 
 	def UndistortPoints(self, data: np.ndarray):
-		return CVUndistortableCamera.UndistortPoints(data, *self.get_camera_params())
+		return Camera.UndistortPoints(data, *self.get_camera_params())
 
 	@staticmethod
 	def UndistortPoints(data: np.ndarray, camera_matrix: np.ndarray, dist_coeffs: np.ndarray):

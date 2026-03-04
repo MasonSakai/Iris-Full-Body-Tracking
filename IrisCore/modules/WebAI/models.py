@@ -3,7 +3,7 @@ import cv2 as cv
 import base64
 
 from app import socketio
-from app.cameras.models import CVUndistortableCamera, CameraReference
+from app.cameras.models import CameraReference
 from app.dataproviders import IDataSource
 from utils.registry import ThingDatabase
 from utils.scribe import LoadSaveMode, Scribe, Scribe_Values
@@ -11,8 +11,6 @@ from app.synchronize import source_registry_lock
 from app.apriltag.calibration import CalculateCameraPose
 
 class WebAICameraReference(CameraReference):
-
-	parent: CVUndistortableCamera
 
 	socket_sid : str
 	confidence_threshold : float

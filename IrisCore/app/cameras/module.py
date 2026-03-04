@@ -1,10 +1,12 @@
 from __future__ import annotations
 import os
+from lxml import etree as ET
 
 from flask import url_for
+from app.cameras import calibration
 from utils.modules.iris_modules import IrisModule
 from utils.registry import CreateThingDatabase, ThingDatabase
-from utils.scribe import Scribe, Scribe_Collections
+from utils.scribe import Scribe, Scribe_Collections, Scribe_Deep
 
 class CameraModule(IrisModule):
 
@@ -14,6 +16,8 @@ class CameraModule(IrisModule):
 
 	def load(self):
 		if Scribe.loader.LoadFile(os.path.join(self.app.config['APPDATA_PATH'], 'cameras.xml')):
+			calibration.config = Scribe_Deep.Look(calibration.config, 'calibration', calibration.CalibrationConfig)
+
 			cameras = Scribe_Collections.LookList(
 				None,
 				'cameras',
@@ -24,17 +28,19 @@ class CameraModule(IrisModule):
 			Scribe.loader.CloseFile()
 
 	def save(self):
-		db_cams = ThingDatabase(Camera)
+		Scribe.saver.InitSaving('config')
 
-		if db_cams.ThingCount() > 0:
-			Scribe.saver.InitSaving('config')
-			Scribe_Collections.LookList(
-				db_cams.AllThingsListForReading(),
-				'cameras',
-				Camera,
-				Scribe_Collections.LookMode.Deep
-			)
-			Scribe.saver.FinalizeSaving(os.path.join(self.app.config['APPDATA_PATH'], 'cameras.xml'))
+		Scribe_Deep.Look(calibration.config, 'calibration', calibration.CalibrationConfig)
+
+		db_cams = ThingDatabase(Camera)
+		Scribe_Collections.LookList(
+			db_cams.AllThingsListForReading(),
+			'cameras',
+			Camera,
+			Scribe_Collections.LookMode.Deep
+		)
+		
+		Scribe.saver.FinalizeSaving(os.path.join(self.app.config['APPDATA_PATH'], 'cameras.xml'))
 
 	def build_runtime(self):
 		from app.cameras.routes import bp_cam

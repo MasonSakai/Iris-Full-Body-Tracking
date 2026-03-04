@@ -24,6 +24,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app\apriltag\module.py" />
+    <Compile Include="app\cameras\calibration.py" />
+    <Compile Include="app\cameras\forms.py" />
     <Compile Include="app\main\modal.py" />
     <Compile Include="utils\modules\lifecycle.py" />
     <Compile Include="app\cameras\module.py" />
@@ -155,6 +157,8 @@
     <Content Include="app\cameras\ModInfo.xml" />
     <Content Include="app\cameras\static\js\camwin.js" />
     <Content Include="app\cameras\templates\cam_manager.html" />
+    <Content Include="app\cameras\templates\_calib_cam.html" />
+    <Content Include="app\cameras\templates\_view_cam.html" />
     <Content Include="app\main\static\css\form-decorators.css" />
     <Content Include="app\apriltag\static\pdf\april-tags-pairs.pdf" />
     <Content Include="app\apriltag\static\pdf\april-tags-sixes.pdf" />
@@ -168,6 +172,7 @@
     <Content Include="app\main\templates\base.html" />
     <Content Include="app\main\templates\bootstrap_wtf.html" />
     <Content Include="app\main\templates\index.html" />
+    <Content Include="app\main\templates\np_table.html" />
     <Content Include="featureNotes_tmp.txt" />
     <Content Include="modules\WebAI\ModInfo.xml" />
     <Content Include="modules\WebAI\templates\_cam_box.html" />

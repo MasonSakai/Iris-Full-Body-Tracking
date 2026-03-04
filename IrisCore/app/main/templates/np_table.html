@@ -1,0 +1,18 @@
+{% macro np_table(ndarray, title, table_class) %}
+<table class="table caption-top {{ table_class }}">
+	{% if title %}
+	<caption>
+		{{title}}
+	</caption>
+	{% endif %}
+	<tbody>
+		{% for y in range(ndarray.shape[1]) %}
+		<tr>
+			{% for x in range(ndarray.shape[0]) %}
+			<td>{{ "%.4g" | format(ndarray[x, y]) }}</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endmacro %}

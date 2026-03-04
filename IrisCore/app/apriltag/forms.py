@@ -1,12 +1,16 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, FloatField, BooleanField
-from wtforms.validators import DataRequired, NumberRange
+from pupil_apriltags import Detector
+from wtforms import StringField, SubmitField, IntegerField, FloatField, BooleanField, ValidationError
+from wtforms.validators import DataRequired, NumberRange, Regexp
 
-from app.apriltag.models import AprilTagDetector, AprilTag
+from app.apriltag import AprilTag
+from app.apriltag.models import AprilTagDetector
+from utils.registry import ThingDatabase
 
 class DetectorForm(FlaskForm):
     
-    families = StringField('Tag Families', validators=[DataRequired()])
+    families = StringField('Tag Families', validators=[DataRequired(),
+                                                       Regexp(r'^[a-zA-Z0-9\s]+$', message="Tag families must be separated only by spaces")])
     nthreads = IntegerField('Number of threads', validators=[NumberRange(min=1)])
     quad_decimate = FloatField('Quad Decimate', validators=[NumberRange(min=0)])
     quad_sigma = FloatField('Quad Sigma', validators=[NumberRange(min=0)])
@@ -14,24 +18,27 @@ class DetectorForm(FlaskForm):
     decode_sharpening = FloatField('Decode Sharpening', validators=[NumberRange(min=0)])
     default_tag_size = FloatField('Default tag size (cm)', validators=[NumberRange(min=0)])
 
-    submit = SubmitField('Submit')
+    submit = SubmitField('Confirm')
 
-    #add families validator to prevent duplicates?
+    def validate_families(self, field: StringField):
+        for thing in ThingDatabase(AprilTagDetector).AllThingsListForReading():
+            if thing.families == field.data:
+                raise ValidationError('Families match existing detector')
 
-class CreateDetectorForm(FlaskForm):
+        try:
+            Detector(families=field.data)
+        except Exception as ex:
+            raise ValidationError(str(ex))
+
+class CreateDetectorForm(DetectorForm):
     
     display_name = StringField('Detector Name', validators=[DataRequired()])
-    families = StringField('Tag Families', validators=[DataRequired()])
-    nthreads = IntegerField('Number of threads', validators=[NumberRange(min=1)])
-    quad_decimate = FloatField('Quad Decimate', validators=[NumberRange(min=0)])
-    quad_sigma = FloatField('Quad Sigma', validators=[NumberRange(min=0)])
-    refine_edges = BooleanField('Refine Edges')
-    decode_sharpening = FloatField('Decode Sharpening', validators=[NumberRange(min=0)])
-    default_tag_size = FloatField('Default tag size (cm)', validators=[NumberRange(min=0)])
+    submit = SubmitField('Create')
 
-    submit = SubmitField('Submit')
-
-    #add families validator to prevent duplicates?
+    def validate_display_name(self, field: StringField):
+        for thing in ThingDatabase(AprilTagDetector).AllThingsListForReading():
+            if thing.display_name == field.data:
+                raise ValidationError('Name matches existing detector')
 
 class FoundTagForm(FlaskForm):
     
@@ -39,9 +46,12 @@ class FoundTagForm(FlaskForm):
     tag_size = FloatField('Tag Size (cm)', validators=[NumberRange(min=0)])
 
     submit = SubmitField('Create')
+
+    def validate_display_name(self, field: StringField):
+        for thing in ThingDatabase(AprilTag).AllThingsListForReading():
+            if thing.display_name == field.data:
+                raise ValidationError('Name matches existing detector')
     
 class EditTagForm(FoundTagForm):
-
     ensure_static = BooleanField('Ensure Static')
-
     submit = SubmitField('Submit')

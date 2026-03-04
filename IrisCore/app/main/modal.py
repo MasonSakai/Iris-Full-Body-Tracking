@@ -13,6 +13,10 @@ def modal_success(**payload):
 
 
 def modal_redirect(endpoint=None, url=None, **values):
+    """
+    Redirects with modal escape
+    DOES NOT REDIRECT MODAL ITSELF (if is_modal_request)
+    """
     if endpoint:
         url = url_for(endpoint, **values)
 
@@ -34,8 +38,11 @@ Modal.open('/cameras/new')
         console.log('Created:', camera);
     });
 
+Navigate inside modal:
+<a href="/sites/next" data-modal>Next Site</a>
+
 Open nested modal inside modal:
-<a href="/sites/new" data-modal>+ New Site</a>
+<a href="/sites/new" data-modal-new>+ New Site</a>
 
 Break out of modal: (optional/explicit, all links breakout at the moment)
 <a href="/dashboard" data-full-page>Dashboard</a>

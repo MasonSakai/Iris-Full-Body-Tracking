@@ -1,0 +1,39 @@
+{% import 'bootstrap_wtf.html' as wtf %}
+
+<div class="card popup-form">
+	<div class="card-header text-center">
+		<h4>
+			Update Camera
+		</h4>
+	</div>
+	<form action="{{ url_for('cameras.view_camera', id=camera.ThingID()) }}" method="POST">
+		{{ form.hidden_tag() }}
+
+		<div class="card-body">
+			<div class="mb-3 input-group">
+				{{ form.display_name.label(class='input-group-text') }}
+				{{ form.display_name(class='form-control') }}
+				{%- for error in form.display_name.errors %}
+					<div class="invalid-feedback">{{ error }}</div>
+				{%- endfor %}
+			</div>
+
+			<a type="button" class="form-control mb-3 btn btn{% if calibrated %}-outline{% endif %}-secondary" href="{{ url_for("cameras.calibrate", id=camera.ThingID()) }}" data-modal-new>Calibrate</a>
+
+			<div class="input-group">
+				<span class="input-group-text form-control">Create Reference</span>
+				<a class="btn btn-outline-secondary">Local</a>
+				<a class="btn btn-outline-secondary">Remote</a>
+			</div>
+		</div>
+
+		<div class="card-footer">
+			<div class="form-hor">
+				<button type="button" class="btn btn-secondary mb-3" data-modal-close>Cancel</button>
+				{{ form.submit(class="btn btn-primary mb-3") }}
+			</div>
+			<a href="{{ url_for('cameras.delete_camera', id=camera.ThingID()) }}" class="btn btn-danger form-control mb-3"
+			   onclick="if (event.target.innerText == 'DELETE') { event.stopPropagation(); event.preventDefault(); event.target.innerText = 'ARE YOU SURE? (DELETE)' }">DELETE</a>
+		</div>
+	</form>
+</div>

@@ -3,10 +3,11 @@ import cv2 as cv
 
 from app.apriltag import add_found_tag, add_seen_tags, clear_tags_for, drawTag
 from app.apriltag.models import AprilTagDetector
-from app.cameras.models import CVUndistortableCamera
+from app.cameras.models import Camera
+from utils.registry import ThingDatabase
 
 
-def GetTags(cam: CVUndistortableCamera, img):
+def GetTags(cam: Camera, img):
     (_, dist_coeffs) = cam.get_camera_params()
 
     camera_matrix = cam.rescale_camera_matrix(img.shape)
@@ -25,8 +26,7 @@ def GetTags(cam: CVUndistortableCamera, img):
     all_tags = []
     clear_tags_for(cam)
 
-    detectors = db.session.scalars(sqla.select(AprilTagDetector)).all()
-    for detector in detectors:
+    for detector in ThingDatabase(AprilTagDetector).AllThingsListForReading():
         (res, tags) = detector.detect(img, camera_matrix)
         all_tags.extend(tags)
         for r in res:
@@ -40,7 +40,7 @@ def GetTags(cam: CVUndistortableCamera, img):
 
     return all_tags
 
-def CalculateCameraPose(cam: CVUndistortableCamera, img):
+def CalculateCameraPose(cam: Camera, img):
     tags = GetTags(cam, img)
 
     print('CalculateCameraPose', cam.display_name, len(tags), '(todo)')

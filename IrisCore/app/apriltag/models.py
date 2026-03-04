@@ -99,12 +99,12 @@ class AprilTagDetector(IExposable, IThing):
 		if not self._detector:
 			self._detector = Detector(
 				families=self.families,
-			   nthreads=self.nthreads,
-			   quad_decimate=self.quad_decimate,
-			   quad_sigma=self.quad_sigma,
-			   refine_edges=self.refine_edges,
-			   decode_sharpening=self.decode_sharpening,
-			   debug=0
+				nthreads=self.nthreads,
+				quad_decimate=self.quad_decimate,
+				quad_sigma=self.quad_sigma,
+				refine_edges=self.refine_edges,
+				decode_sharpening=self.decode_sharpening,
+				debug=0
 			)
 		return self._detector
 

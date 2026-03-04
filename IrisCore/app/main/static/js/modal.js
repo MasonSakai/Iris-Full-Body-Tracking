@@ -90,9 +90,22 @@
 
                     // Links that open another modal
                     container.querySelectorAll('[data-modal]').forEach(link => {
+                        link.addEventListener('click', async (e) => {
+                            e.preventDefault();
+                            await load(link.href, {
+                                method: link.method || 'GET',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            });
+                        });
+                    });
+
+                    // Links that open another modal
+                    container.querySelectorAll('[data-modal-new]').forEach(link => {
                         link.addEventListener('click', (e) => {
                             e.preventDefault();
-                            Modal.open(link.href);
+                            Modal.open(link.href).catch(() => { });
                         });
                     });
 
@@ -118,5 +131,19 @@
     };
 
     window.Modal = Modal;
+    window.addEventListener('load', () => {
+        document.querySelectorAll('[data-modal-new]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                Modal.open(link.href || link.getAttribute('href'))
+                    .then(() => {
+                        if (link.hasAttribute('data-modal-refresh')) {
+                            window.location.href = window.location.href;
+                        }
+                    })
+                    .catch(() => { });
+            });
+        });
+    })
 
 })();
