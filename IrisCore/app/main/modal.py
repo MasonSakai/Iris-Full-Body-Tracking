@@ -47,7 +47,11 @@ Open nested modal inside modal:
 Break out of modal: (optional/explicit, all links breakout at the moment)
 <a href="/dashboard" data-full-page>Dashboard</a>
 
-Close modal:
+Close modal (counts as failure):
 <button data-modal-close>Cancel</button>
+
+Refresh page (base layer only, always will refresh on failure/cancel):
+<a href="/sites/new" data-modal-new data-modal-refresh>+ New Site</a>
+<a href="/sites/new" data-modal-new data-modal-refresh-always>+ New Site</a>
 
 """

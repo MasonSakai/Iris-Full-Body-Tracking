@@ -141,7 +141,11 @@
                             window.location.href = window.location.href;
                         }
                     })
-                    .catch(() => { });
+                    .catch(() => {
+                        if (link.hasAttribute('data-modal-refresh-always')) {
+                            window.location.href = window.location.href;
+                        }
+                    });
             });
         });
     })

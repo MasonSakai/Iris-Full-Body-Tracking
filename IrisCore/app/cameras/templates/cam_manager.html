@@ -9,7 +9,7 @@
 		<caption class="ps-3 border-bottom border-dark-subtle">
 			<h5 style="display: inline-block;">Cameras: {{ cams | length }}</h5>
 			<span style="display: inline-block; width: 100px;">&nbsp;</span>
-			<button class="btn btn-outline-info me-2" href="{{ url_for("cameras.new_camera") }}" data-modal-new data-modal-refresh>+</button>
+			<button class="btn btn-outline-info me-2" href="{{ url_for("cameras.new_camera") }}" data-modal-new data-modal-refresh-always>+</button>
 		</caption>
 		{% if cams|length > 0 %}
 		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
@@ -19,7 +19,7 @@
 		</thead>
 		<tbody>
 			{% for cam in cams %}
-			<tr class="p-1 border-bottom border-dark-subtle" href="{{ url_for("cameras.view_camera", id=cam.ThingID()) }}" data-modal-new data-modal-refresh>
+			<tr class="p-1 border-bottom border-dark-subtle" href="{{ url_for("cameras.view_camera", id=cam.ThingID()) }}" data-modal-new data-modal-refresh-always>
 				<td class="p-2">{{ cam.display_name }}</td>
 			</tr>
 			{% endfor %}
