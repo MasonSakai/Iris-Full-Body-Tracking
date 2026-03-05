@@ -27,6 +27,7 @@
     <Compile Include="app\cameras\calibration.py" />
     <Compile Include="app\cameras\forms.py" />
     <Compile Include="app\main\modal.py" />
+    <Compile Include="app\main\module.py" />
     <Compile Include="utils\modules\lifecycle.py" />
     <Compile Include="app\cameras\module.py" />
     <Compile Include="app\apriltag\calibration.py" />
@@ -156,9 +157,11 @@
     <Content Include="app\apriltag\templates\_view_tag.html" />
     <Content Include="app\cameras\ModInfo.xml" />
     <Content Include="app\cameras\static\js\camwin.js" />
+    <Content Include="app\cameras\static\pdf\calibration-checker-board.pdf" />
     <Content Include="app\cameras\templates\cam_manager.html" />
     <Content Include="app\cameras\templates\_calib_cam.html" />
     <Content Include="app\cameras\templates\_view_cam.html" />
+    <Content Include="app\main\ModInfo.xml" />
     <Content Include="app\main\static\css\form-decorators.css" />
     <Content Include="app\apriltag\static\pdf\april-tags-pairs.pdf" />
     <Content Include="app\apriltag\static\pdf\april-tags-sixes.pdf" />
@@ -194,6 +197,7 @@
     <Folder Include="app\apriltag\templates\" />
     <Folder Include="app\cameras\" />
     <Folder Include="app\cameras\static\js\" />
+    <Folder Include="app\cameras\static\pdf\" />
     <Folder Include="app\cameras\templates\" />
     <Folder Include="app\cameras\static\" />
     <Folder Include="app\dataprocessing\" />

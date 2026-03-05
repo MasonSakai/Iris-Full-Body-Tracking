@@ -137,7 +137,7 @@
                 e.preventDefault();
                 Modal.open(link.href || link.getAttribute('href'))
                     .then(() => {
-                        if (link.hasAttribute('data-modal-refresh')) {
+                        if (link.hasAttribute('data-modal-refresh') || link.hasAttribute('data-modal-refresh-always')) {
                             window.location.href = window.location.href;
                         }
                     })

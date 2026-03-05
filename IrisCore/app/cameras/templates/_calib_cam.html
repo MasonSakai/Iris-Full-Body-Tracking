@@ -8,63 +8,92 @@
 	</div>
 
 	<div class="card-body">
-		<h5 class="card-title">Calibration Images</h5>
-		<div class="mb-1">
-			<span class="card-text">This camera has {{ files | length }} files</span>
-			{% if (files | length) > 0 %}
-			<a class="btn btn-outline-danger btn-sm" href="{{ url_for('cameras.calibrate_clear_files', id=camera.ThingID()) }}" data-modal>Clear</a>
-			{% endif %}
+		<div class="card">
+			<div class="card-header">
+				<h5 class="card-title">Calibration Images</h5>
+			</div>
+			<div class="card-body">
+				<div class="mb-1">
+					<span class="card-text">This camera has {{ files | length }} files</span>
+					{% if (files | length) > 0 %}
+					<a class="btn btn-outline-danger btn-sm" href="{{ url_for('cameras.calibrate_clear_files', id=camera.ThingID()) }}" data-modal>Clear</a>
+					{% endif %}
+				</div>
+
+				<form action="{{ url_for('cameras.calibrate_files_upload', id=camera.ThingID()) }}" method="POST">
+					{{ file_form.hidden_tag() }}
+					<div class="input-group">
+						{{ file_form.image_files(class='form-control') }}
+						{{ file_form.submit(class="btn btn-outline-secondary") }}
+					</div>
+					{%- for error in file_form.image_files.errors %}
+					<div class="invalid-feedback" style="display: block;">{{ error }}</div>
+					{%- endfor %}
+				</form>
+			</div>
 		</div>
 
-		<form action="{{ url_for('cameras.calibrate_files_upload', id=camera.ThingID()) }}" method="POST">
-			{{ file_form.hidden_tag() }}
-			<div class="input-group mb-3">
-				{{ file_form.image_files(class='form-control') }}
-				{{ file_form.submit(class="btn btn-outline-secondary") }}
+		<div class="card mt-3">
+			<div class="card-header">
+				<h5 class="card-title">Checkerboard Config</h5>
 			</div>
-			{%- for error in file_form.image_files.errors %}
-			<div class="invalid-feedback" style="display: block;">{{ error }}</div>
-			{%- endfor %}
-		</form>
-
-		<h5 class="card-title">Checkerboard Config</h5>
-		<form action="{{ url_for('cameras.calibrate_config', id=camera.ThingID()) }}" method="POST">
-			{{ config_form.hidden_tag() }}
-			<div class="input-group mb-1">
-				{{ config_form.checkerboard_x.label(class='input-group-text') }}
-				{{ config_form.checkerboard_x(class='form-control') }}
-				{{ config_form.checkerboard_y.label(class='input-group-text') }}
-				{{ config_form.checkerboard_y(class='form-control') }}
+			<div class="card-body">
+				<form action="{{ url_for('cameras.calibrate', id=camera.ThingID()) }}" method="POST" id="config_form">
+					{{ config_form.hidden_tag() }}
+					<div class="input-group mb-1">
+						{{ config_form.checkerboard_x.label(class='input-group-text') }}
+						{{ config_form.checkerboard_x(class='form-control') }}
+						{{ config_form.checkerboard_y.label(class='input-group-text') }}
+						{{ config_form.checkerboard_y(class='form-control') }}
+						<a class="btn btn-outline-secondary btn-sm" href="{{ url_for('cameras.static', filename='pdf/calibration-checker-board.pdf') }}" download>Checkerboard pdf</a>
+					</div>
+				</form>
 			</div>
-			<div class="input-group">
-				{{ config_form.checkerboard_w.label(class='input-group-text') }}
-				{{ config_form.checkerboard_w(class='form-control') }}
-				{{ config_form.submit(class="btn btn-outline-secondary") }}
-			</div>
-		</form>
+		</div>
 
 		{% if camera.calib_err != -1 %}
-		<h5 class="card-title mt-3">Current Settings</h5>
-		<p class="card-text mb-1">Resolution: {{ camera.calib_res_width }}x{{ camera.calib_res_height }}</p>
-		<p class="card-text mb-1">Reprojection error: {{ "%.4g" | format(camera.calib_err) }}</p>
-		<div class="form-hor mb-1">
-			{{ np_table(camera.camera_matrix, 'Camera Matrix') }}
-			{{ np_table(camera.dist_coeffs, 'Distortion Coefficients') }}
+		<div class="card mt-3">
+			<div class="card-header">
+				<h5 class="card-title">Current Settings</h5>
+			</div>
+			<div class="card-body">
+				<div class="card-group">
+					<div class="card">
+						<div class="card-header">Camera Matrix</div>
+						{{ np_table(camera.camera_matrix, '', 'mb-0') }}
+						<div class="card-body">
+							<p class="card-text mb-1">Resolution: {{ camera.calib_res_width }}x{{ camera.calib_res_height }}</p>
+							<p class="card-text">Reprojection error: {{ "%.4g" | format(camera.calib_err) }}</p>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-header">Distortion Coefficients</div>
+						{{ np_table(camera.dist_coeffs, '', 'mb-0') }}
+					</div>
+				</div>
+			</div>
 		</div>
 		{% endif %}
 
 		{% if feedback %}
-		<h5 class="mt-3 card-title">Calibration Feedback</h5>
-		<p class="card-text">{{ feedback }}</p>
+
+		<div class="card mt-3">
+			<div class="card-header">
+				<h5 class="card-title">Calibration Feedback</h5>
+			</div>
+			<div class="card-body">
+				<p class="card-text">{{ feedback }}</p>
+			</div>
+		</div>
 		{% endif %}
 	</div>
 
-	<div class="card-footer">
-		<form action="{{ url_for('cameras.calibrate', id=camera.ThingID()) }}" method="POST">
-			<div class="form-hor mb-3">
-				<button type="button" class="btn btn-secondary" data-modal-close>Close</button>
-				<button type="submit" class="btn btn-primary">Calibrate</button>
-			</div>
-		</form>
-	</div>
+<div class="card-footer">
+	<form action="{{ url_for('cameras.calibrate', id=camera.ThingID()) }}" method="POST">
+		<div class="form-hor mb-3">
+			<button type="button" class="btn btn-secondary" data-modal-close>Close</button>
+			<button type="submit" class="btn btn-primary" form="config_form">Calibrate</button>
+		</div>
+	</form>
+</div>
 </div>

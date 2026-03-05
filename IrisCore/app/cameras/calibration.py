@@ -18,22 +18,19 @@ class CalibrationConfig(IExposable):
     def __init__(self):
         self.checkerboard_x = 7
         self.checkerboard_y = 9
-        self.checkerboard_w = 0.2
+        self.checkerboard_w = 0.02
 
     def ExposeData(self):
         self.checkerboard_x = Scribe_Values.Look(self.checkerboard_x, 'width', int, 7)
         self.checkerboard_y = Scribe_Values.Look(self.checkerboard_y, 'height', int, 9)
-        self.checkerboard_w = Scribe_Values.Look(self.checkerboard_w, 'size', float, 0.2)
 
     def WriteForm(self, form: CalibrationConfigForm):
         form.checkerboard_x.data = self.checkerboard_x
         form.checkerboard_y.data = self.checkerboard_y
-        form.checkerboard_w.data = self.checkerboard_w * 100.
 
     def ReadForm(self, form: CalibrationConfigForm):
         self.checkerboard_x = form.checkerboard_x.data
         self.checkerboard_y = form.checkerboard_y.data
-        self.checkerboard_w = form.checkerboard_w.data / 100.
 
 config = CalibrationConfig()
 
@@ -56,7 +53,6 @@ def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
     
     objp = np.zeros((config.checkerboard_y * config.checkerboard_x,3), np.float32)
     objp[:,:2] = np.mgrid[0:config.checkerboard_y, 0:config.checkerboard_x].T.reshape(-1,2)
-    objp *= config.checkerboard_w
 
     objpoints = [] # 3d point in real world space
     imgpoints = [] # 2d points in image plane.
@@ -77,8 +73,6 @@ def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
  
             corners2 = cv.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
             imgpoints.append(corners2)
-
-            cv.drawChessboardCorners(img, (config.checkerboard_y, config.checkerboard_x), corners2, ret)
             
     if len(objpoints) == 0:
         return False, 'Found no valid checkerboards in {} images'.format(len(files))
@@ -105,18 +99,13 @@ def calibrate(id):
     config_form = CalibrationConfigForm()
     path, exists = cam.get_file_path('calibration')
     feedback = None
-    if request.method == 'POST':
+    if config_form.validate_on_submit():
+        config.ReadForm(config_form)
         success, feedback = CalibrateCamera(cam, path)
-    config.WriteForm(config_form)
+    elif request.method == 'GET':
+        config.WriteForm(config_form)
 
     return render_template('_calib_cam.html', file_form=file_form, config_form=config_form, feedback=feedback, camera=cam, files=GetCameraFileList(cam))
-
-@bp_cam.route('/<id>/calibrate/config', methods=['POST'])
-def calibrate_config(id):
-    form = CalibrationConfigForm()
-    if form.validate_on_submit():
-        config.ReadForm(form)
-    return redirect(url_for('cameras.calibrate', id=id))
 
 @bp_cam.route('/<id>/calibrate/files/upload', methods=['POST'])
 def calibrate_files_upload(id):

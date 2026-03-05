@@ -1,11 +1,11 @@
-{% macro np_table(ndarray, title, table_class) %}
+{% macro np_table(ndarray, title, table_class, caption_class, body_class) %}
 <table class="table caption-top {{ table_class }}">
 	{% if title %}
-	<caption>
+	<caption class="{{ caption_class }}">
 		{{title}}
 	</caption>
 	{% endif %}
-	<tbody>
+	<tbody class="{{ caption_body }}">
 		{% for y in range(ndarray.shape[1]) %}
 		<tr>
 			{% for x in range(ndarray.shape[0]) %}

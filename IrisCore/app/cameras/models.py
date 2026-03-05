@@ -163,14 +163,15 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 		return self.display_name
 
 	def Rename(self, new_name: str) -> bool:
-		if ThingDatabase(Camera).Get(new_name):
+		if ThingDatabase(Camera).Get(new_name, False):
 			return False
 		path, exists = self.get_file_path()
 		ThingDatabase(Camera).Remove(self)
 		self.display_name = new_name
 		ThingDatabase(Camera).Add(self)
 		if exists:
-			print(path, Path(path).rename(new_name).resolve())
+			new_path, exists = self.get_file_path()
+			os.rename(path, new_path)
 		return True
 
 	def GetUniqueLoadID(self) -> str:

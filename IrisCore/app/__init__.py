@@ -18,14 +18,12 @@ def create_app(config_class=Config):
 
     moment.init_app(app)
     socketio.init_app(app)
-
-    from app.main import main_blueprint as bp_main
-    app.register_blueprint(bp_main)
     
     from utils import debug
     debug.LoadConfig(config_class)
 
     lifecycle.init_app(app)
+
     return app
 
 
