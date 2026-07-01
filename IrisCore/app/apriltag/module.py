@@ -3,11 +3,15 @@ import os
 
 from flask import url_for
 from utils.modules.iris_modules import IrisModule
-from utils.registry import ThingDatabase
+from utils.registry import CreateThingDatabase, ThingDatabase
 from utils.scribe import Scribe_Collections
 from utils.scribe import Scribe, Scribe_Collections
 
 class AprilTagModule(IrisModule):
+
+	def register_databases(self):
+		CreateThingDatabase(AprilTag)
+		CreateThingDatabase(AprilTagDetector)
 
 	def load(self):
 		if Scribe.loader.LoadFile(os.path.join(self.app.config['APPDATA_PATH'], 'apriltags.xml')):

@@ -3,8 +3,7 @@ from pupil_apriltags import Detector
 from wtforms import StringField, SubmitField, IntegerField, FloatField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, NumberRange, Regexp
 
-from app.apriltag import AprilTag
-from app.apriltag.models import AprilTagDetector
+from app.apriltag.models import AprilTag, AprilTagDetector
 from utils.registry import ThingDatabase
 
 class DetectorForm(FlaskForm):

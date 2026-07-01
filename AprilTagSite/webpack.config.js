@@ -1,13 +1,27 @@
 // webpack.config.js
 const path = require('path');
 
-module.exports = {
-    mode: 'development',
+base_exp = {
+    mode: 'production',
     entry: {
-        apriltag3D: './src/apriltag3D.js',
-    },
+        apriltag3D: './build/apriltag3D.js',
+    }
+}
+
+dist_exp = {
+    ...base_exp,
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js' // [name] will be replaced by the entry key
     }
-};
+}
+
+core_exp = {
+    ...base_exp,
+    output: {
+        path: path.resolve(__dirname, '../IrisCore/app/apriltag/static/js'),
+        filename: '[name].js' // [name] will be replaced by the entry key
+    }
+}
+
+module.exports = [dist_exp, core_exp];

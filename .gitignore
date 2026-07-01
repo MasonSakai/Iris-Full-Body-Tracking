@@ -371,3 +371,4 @@ lib/OpenCV/install/*
 /CameraSite/build
 /RemoteCamProcessing/build
 *.LICENSE.txt
+/AprilTagSite/build

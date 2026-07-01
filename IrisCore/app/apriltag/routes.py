@@ -6,7 +6,7 @@ import cv2 as cv
 
 from app.main.modal import modal_redirect, modal_success
 from utils.registry import ThingDatabase
-from app.apriltag import found_tags, seen_tags
+from app.apriltag.registry import found_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
 from app.apriltag.forms import DetectorForm, CreateDetectorForm, FoundTagForm, EditTagForm
 from app.cameras.models import Camera

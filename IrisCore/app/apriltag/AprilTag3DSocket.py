@@ -6,7 +6,7 @@ import cv2 as cv
 from utils.registry import ThingDatabase
 from app import socketio
 from app.apriltag.routes import bp_aptg
-from app.apriltag import found_tags, seen_tags
+from app.apriltag.registry import found_tags
 from app.apriltag.models import AprilTag
 from app.cameras.models import Camera
 # from app.main.math_worker import math_worker

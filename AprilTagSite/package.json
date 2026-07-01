@@ -13,13 +13,13 @@
 	"devDependencies": {
 		"@types/node": "^24.1.0",
 		"eslint": "^9.31.0",
-		"typescript": "^5.8.3"
+		"typescript": "^5.8.3",
+		"webpack": "^5.100.2",
+		"webpack-cli": "^6.0.1"
 	},
 	"dependencies": {
 		"@types/three": "^0.178.1",
 		"socket.io-client": "^4.8.1",
-		"three": "^0.178.0",
-		"webpack": "^5.100.2",
-		"webpack-cli": "^6.0.1"
+		"three": "^0.178.0"
 	}
 }

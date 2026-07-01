@@ -13,6 +13,7 @@
     <RootNamespace>IrisCore</RootNamespace>
     <InterpreterId>MSBuild|venv|$(MSBuildProjectFullPath)</InterpreterId>
     <TestFramework>unittest</TestFramework>
+    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,13 +25,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app\apriltag\module.py" />
+    <Compile Include="app\apriltag\registry.py" />
     <Compile Include="app\cameras\calibration.py" />
     <Compile Include="app\cameras\forms.py" />
     <Compile Include="app\main\modal.py" />
     <Compile Include="app\main\module.py" />
     <Compile Include="utils\modules\lifecycle.py" />
     <Compile Include="app\cameras\module.py" />
-    <Compile Include="app\apriltag\calibration.py" />
+    <Compile Include="app\apriltag\localization.py" />
     <Compile Include="app\apriltag\forms.py" />
     <Compile Include="app\apriltag\models.py" />
     <Compile Include="app\apriltag\AprilTag3DSocket.py" />

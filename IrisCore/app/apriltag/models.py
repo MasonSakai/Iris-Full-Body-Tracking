@@ -2,7 +2,8 @@ from __future__ import annotations
 import numpy as np
 from pupil_apriltags import Detection, Detector
 
-from utils.registry import IThing, CreateThingDatabase, ThingDatabase
+from app.cameras.models import Camera
+from utils.registry import IThing, ThingDatabase
 from utils.scribe import IExposable, ILoadReferenceable, Scribe_Values
 
 class AprilTag(IExposable, IThing, ILoadReferenceable):
@@ -15,6 +16,8 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 	ensure_static : bool
 
 	transform: np.ndarray
+
+	detections: dict[Camera, Detection]
 	
 	def __init__(self):
 		super().__init__()
@@ -24,6 +27,7 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 		self.display_name = None
 		self.ensure_static = False
 		self.transform = None
+		self.detections = {}
 
 	def __repr__(self):
 		return '<AprilTag "{}">'.format(self.display_name)
@@ -50,8 +54,10 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 
 	def get_transform(self) -> np.ndarray:
 		return self.transform
+
+	def add_detection(self, camera: Camera, detection: Detection):
+		self.detections[camera] = detection
 	
-CreateThingDatabase(AprilTag)
 
 class AprilTagDetector(IExposable, IThing):
 	display_name : str
@@ -116,8 +122,9 @@ class AprilTagDetector(IExposable, IThing):
 
 		tags: list[tuple[Detection, AprilTag]] = []
 
+		tags = ThingDatabase(AprilTag).AllThingsListForReading()
 		for i in range(len(res)-1, -1, -1):
-			tag = db.session.scalars(sqla.select(AprilTag).where(AprilTag.tag_id == res[i].tag_id and AprilTag.family == res[i].tag_family)).first()
+			tag = next((tag for tag in tags if (tag.tag_id == res[i].tag_id and tag.family == res[i].tag_family)), None)
 			if tag:
 				r = res.pop(i)
 				r.pose_t *= tag.tag_size / self.default_tag_size
@@ -125,4 +132,3 @@ class AprilTagDetector(IExposable, IThing):
 
 		return (res, tags)
 	
-CreateThingDatabase(AprilTagDetector)
