@@ -36,16 +36,18 @@
 				<img src="{{ url_for('main.static', filename='img/github-mark-white.png') }}" alt="Github" height="24" />
 			</a>
 		</div>
-</nav>
+	</nav>
 
 	<div id="body-container" class="container-fluid mt-3">
+		<!-- NEED TO MOVE THESE -->
 		{% with messages = get_flashed_messages() %}
-			{% if messages %}
-				{% for message in messages %}
-					<div class="alert alert-info" role="alert">{{ message }}</div>
-				{% endfor %}
-			{% endif %}
+		{% if messages %}
+		{% for message in messages %}
+		<div class="alert alert-info" role="alert">{{ message }}</div>
+		{% endfor %}
+		{% endif %}
 		{% endwith %}
+		<!-- NEED TO MOVE THESE -->
 
 		{% block content %}{% endblock %}
 	</div>

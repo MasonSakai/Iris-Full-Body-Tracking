@@ -1,6 +1,33 @@
-{% extends "apriltag_base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
+
+<div class="row">
+	<div class="col-auto border-end border-2 tag-list" style="--tag-list-width: 200px">
+		editor
+	</div>
+
+	<div id="tag-canvas-wrapper" class="col bg-secondary-subtle">
+		<canvas id="tag-canvas" style="margin-bottom: -6px;"></canvas>
+	</div>
+
+	<div class="col-auto border-start border-2 tag-list list-group list-group-flush">
+		<div class="list-group-item list-group-item-light" id="detectors">
+			<span style="display: inline-block;">Detectors</span>
+			<span style="display: inline-block; width: 20px;">&nbsp;</span>
+			<a class="btn btn-outline-info btn-sm me-1" href="{{ url_for('apriltag.create_detector') }}" data-modal-new data-modal-refresh>+</a>
+		</div>
+		<div class="list-group-item list-group-item-light" id="tags-known">Known Tags</div>
+		<div class="list-group-item list-group-item-light" id="tags-found">Found Tags</div>
+		<div class="list-group-item list-group-item-light" id="cameras">Cameras</div>
+		<div class="list-group-item p-0" id="tags-end"></div>
+	</div>
+</div>
+
+{% endblock %}
+
+
+{% block rem %}
 <h1>April Tag Manager</h1>
 
 <div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
@@ -94,13 +121,49 @@
 
 {% endblock %}
 
-{% block stylesheets %}
+
+{% block navbar %}
 {{ super() }}
-<link rel="stylesheet" href="{{ url_for('main.static', filename='css/form-decorators.css') }}">
-<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}">
+<li class="nav-item">
+	<span class="nav-link active">AprilTag</span>
+</li>
 {% endblock %}
 
 {% block javascript %}
 {{ super() }}
 <script src="{{ url_for('main.static', filename='js/modal.js') }}"></script>
+<script src="{{ url_for('apriltag.static', filename='js/apriltag3D.js') }}"></script>
+{% endblock %}
+
+{% block stylesheets %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/form-decorators.css') }}">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}">
+<style>
+
+	.tag-list {
+		min-width: var(--tag-list-width) !important;
+		overflow-y: scroll auto;
+	}
+
+	#body-container > .row > * {
+		padding-left: 0;
+		padding-right: 0;
+		height: var(--body-height);
+		max-height: var(--body-height);
+	}
+
+	#tag-canvas-wrapper {
+		position: relative;
+		overflow: hidden;
+	}
+
+	#body-container {
+		--body-height: calc(100vh - 56px);
+	}
+
+	#body-container.mt-3 {
+		margin-top: 0 !important;
+	}
+</style>
 {% endblock %}

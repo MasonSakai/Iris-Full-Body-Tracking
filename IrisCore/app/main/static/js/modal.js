@@ -127,12 +127,9 @@
 
                 load(url);
             });
-        }
-    };
+        },
 
-    window.Modal = Modal;
-    window.addEventListener('load', () => {
-        document.querySelectorAll('[data-modal-new]').forEach(link => {
+        register(link) {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 Modal.open(link.href || link.getAttribute('href'))
@@ -147,7 +144,12 @@
                         }
                     });
             });
-        });
-    })
+        }
+    };
+
+    window.Modal = Modal;
+    window.addEventListener('load', () => {
+        document.querySelectorAll('[data-modal-new]').forEach(Modal.register);
+    });
 
 })();
