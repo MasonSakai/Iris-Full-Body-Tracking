@@ -12,15 +12,23 @@
 	</div>
 
 	<div class="col-auto border-start border-2 tag-list list-group list-group-flush">
-		<div class="list-group-item list-group-item-light" id="detectors">
-			<span style="display: inline-block;">Detectors</span>
-			<span style="display: inline-block; width: 20px;">&nbsp;</span>
-			<a class="btn btn-outline-info btn-sm me-1" href="{{ url_for('apriltag.create_detector') }}" data-modal-new data-modal-refresh>+</a>
+		<div class="list-group-item list-group-item-light d-flex justify-content-between align-items-center" id="detectors">
+			Detectors
+			<a class="btn badge btn-outline-info rounded-pill ms-3" href="{{ url_for('apriltag.create_detector') }}" id="new-detector">+</a>
 		</div>
-		<div class="list-group-item list-group-item-light" id="tags-known">Known Tags</div>
-		<div class="list-group-item list-group-item-light" id="tags-found">Found Tags</div>
-		<div class="list-group-item list-group-item-light" id="cameras">Cameras</div>
-		<div class="list-group-item p-0" id="tags-end"></div>
+		<div class="list-group-item list-group-item-light d-flex justify-content-between align-items-center" id="tags-known">
+			Known Tags
+			<span class="badge text-bg-primary rounded-pill ms-3">0</span>
+		</div>
+		<div class="list-group-item list-group-item-light d-flex justify-content-between align-items-center" id="tags-found">
+			Found Tags
+			<span class="badge text-bg-primary rounded-pill ms-3">0</span>
+		</div>
+		<div class="list-group-item list-group-item-light d-flex justify-content-between align-items-center" id="cameras">
+			Cameras
+			<a class="btn badge btn-outline-info rounded-pill ms-3" href="{{ url_for('cameras.new_camera') }}" id="new-camera">+</a>
+		</div>
+		<div class="list-group-item list-group-item-light p-0" id="tags-end"></div>
 	</div>
 </div>
 
@@ -132,7 +140,7 @@
 {% block javascript %}
 {{ super() }}
 <script src="{{ url_for('main.static', filename='js/modal.js') }}"></script>
-<script src="{{ url_for('apriltag.static', filename='js/apriltag3D.js') }}"></script>
+<script src="{{ url_for('apriltag.static', filename='js/apriltag.js') }}"></script>
 {% endblock %}
 
 {% block stylesheets %}

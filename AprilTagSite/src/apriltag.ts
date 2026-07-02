@@ -1,8 +1,11 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Refresh } from './network';
+import { Refresh } from '@app/ui/object_list';
 import { createMatrixT } from './util'
 import { PickHelper } from './PickHelper'
+
+import { io } from 'socket.io-client'
+export let socket = io('/apriltag')
 
 export let canvas: HTMLCanvasElement = null;
 let canvas_wrapper: HTMLDivElement = null;
@@ -65,7 +68,7 @@ window.onload = () => {
 	camera.position.z = -3
 	controls.update()
 
-	//Refresh()
+	Refresh()
 	
 	requestAnimationFrame(render)
 }

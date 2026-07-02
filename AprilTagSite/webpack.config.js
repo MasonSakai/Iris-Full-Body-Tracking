@@ -4,7 +4,12 @@ const path = require('path');
 base_exp = {
     mode: 'production',
     entry: {
-        apriltag3D: './build/apriltag3D.js',
+        apriltag: './build/apriltag.js',
+    },
+    resolve: {
+        alias: {
+            '@app': path.resolve(__dirname, 'build/')
+        }
     }
 }
 

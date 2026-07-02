@@ -23,8 +23,8 @@
 
 		<div class="card-footer">
 			<div class="form-hor">
-				{{ wtf.form_field(form.submit) }}
 				<button type="button" class="btn btn-secondary mb-3" onclick="closePopup()">Cancel</button>
+				{{ wtf.form_field(form.submit) }}
 			</div>
 			<a href="{ { url_for('apriltag.remove_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id) }}" class="btn btn-outline-warning form-control mb-3">Clear</a>
 		</div>

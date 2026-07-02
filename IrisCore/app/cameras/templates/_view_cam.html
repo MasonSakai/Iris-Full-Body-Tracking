@@ -32,8 +32,11 @@
 				<button type="button" class="btn btn-secondary mb-3" data-modal-close>Cancel</button>
 				{{ form.submit(class="btn btn-primary mb-3") }}
 			</div>
-			<a href="{{ url_for('cameras.delete_camera', id=camera.ThingID()) }}" class="btn btn-danger form-control mb-3"
-			   onclick="if (event.target.innerText == 'DELETE') { event.stopPropagation(); event.preventDefault(); event.target.innerText = 'ARE YOU SURE? (DELETE)' }">DELETE</a>
+			<button class="btn btn-danger form-control mb-3"
+					onclick="if (event.target.innerText == 'DELETE') { event.stopPropagation(); event.preventDefault(); event.target.innerText = 'ARE YOU SURE? (DELETE)' }
+							else { event.preventDefault(); window.Modal.stack.at(-1).load('{{ url_for('cameras.delete_camera', id=camera.ThingID()) }}'); }">
+				DELETE
+			</button>
 		</div>
 	</form>
 </div>

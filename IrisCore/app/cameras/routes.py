@@ -15,6 +15,10 @@ def index():
         cams = ThingDatabase(Camera).AllThingsListForReading()
     )
 
+@bp_cam.route('/list')
+def get_cameras():
+    return jsonify([{ 'name': d.display_name, 'id': d.ThingID() } for d in ThingDatabase(Camera).AllThingsListForReading()])
+
 @bp_cam.route('/new', methods=['GET', 'POST'])
 def new_camera():
     form = CameraForm()
@@ -43,5 +47,4 @@ def delete_camera(id):
     cam = db.Get(id)
     name = cam.display_name
     db.Remove(cam)
-    flash('Camera {} Deleted!'.format(name))
-    return redirect(url_for('cameras.index'))
+    return modal_success(name=name)

@@ -19,6 +19,11 @@
             "DOM",
             "ESNext"
         ],
-        "esModuleInterop": true
+        "esModuleInterop": true,
+
+        "baseUrl": ".",
+        "paths": {
+            "@app/*": [ "src/*" ]
+        }
     }
 }

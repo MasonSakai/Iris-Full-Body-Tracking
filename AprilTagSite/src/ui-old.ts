@@ -1,4 +1,5 @@
-import { selected, socket, selectionChange_listeners, refresh_listeners } from './network'
+/*import { selected, socket, selectionChange_listeners } from '@app/network'
+import { refresh_listeners } from '@app/ui/object_list'
 
 window.addEventListener('DOMContentLoaded', () => {
 
@@ -51,3 +52,5 @@ window.addEventListener('DOMContentLoaded', () => {
 		refresh_listeners.push(refresh)
 	}
 })
+
+*/

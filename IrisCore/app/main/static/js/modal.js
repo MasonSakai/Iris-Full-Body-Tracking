@@ -14,7 +14,6 @@
                 dialog.appendChild(content);
 
                 document.body.appendChild(dialog);
-                this.stack.push(dialog);
 
                 dialog.showModal();
 
@@ -125,12 +124,14 @@
                     });
                 };
 
+                this.stack.push({ el: dialog, load: load });
                 load(url);
             });
         },
 
-        register(link) {
-            link.addEventListener('click', (e) => {
+        register(link, event = 'click') {
+            console.log(link)
+            link.addEventListener(event, (e) => {
                 e.preventDefault();
                 Modal.open(link.href || link.getAttribute('href'))
                     .then(() => {
@@ -149,7 +150,7 @@
 
     window.Modal = Modal;
     window.addEventListener('load', () => {
-        document.querySelectorAll('[data-modal-new]').forEach(Modal.register);
+        document.querySelectorAll('[data-modal-new]').forEach((el) => Modal.register(el));
     });
 
 })();

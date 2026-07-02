@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for, Response
+from flask import Blueprint, jsonify, redirect, render_template, request, url_for, Response
 from pupil_apriltags import Detector
 from moms_apriltag import TagGenerator2
 import numpy as np
@@ -32,6 +32,9 @@ def generate_tag_image(family, id, fileType):
     _, encoded_image = cv.imencode('.{}'.format(fileType), cv.cvtColor(tag_image, cv.COLOR_GRAY2BGR))
     return Response(encoded_image.tobytes())
 
+@bp_aptg.route('/detectors')
+def get_detectors():
+    return jsonify([{ 'name': d.display_name, 'id': d.ThingID() } for d in ThingDatabase(AprilTagDetector).AllThingsListForReading()])
 
 @bp_aptg.route('/detectors/new', methods=['GET', 'POST'])
 def create_detector():
@@ -48,7 +51,6 @@ def create_detector():
         detector.default_tag_size = form.default_tag_size.data / 100.
 
         ThingDatabase(AprilTagDetector).Add(detector)
-        flash('Detector {} Created'.format(detector.display_name))
         return modal_success(id=detector.ThingID())
     elif request.method == 'GET':
         form.display_name.data = 'tag36h11'
@@ -75,7 +77,6 @@ def view_detector(id):
         detector.decode_sharpening = form.decode_sharpening.data
         detector.default_tag_size = form.default_tag_size.data / 100.
 
-        flash('Detector {} Updated'.format(detector.display_name))
         return modal_success(id=detector.ThingID())
     elif request.method == 'GET':
         form.families.data = detector.families
@@ -94,8 +95,7 @@ def delete_detector(id):
     detector = db.Get(id)
     name = detector.display_name
     db.Remove(detector)
-    flash('Detector {} Deleted!'.format(name))
-    return redirect(url_for('apriltag.index'))
+    return modal_success(name=name)
 
 
 @bp_aptg.route('/tags/<id>', methods=['GET', 'POST'])
@@ -114,7 +114,6 @@ def view_tag(id):
         tag.display_name = form.display_name.data
         tag.ensure_static = form.ensure_static.data
 
-        flash('Tag {} Updated'.format(tag.display_name))
         return redirect(url_for('apriltag.index'))
     
     seen = seen_tags[tag.id] if tag.id in seen_tags else []
@@ -131,11 +130,10 @@ def view_tag(id):
 @bp_aptg.route('/tags/<id>/delete')
 def delete_tag(id):
     db = ThingDatabase(AprilTag)
-    tag = db.GetByULID(id)
+    tag = db.Get(id)
     name = tag.display_name
     db.Remove(tag)
-    flash('Tag {} Deleted!'.format(name))
-    return redirect(url_for('apriltag.index'))
+    return modal_success(name=name)
 
 
 @bp_aptg.route('/tags/found/<family>:<id>', methods=['GET', 'POST'])
@@ -166,7 +164,6 @@ def view_found_tag(family, id):
         ThingDatabase(AprilTag).Add(tag)
         found_tags.pop(index)
         #move tag to seen_tags
-        flash('Tag {} ({}:{}) Added'.format(tag.display_name, tag.tag_family, tag.tag_id))
         return redirect(url_for('apriltag.index'))
 
     elif request.method == 'GET':
