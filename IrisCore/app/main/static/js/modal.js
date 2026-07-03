@@ -130,7 +130,6 @@
         },
 
         register(link, event = 'click') {
-            console.log(link)
             link.addEventListener(event, (e) => {
                 e.preventDefault();
                 Modal.open(link.href || link.getAttribute('href'))

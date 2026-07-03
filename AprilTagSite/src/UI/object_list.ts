@@ -252,6 +252,13 @@ async function FetchDetectors() {
 				.then(FetchDetectors)
 				.catch(() => { });
 		})
+		el.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+			window.Modal.open(`detectors/${detector.id}`)
+				.then(FetchDetectors)
+				.catch(() => { });
+		})
+
 		el_next.after(el);
 		el_next = el;
 	}
