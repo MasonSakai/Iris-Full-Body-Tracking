@@ -5,16 +5,16 @@ import { camera_list, CameraInfo, known_tag_list } from '@app/data/objects'
 import { createMatrixTR, createMatrixT } from '@app/util'
 import { PickHelper } from '@app/PickHelper'
 
-function CreateListElement(name: string, id: string = null, count: string = null) {
+function CreateListElement(name: string, id: string = null, count: string = null, count_style: string = 'badge text-bg-secondary rounded-pill ms-3') {
 	var item = document.createElement('button');
 	item.className = 'list-group-item';
 	item.textContent = name;
 	item.id = id;
 
 	if (count != null) {
-		item.classList.add('d-flex justify-content-between align-items-center');
+		item.classList.add('d-flex', 'justify-content-between', 'align-items-center');
 		var el_count = document.createElement('span');
-		el_count.className = 'badge text-bg-secondary rounded-pill ms-3';
+		el_count.className = count_style;
 		el_count.innerText = count;
 		item.appendChild(el_count)
 	}
@@ -278,11 +278,12 @@ async function FetchCameras() {
 		el_next = el_cameras.nextElementSibling as HTMLElement;
 	}
 
-	var data = (await (await p_data).json()) as { name: string, id: string }[];
+	var data = (await (await p_data).json()) as { name: string, id: string, transform: number[][], active: string | false }[];
 
 	el_next = el_cameras;
 	for (const camera of data) {
-		var el = CreateListElement(camera.name, camera.id)
+		var el = CreateListElement(camera.name, camera.id, camera.active ? '\u00A0' : null, `badge ${ camera.active ? 'text-bg-danger' : 'text-bg-secondary' } rounded-circle ms-3`)
+
 		el.addEventListener('contextmenu', (e) => {
 			e.preventDefault();
 			window.Modal.open(`/cameras/${camera.id}`)

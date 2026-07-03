@@ -17,7 +17,13 @@ def index():
 
 @bp_cam.route('/list')
 def get_cameras():
-	return jsonify([{ 'name': d.display_name, 'id': d.ThingID(), 'transform': d.transform.tolist() if d.transform else None } for d in ThingDatabase(Camera).AllThingsListForReading()])
+	return jsonify([
+		{
+			'name': d.display_name,
+			'id': d.ThingID(),
+			'transform': d.transform.tolist() if d.transform else None,
+			'active': r.ThingID() if (r := d.ActiveReference()) else False
+		} for d in ThingDatabase(Camera).AllThingsListForReading()])
 
 @bp_cam.route('/new', methods=['GET', 'POST'])
 def new_camera():

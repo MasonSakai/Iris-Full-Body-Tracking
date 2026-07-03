@@ -113,7 +113,6 @@ class LocalCameraReference(CameraReference):
 		new: list[CameraInfo] = []
 		for cam in enumerate_cameras():
 			ident = MakeID(cam)
-			if id in known:
 			if ident in known:
 				found.append((known[ident], cam))
 			else:
@@ -130,7 +129,7 @@ class LocalCameraReference(CameraReference):
 		elif request.method == 'GET':
 			form.display_name.data = self.display_name
 			form.autostart.data = self.autostart
-		return render_template('_view_lref.html', ref=self, form=form, other_source_active=any(map(lambda r: r.active and r != self, self.parent.references)))
+		return render_template('_view_lref.html', ref=self, form=form, other_source_active=((r := self.parent.ActiveReference()) and r != self))
 	
 
 class Camera(IExposable, IThing, ILoadReferenceable):
@@ -195,6 +194,9 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 
 	def GetUniqueLoadID(self) -> str:
 		return f'{type(self).__qualname__}:{self.display_name}'
+
+	def ActiveReference(self) -> CameraReference | None:
+		return next(filter(lambda r: r.active, self.references), None)
 
 	def get_file_path(self, *path_ext: str) -> tuple[str, bool]:
 		path = os.path.join(lifecycle.app.config["APPDATA_PATH"], 'cameras', self.display_name, *path_ext)

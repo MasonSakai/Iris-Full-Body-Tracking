@@ -1,0 +1,55 @@
+{% import 'bootstrap_wtf.html' as wtf %}
+
+<div class="card popup-form">
+	<div class="card-header text-center">
+		<h4>
+			Reference Details
+		</h4>
+	</div>
+	<form action="{{ url_for('cameras.view_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}" method="POST">
+		{{ form.hidden_tag() }}
+
+		<div class="card-body">
+			<div class="input-group">
+				{{ form.display_name.label(class='input-group-text') }}
+				{{ form.display_name(class='form-control') }}
+				{%- for error in form.display_name.errors %}
+				<div class="invalid-feedback">{{ error }}</div>
+				{%- endfor %}
+			</div>
+
+			<div class="mt-3 input-group">
+				{{ form.autostart.label(class='input-group-text') }}
+				<div class="input-group-text">
+					{{ form.autostart(class='form-check-input') }}
+				</div>
+				<span class="input-group-text">Status</span>
+				<span class="form-control">{{ 'Active' if ref.active else ('Other Source Active' if other_source_active else 'Inactive') }}</span>
+				{% if can_request_activate %}
+				{% if ref.active %}
+				<a class="btn btn-outline-danger" href="{{ url_for('cameras.stop_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}" onclick="event.target.innerText = '...'" data-modal>Stop</a>
+				{% elif not other_source_active %}
+				<a class="btn btn-outline-success" href="{{ url_for('cameras.start_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}" onclick="event.target.innerText = '...'" data-modal>Start</a>
+				{% endif %}
+				{% endif %}
+				{%- for error in form.autostart.errors %}
+				<div class="invalid-feedback">{{ error }}</div>
+				{%- endfor %}
+			</div>
+
+			{% block device_info %}{% endblock %}
+		</div>
+
+		<div class="card-footer">
+			<div class="form-hor">
+				<button type="button" class="btn btn-secondary mb-3" data-modal-close>Cancel</button>
+				{{ form.submit(class="btn btn-primary mb-3") }}
+			</div>
+			<button class="btn btn-danger form-control mb-3"
+					onclick="if (event.target.innerText == 'DELETE') { event.stopPropagation(); event.preventDefault(); event.target.innerText = 'ARE YOU SURE? (DELETE)' }
+							else { event.preventDefault(); window.Modal.stack.at(-1).load('{{ url_for('cameras.delete_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}'); }">
+				DELETE
+			</button>
+		</div>
+	</form>
+</div>

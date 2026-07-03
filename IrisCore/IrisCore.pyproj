@@ -162,6 +162,7 @@
     <Content Include="app\cameras\templates\cam_manager.html" />
     <Content Include="app\cameras\templates\_calib_cam.html" />
     <Content Include="app\cameras\templates\_new_lref.html" />
+    <Content Include="app\cameras\templates\_view_ref_base.html" />
     <Content Include="app\cameras\templates\_view_lref.html" />
     <Content Include="app\cameras\templates\_view_cam.html" />
     <Content Include="app\main\ModInfo.xml" />
