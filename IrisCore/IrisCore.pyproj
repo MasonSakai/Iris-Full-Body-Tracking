@@ -162,10 +162,12 @@
     <Content Include="app\cameras\templates\cam_manager.html" />
     <Content Include="app\cameras\templates\_calib_cam.html" />
     <Content Include="app\cameras\templates\_new_lref.html" />
+    <Content Include="app\cameras\templates\_view_lref.html" />
     <Content Include="app\cameras\templates\_view_cam.html" />
     <Content Include="app\main\ModInfo.xml" />
     <Content Include="app\main\static\css\bootstrap-icons.css" />
     <Content Include="app\main\static\css\bootstrap.css" />
+    <Content Include="app\main\static\css\bootstrap.css.map" />
     <Content Include="app\main\static\css\form-decorators.css" />
     <Content Include="app\apriltag\static\pdf\april-tags-pairs.pdf" />
     <Content Include="app\apriltag\static\pdf\april-tags-sixes.pdf" />
@@ -176,6 +178,7 @@
     <Content Include="app\main\static\img\github-mark-white.png" />
     <Content Include="app\main\static\img\github-mark.png" />
     <Content Include="app\main\static\js\bootstrap.bundle.js" />
+    <Content Include="app\main\static\js\bootstrap.bundle.js.map" />
     <Content Include="app\main\static\js\modal.js" />
     <Content Include="app\main\static\js\moment-with-locales.js" />
     <Content Include="app\main\templates\base.html" />

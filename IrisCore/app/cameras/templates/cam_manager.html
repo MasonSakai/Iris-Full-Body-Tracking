@@ -15,12 +15,24 @@
 		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
 			<tr>
 				<td class="p-2">Name</td>
+				<td class="p-2">References</td>
 			</tr>
 		</thead>
 		<tbody>
 			{% for cam in cams %}
-			<tr class="p-1 border-bottom border-dark-subtle" href="{{ url_for("cameras.view_camera", id=cam.ThingID()) }}" data-modal-new data-modal-refresh-always>
+			<tr class="p-1 border-bottom border-dark-subtle" href="{{ url_for("cameras.view_camera", cam_id=cam.ThingID()) }}" data-modal-new data-modal-refresh-always>
 				<td class="p-2">{{ cam.display_name }}</td>
+				<td class="p-2">
+				{% if cam.references | length == 0 %}
+					No references
+				{% else %}
+					<div class="btn-group btn-group-sm">
+						{% for ref in cam.references %}
+						<button class="btn btn-outline-secondary" href="{{ url_for("cameras.view_ref", cam_id=cam.ThingID(), ref_id=ref.ThingID()) }}" data-modal-new data-modal-refresh>{{ ref.display_name }}</button>
+						{% endfor %}
+					</div>
+				{% endif %}
+				</td>
 			</tr>
 			{% endfor %}
 		</tbody>
@@ -36,37 +48,3 @@
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/form-decorators.css') }}">
 {% endblock %}
-
-
-
-<!--<form method="POST">
-	<select name="camera_id" id="camera_select">
-		{% for camera in cameras %}
-		<option value="{{ camera.id }}">{{ camera.name }}</option>
-		{% endfor %}
-	</select>
-
-	<button type="button" onclick="addCamera()">+ New Camera</button>
-
-	<button type="submit">Submit</button>
-</form>
-
-<script>
-	function addCamera() {
-		openModal('/cameras/new')
-			.then(camera => {
-				const sel = document.getElementById('camera_select');
-
-				let opt = sel.querySelector(`option[value="${camera.id}"]`);
-				if (!opt) {
-					opt = document.createElement('option');
-					opt.value = camera.id;
-					opt.textContent = camera.name;
-					sel.appendChild(opt);
-				}
-
-				opt.selected = true;
-			})
-			.catch(() => { });
-	}
-</script>-->

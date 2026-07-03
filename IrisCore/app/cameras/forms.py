@@ -1,38 +1,91 @@
+from __future__ import annotations
+import hashlib
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, FloatField, BooleanField, SelectField, ValidationError
 from flask_wtf.file import MultipleFileField, FileRequired, FileAllowed
 from wtforms.validators import DataRequired, NumberRange
 
-from app.cameras.models import Camera
 from utils.registry import ThingDatabase
 
 class CameraForm(FlaskForm):
 
-    def __init__(self, existing_cam: Camera = None, **kwargs):
-        super().__init__(**kwargs)
-        self.existing_cam = existing_cam
+	def __init__(self, existing_cam: Camera = None, **kwargs):
+		super().__init__(**kwargs)
+		self.existing_cam = existing_cam
 
-    display_name = StringField('Camera Name', validators=[DataRequired()])
-    submit = SubmitField('Confirm')
+	display_name = StringField('Camera Name', validators=[DataRequired()])
+	submit = SubmitField('Confirm')
 
-    def validate_display_name(self, field: StringField):
-        if self.existing_cam and field.data == self.existing_cam.display_name:
-            return
+	def validate_display_name(self, field: StringField):
+		if self.existing_cam and field.data == self.existing_cam.display_name:
+			return
 
-        for thing in ThingDatabase(Camera).AllThingsListForReading():
-            if thing.display_name == field.data:
-                raise ValidationError('Name matches existing camera')
+		for thing in ThingDatabase(Camera).AllThingsListForReading():
+			if thing.display_name == field.data:
+				raise ValidationError('Name matches existing camera')
 
 class FileUploadForm(FlaskForm):
 
-    image_files = MultipleFileField('Image Files', validators=[
-        FileRequired(),
-        FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')
-    ])
-    
-    submit = SubmitField('Upload')
+	image_files = MultipleFileField('Image Files', validators=[
+		FileRequired(),
+		FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')
+	])
+	
+	submit = SubmitField('Upload')
 
 class CalibrationConfigForm(FlaskForm):
-    
-    checkerboard_x = IntegerField('Width', validators=[DataRequired(), NumberRange(min=1)])
-    checkerboard_y = IntegerField('Height', validators=[DataRequired(), NumberRange(min=1)])
+	
+	checkerboard_x = IntegerField('Width', validators=[DataRequired(), NumberRange(min=1)])
+	checkerboard_y = IntegerField('Height', validators=[DataRequired(), NumberRange(min=1)])
+
+class CameraReferenceForm(FlaskForm):
+	
+	def __init__(self, existing_cam: Camera, existing_ref: CameraReference = None, **kwargs):
+		super().__init__(**kwargs)
+		self.existing_cam = existing_cam
+		self.existing_ref = existing_ref
+
+	display_name = StringField('Reference Name', validators=[DataRequired()])
+	autostart = BooleanField('Auto-start')
+
+	submit = SubmitField('Confirm')
+
+	def validate_display_name(self, field: StringField):
+		if self.existing_ref and field.data == self.existing_ref.display_name:
+			return
+
+		for ref in self.existing_cam.references:
+			if field.data == ref.display_name:
+				raise ValidationError('Name matches existing reference for camera')
+
+class NewLocalReferenceForm(CameraReferenceForm):
+
+	def hashname(name: str, ident: str) -> str:
+		return f"{name} ({ hashlib.sha256(ident.encode('utf-8')).hexdigest()[:4] })"
+	
+	def __init__(self, options: list[CameraInfo], *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+		choices = {}
+		for info in options:
+			ident = f"{info.name}:{info.vid}:{info.pid}"
+			name = info.name
+			if name in choices:
+				if choices[name] == '':
+					name = NewLocalReferenceForm.hashname(name, ident)
+				elif choices[name] != ident:
+					o_ident = choices[name]
+					o_name = NewLocalReferenceForm.hashname(name, o_ident)
+					choices[o_name] = o_ident
+					choices[name] = ''
+					name = NewLocalReferenceForm.hashname(name, ident)
+			choices[name] = ident
+
+		self.ident.choices = [('', 'Please Select'), *[(v, k) for k, v in choices.items() if v != '']]
+
+	ident = SelectField('Identifier', choices=[], validators=[DataRequired()])
+
+	submit = SubmitField('Create')
+
+	
+from app.cameras.models import Camera, CameraInfo, CameraReference

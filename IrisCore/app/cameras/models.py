@@ -5,8 +5,11 @@ import cv2 as cv
 from cv2.typing import MatLike, Rect
 from cv2_enumerate_cameras import enumerate_cameras
 from cv2_enumerate_cameras.camera_info import CameraInfo
+from flask import render_template, request
 import numpy as np
 
+from app.main.modal import modal_success
+from app.cameras.forms import CameraReferenceForm
 from app.dataproviders import IDataSource
 from app.synchronize import source_registry_lock
 from app import lifecycle
@@ -18,15 +21,18 @@ class CameraReference(IExposable, IDataSource):
 
 	autostart: bool
 	active: bool
+	display_name: str
 
 	def __init__(self):
 		super().__init__()
 		self.autostart = False
 		self.active = False
+		self.display_name = None
 
 
 	def ExposeData(self):
 		super().ExposeData()
+		self.display_name = Scribe_Values.Look(self.display_name, 'display_name', str)
 		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool, defaultValue=False)
 
 	def ThingID(self):
@@ -45,6 +51,9 @@ class CameraReference(IExposable, IDataSource):
 		return False
 
 	def GetData(self):
+		pass
+
+	def RenderView(self):
 		pass
 		
 class LocalCameraReference(CameraReference):
@@ -112,6 +121,16 @@ class LocalCameraReference(CameraReference):
 				new.append(cam)
 
 		return found, new
+
+	def RenderView(self):
+		form = CameraReferenceForm(self.parent, self)
+		if form.validate_on_submit():
+			if self.display_name != form.display_name.data:
+				self.display_name = form.display_name.data
+			return modal_success()
+		elif request.method == 'GET':
+			form.display_name.data = self.display_name
+		return render_template('_view_lref.html', ref=self, form=form)
 	
 
 class Camera(IExposable, IThing, ILoadReferenceable):

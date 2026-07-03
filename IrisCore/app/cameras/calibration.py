@@ -92,9 +92,9 @@ def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
 
 
 
-@bp_cam.route('/<id>/calibrate', methods=['GET', 'POST'])
-def calibrate(id):
-    cam = ThingDatabase(Camera).Get(id)
+@bp_cam.route('/<cam_id>/calibrate', methods=['GET', 'POST'])
+def calibrate(cam_id):
+    cam = ThingDatabase(Camera).Get(cam_id)
     file_form = FileUploadForm()
     config_form = CalibrationConfigForm()
     path, exists = cam.get_file_path('calibration')
@@ -107,9 +107,9 @@ def calibrate(id):
 
     return render_template('_calib_cam.html', file_form=file_form, config_form=config_form, feedback=feedback, camera=cam, files=GetCameraFileList(cam))
 
-@bp_cam.route('/<id>/calibrate/files/upload', methods=['POST'])
-def calibrate_files_upload(id):
-    cam = ThingDatabase(Camera).Get(id)
+@bp_cam.route('/<cam_id>/calibrate/files/upload', methods=['POST'])
+def calibrate_files_upload(cam_id):
+    cam = ThingDatabase(Camera).Get(cam_id)
     form = FileUploadForm()
     path, exists = cam.get_file_path('calibration')
     if form.validate_on_submit():
@@ -121,12 +121,12 @@ def calibrate_files_upload(id):
                 f = tempfile.NamedTemporaryFile(dir=path, suffix='.png', delete=False)
                 file.save(f)
                 f.close()
-    return redirect(url_for('cameras.calibrate', id=id))
+    return redirect(url_for('cameras.calibrate', cam_id=cam_id))
 
-@bp_cam.route('/<id>/calibrate/files/clear')
-def calibrate_clear_files(id):
-    cam = ThingDatabase(Camera).Get(id)
+@bp_cam.route('/<cam_id>/calibrate/files/clear')
+def calibrate_clear_files(cam_id):
+    cam = ThingDatabase(Camera).Get(cam_id)
     path, exists = cam.get_file_path('calibration')
     if exists:
         shutil.rmtree(path)
-    return redirect(url_for('cameras.calibrate', id=id))
+    return redirect(url_for('cameras.calibrate', cam_id=cam_id))

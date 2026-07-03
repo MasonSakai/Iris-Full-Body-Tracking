@@ -132,6 +132,7 @@
         register(link, event = 'click') {
             link.addEventListener(event, (e) => {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 Modal.open(link.href || link.getAttribute('href'))
                     .then(() => {
                         if (link.hasAttribute('data-modal-refresh') || link.hasAttribute('data-modal-refresh-always')) {

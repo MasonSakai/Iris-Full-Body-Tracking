@@ -1,0 +1,47 @@
+{% import 'bootstrap_wtf.html' as wtf %}
+
+<div class="card popup-form">
+	<div class="card-header text-center">
+		<h4>
+			Create Reference
+		</h4>
+	</div>
+	<form action="{{ url_for('cameras.new_lref', cam_id=camera.ThingID()) }}" method="POST">
+		{{ form.hidden_tag() }}
+
+		<div class="card-body">
+			<div class="mb-3 input-group">
+				{{ form.display_name.label(class='input-group-text') }}
+				{{ form.display_name(class='form-control') }}
+				{%- for error in form.display_name.errors %}
+				<div class="invalid-feedback">{{ error }}</div>
+				{%- endfor %}
+			</div>
+
+			<div class="mb-3 input-group">
+				{{ form.autostart.label(class='input-group-text') }}
+				<div class="input-group-text">
+					{{ form.autostart(class='form-check-input') }}
+				</div>
+				{%- for error in form.autostart.errors %}
+				<div class="invalid-feedback">{{ error }}</div>
+				{%- endfor %}
+				</div>
+
+				<div class="form-floating">
+					{{ form.ident(class='form-select') }}
+					{{ form.ident.label() }}
+					{%- for error in form.ident.errors %}
+					<div class="invalid-feedback">{{ error }}</div>
+					{%- endfor %}
+				</div>
+			</div>
+
+		<div class="card-footer">
+			<div class="form-hor">
+				<button type="button" class="btn btn-secondary mb-3" data-modal-close>Cancel</button>
+				{{ form.submit(class="btn btn-primary mb-3") }}
+			</div>
+		</div>
+	</form>
+</div>
