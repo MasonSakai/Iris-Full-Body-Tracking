@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, flash, redirect, session, url_for, jsonify, request, abort
 
-from app.cameras.forms import CameraForm, NewLocalReferenceForm
+from app.cameras.forms import CameraForm, CameraReference, NewLocalReferenceForm
 from app.cameras.models import Camera, LocalCameraReference
 from app.main.modal import modal_redirect, modal_success
 from utils.registry import ThingDatabase
@@ -69,17 +69,30 @@ def new_lref(cam_id: str):
 		form.display_name.data = f"Local Reference { len(cam.references) }"
 	return render_template('_new_lref.html', form=form, camera=cam)
 
+def get_ref(cam_id: str, ref_id: str) -> tuple[Camera, CameraReference | None]:
+	cam = ThingDatabase(Camera).Get(cam_id)
+	return cam, next(filter(lambda r: r.ThingID() == ref_id, cam.references), None)
 
 @bp_cam.route('/<cam_id>/references/<ref_id>', methods=['GET', 'POST'])
 def view_ref(cam_id: str, ref_id: str):
-	cam = ThingDatabase(Camera).Get(cam_id)
-	ref = next(filter(lambda r: r.ThingID() == ref_id, cam.references), None)
+	cam, ref = get_ref(cam_id, ref_id)
 	return ref.RenderView()
 
 @bp_cam.route('/<cam_id>/references/<ref_id>/delete')
 def delete_ref(cam_id: str, ref_id: str):
-	cam = ThingDatabase(Camera).Get(cam_id)
-	ref = next(filter(lambda r: r.ThingID() == ref_id, cam.references), None)
+	cam, ref = get_ref(cam_id, ref_id)
 	name = ref.display_name
 	cam.references.remove(ref)
 	return modal_success(name=name)
+
+@bp_cam.route('/<cam_id>/references/<ref_id>/start')
+def start_ref(cam_id: str, ref_id: str):
+	cam, ref = get_ref(cam_id, ref_id)
+	ref.RequestStart(source='HttpRequest')
+	return redirect(url_for('cameras.view_ref', cam_id=cam_id, ref_id=ref_id))
+
+@bp_cam.route('/<cam_id>/references/<ref_id>/stop')
+def stop_ref(cam_id: str, ref_id: str):
+	cam, ref = get_ref(cam_id, ref_id)
+	ref.RequestStop(source='HttpRequest')
+	return redirect(url_for('cameras.view_ref', cam_id=cam_id, ref_id=ref_id))

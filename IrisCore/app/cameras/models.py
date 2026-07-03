@@ -1,6 +1,5 @@
 from __future__ import annotations
 import os
-from pathlib import Path
 import cv2 as cv
 from cv2.typing import MatLike, Rect
 from cv2_enumerate_cameras import enumerate_cameras
@@ -9,7 +8,6 @@ from flask import render_template, request
 import numpy as np
 
 from app.main.modal import modal_success
-from app.cameras.forms import CameraReferenceForm
 from app.dataproviders import IDataSource
 from app.synchronize import source_registry_lock
 from app import lifecycle
@@ -25,6 +23,7 @@ class CameraReference(IExposable, IDataSource):
 
 	def __init__(self):
 		super().__init__()
+		self.parent = None
 		self.autostart = False
 		self.active = False
 		self.display_name = None
@@ -36,7 +35,7 @@ class CameraReference(IExposable, IDataSource):
 		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool, defaultValue=False)
 
 	def ThingID(self):
-		return f"{type(self).__qualname__}:{self.parent.ThingID()}"
+		return f"{type(self).__qualname__}:{self.display_name}:{self.parent.display_name}"
 
 	def RequestStart(self, *args, **kwargs) -> bool:
 		return False
@@ -45,7 +44,7 @@ class CameraReference(IExposable, IDataSource):
 		pass
 
 	def RequestAutoStart(self) -> bool:
-		return False
+		return self.RequestStart(source='autostart')
 	
 	def HasUpdate(self) -> bool:
 		return False
@@ -78,7 +77,19 @@ class LocalCameraReference(CameraReference):
 		self.pid = Scribe_Values.Look(self.pid, 'pid', int)
 		
 	def RequestStart(self, *args, **kwargs):
-		return self.RequestAutoStart()
+		for cam in enumerate_cameras():
+			if (cam.name, cam.vid, cam.pid) == (self.name, self.vid, self.pid):
+				break
+		if not cam:
+			return False
+		self.cap = cv.VideoCapture(cam.index, cam.backend) # add params?
+		if not self.cap.isOpened():
+			return False
+		# start thread
+		self.active = True
+		with source_registry_lock:
+			ThingDatabase(IDataSource).Add(self)
+		return True
 	
 	def RequestStop(self, *args, **kwargs):
 		if self.active:
@@ -86,19 +97,6 @@ class LocalCameraReference(CameraReference):
 			self.active = False
 			with source_registry_lock:
 				ThingDatabase(IDataSource).Remove(self)
-
-	def RequestAutoStart(self):
-		for cam in enumerate_cameras():
-			if (cam.name, cam.vid, cam.pid) == (self.config.name, self.config.vid, self.config.pid):
-				break
-		if not cam:
-			return False
-		self.cap = cv.VideoCapture(cam.index, cam.backend) # add params?
-		# start thread
-		self.active = True
-		with source_registry_lock:
-			ThingDatabase(IDataSource).Add(self)
-		return True
 
 	@staticmethod
 	def EnumerateCameras() -> tuple[list[tuple[Camera, CameraInfo]], list[CameraInfo]]:
@@ -125,12 +123,13 @@ class LocalCameraReference(CameraReference):
 	def RenderView(self):
 		form = CameraReferenceForm(self.parent, self)
 		if form.validate_on_submit():
-			if self.display_name != form.display_name.data:
-				self.display_name = form.display_name.data
+			self.display_name = form.display_name.data
+			self.autostart = form.autostart.data
 			return modal_success()
 		elif request.method == 'GET':
 			form.display_name.data = self.display_name
-		return render_template('_view_lref.html', ref=self, form=form)
+			form.autostart.data = self.autostart
+		return render_template('_view_lref.html', ref=self, form=form, other_source_active=any(map(lambda r: r.active and r != self, self.parent.references)))
 	
 
 class Camera(IExposable, IThing, ILoadReferenceable):
@@ -245,3 +244,6 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 			data = np.array(data)
 
 		return np.squeeze(cv.undistortPoints(data, camera_matrix, dist_coeffs))
+
+	
+from app.cameras.forms import CameraReferenceForm

@@ -2,6 +2,7 @@ import importlib
 import os
 import os.path
 from pathlib import Path
+import traceback
 from typing import List
 
 from flask import Flask
@@ -53,4 +54,5 @@ class ModuleManager:
             return module
         except Exception as e:
             print(f"Failed to load module {folder.name}: {e}")
+            #print(traceback.print_exc())
             return None

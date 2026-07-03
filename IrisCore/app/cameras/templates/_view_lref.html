@@ -24,7 +24,12 @@
 					{{ form.autostart(class='form-check-input') }}
 				</div>
 				<span class="input-group-text">Status</span>
-				<span class="form-control">Inactive</span>
+				<span class="form-control">{{ 'Active' if ref.active else ('Other Source Active' if other_source_active else 'Inactive') }}</span>
+				{% if ref.active %}
+				<a class="btn btn-outline-danger" href="{{ url_for('cameras.stop_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}" data-modal>Stop</a>
+				{% elif not other_source_active %}
+				<a class="btn btn-outline-success" href="{{ url_for('cameras.start_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}" data-modal>Start</a>
+				{% endif %}
 				{%- for error in form.autostart.errors %}
 				<div class="invalid-feedback">{{ error }}</div>
 				{%- endfor %}

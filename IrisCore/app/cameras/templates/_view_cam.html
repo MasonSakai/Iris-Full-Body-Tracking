@@ -21,8 +21,17 @@
 			<a type="button" class="form-control mb-3 btn btn-outline-{% if camera.calib_err == -1 %}warning{% else %}secondary{% endif %}" href="{{ url_for("cameras.calibrate", cam_id=camera.ThingID()) }}" data-modal-new>Calibrate</a>
 
 			<div class="input-group">
+				{% if camera.references | length > 0 %}
+				<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">References</button>
+				<ul class="dropdown-menu">
+					{% for ref in camera.references %}
+					<li><a class="dropdown-item" href="{{ url_for("cameras.view_ref", cam_id=camera.ThingID(), ref_id=ref.ThingID()) }}" data-modal-new data-modal-refresh>{{ ref.display_name }}</a></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+
 				<span class="input-group-text form-control">Create Reference</span>
-				<a type="button" class="btn btn-outline-secondary" href="{{ url_for("cameras.new_lref", cam_id=camera.ThingID()) }}" data-modal-new>Local</a>
+				<a type="button" class="btn btn-outline-secondary" href="{{ url_for("cameras.new_lref", cam_id=camera.ThingID()) }}" data-modal-new data-modal-refresh>Local</a>
 				<a type="button" class="btn btn-outline-secondary" href="{{ url_for("cameras.calibrate", cam_id=camera.ThingID()) }}" data-modal-new>Remote</a>
 			</div>
 		</div>
