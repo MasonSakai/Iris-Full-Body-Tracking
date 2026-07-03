@@ -4,12 +4,6 @@
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('WebAI.static', filename='css/camsite.css') }}">
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/form-decorators.css') }}">
-<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}">
-{% endblock %}
-
-{% block javascript %}
-{{ super() }}
-<script src="{{ url_for('main.static', filename='js/modal.js') }}"></script>
 {% endblock %}
 
 {% block navbar %}

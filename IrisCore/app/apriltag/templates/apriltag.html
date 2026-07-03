@@ -139,14 +139,12 @@
 
 {% block javascript %}
 {{ super() }}
-<script src="{{ url_for('main.static', filename='js/modal.js') }}"></script>
 <script src="{{ url_for('apriltag.static', filename='js/apriltag.js') }}"></script>
 {% endblock %}
 
 {% block stylesheets %}
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/form-decorators.css') }}">
-<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}">
 <style>
 
 	.tag-list {
