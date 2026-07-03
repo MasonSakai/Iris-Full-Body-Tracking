@@ -62,7 +62,9 @@ def new_lref(cam_id: str):
 		ref.display_name = form.display_name.data
 		ref.autostart = form.autostart.data
 
-		[ref.name, ref.vid, ref.pid] = form.ident.data.split(':')
+		[ref.name, vid, pid] = form.ident.data.split(':')
+		ref.vid = int(vid)
+		ref.pid = int(pid)
 		cam.references.append(ref)
 		return modal_success()
 	elif request.method == 'GET':

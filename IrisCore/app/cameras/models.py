@@ -112,9 +112,10 @@ class LocalCameraReference(CameraReference):
 		found: list[tuple[Camera, CameraInfo]] = []
 		new: list[CameraInfo] = []
 		for cam in enumerate_cameras():
-			id = MakeID(cam)
+			ident = MakeID(cam)
 			if id in known:
-				found.append((known[id], cam))
+			if ident in known:
+				found.append((known[ident], cam))
 			else:
 				new.append(cam)
 
