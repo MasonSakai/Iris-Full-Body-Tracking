@@ -72,6 +72,10 @@ def new_lref(cam_id: str):
 		ref.vid = int(vid)
 		ref.pid = int(pid)
 		cam.references.append(ref)
+
+		if ref.autostart:
+			ref.RequestAutoStart()
+
 		return modal_success()
 	elif request.method == 'GET':
 		form.display_name.data = f"Local Reference { len(cam.references) }"

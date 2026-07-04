@@ -372,3 +372,4 @@ lib/OpenCV/install/*
 /RemoteCamProcessing/build
 *.LICENSE.txt
 /AprilTagSite/build
+IrisCore/images

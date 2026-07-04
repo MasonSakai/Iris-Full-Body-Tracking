@@ -14,3 +14,4 @@ pupil-apriltags
 moms-apriltag
 numpy-quaternion
 lxml
+scipy

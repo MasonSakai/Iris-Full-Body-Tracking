@@ -4,6 +4,7 @@ from moms_apriltag import TagGenerator2
 import numpy as np
 import cv2 as cv
 
+from app.apriltag.localization import GetTags, ScanTags
 from app.main.modal import modal_redirect, modal_success
 from utils.registry import ThingDatabase
 from app.apriltag.registry import found_tags
@@ -96,6 +97,15 @@ def delete_detector(id):
     name = detector.display_name
     db.Remove(detector)
     return modal_success(name=name)
+
+
+@bp_aptg.route('/tags/scan')
+def scan_tags():
+    dets, tags = ScanTags(10)
+
+    print(dets, tags)
+
+    return "{}"
 
 
 @bp_aptg.route('/tags/<id>', methods=['GET', 'POST'])

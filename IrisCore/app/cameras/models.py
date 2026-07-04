@@ -54,6 +54,9 @@ class CameraReference(IExposable, IDataSource):
 
 	def RenderView(self):
 		pass
+
+	def RequestImage(self) -> tuple[bool, MatLike]:
+		return False, None
 		
 class LocalCameraReference(CameraReference):
 
@@ -83,6 +86,13 @@ class LocalCameraReference(CameraReference):
 		if not cam:
 			return False
 		self.cap = cv.VideoCapture(cam.index, cam.backend) # add params?
+
+		if 'target_resolution' in kwargs:
+			pass
+		else:
+			self.cap.set(cv.CAP_PROP_FRAME_WIDTH, self.parent.calib_res_width)
+			self.cap.set(cv.CAP_PROP_FRAME_HEIGHT, self.parent.calib_res_height)
+
 		if not self.cap.isOpened():
 			return False
 		# start thread
@@ -130,6 +140,11 @@ class LocalCameraReference(CameraReference):
 			form.display_name.data = self.display_name
 			form.autostart.data = self.autostart
 		return render_template('_view_lref.html', ref=self, form=form, other_source_active=((r := self.parent.ActiveReference()) and r != self))
+
+	def RequestImage(self):
+		if not (self.cap and self.cap.isOpened()):
+			return False, None
+		return self.cap.read()
 	
 
 class Camera(IExposable, IThing, ILoadReferenceable):
@@ -215,7 +230,7 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 	def rescale_camera_matrix(self, shape):
 		sy = shape[0] / self.calib_res_height
 		
-		mat = self.camera_matrix
+		mat = self.camera_matrix.copy()
 		mat *= sy
 		mat[0, 2] += (shape[1] - sy * self.calib_res_width) / 2
 		mat[2, 2] = 1
