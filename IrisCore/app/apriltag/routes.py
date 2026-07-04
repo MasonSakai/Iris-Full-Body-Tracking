@@ -67,7 +67,7 @@ def create_detector():
 @bp_aptg.route('/detectors/<id>', methods=['GET', 'POST'])
 def view_detector(id):
     detector = ThingDatabase(AprilTagDetector).Get(id)
-    form = DetectorForm()
+    form = DetectorForm(existing_detector=detector)
     if form.validate_on_submit():
         detector.families = form.families.data
         detector.nthreads = form.nthreads.data

@@ -51,7 +51,7 @@
 			</div>
 		</div>
 
-		{% if camera.calib_err != -1 %}
+		{% if camera.calib_rms != -1 %}
 		<div class="card mt-3">
 			<div class="card-header">
 				<h5 class="card-title">Current Settings</h5>
@@ -63,7 +63,11 @@
 						{{ np_table(camera.camera_matrix, '', 'mb-0') }}
 						<div class="card-body">
 							<p class="card-text mb-1">Resolution: {{ camera.calib_res_width }}x{{ camera.calib_res_height }}</p>
-							<p class="card-text">Reprojection error: {{ "%.4g" | format(camera.calib_err) }}</p>
+							<p class="card-text ">RMS Error: <span class="{{
+															 'text-success' if camera.calib_rms < 0.3 else
+															 'text-danger' if camera.calib_rms > 2 else
+															 'text-warning-emphasis' if camera.calib_rms > 1 else ''
+															 }}">{{ "%.4g" | format(camera.calib_rms) }}px</span></p>
 						</div>
 					</div>
 					<div class="card">

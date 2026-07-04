@@ -77,18 +77,11 @@ def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
     if len(objpoints) == 0:
         return False, 'Found no valid checkerboards in {} images'.format(len(files))
 
-    ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+    rms, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
     
-    mean_error = 0
-    for i in range(len(objpoints)):
-        imgpoints2, _ = cv.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
-        error = cv.norm(imgpoints[i], imgpoints2, cv.NORM_L2)/len(imgpoints2)
-        mean_error += error
-    err = mean_error/len(objpoints)
+    camera.set_camera_params(h, w, mtx, dist, rms)
 
-    camera.set_camera_params(h, w, mtx, dist, err)
-
-    return False, f"Successfully calibrated with {len(objpoints)} images"
+    return True, f"Successfully calibrated with {len(objpoints)} images"
 
 
 

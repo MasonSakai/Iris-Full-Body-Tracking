@@ -7,50 +7,55 @@ from app.apriltag.models import AprilTag, AprilTagDetector
 from utils.registry import ThingDatabase
 
 class DetectorForm(FlaskForm):
-    
-    families = StringField('Tag Families', validators=[DataRequired(),
-                                                       Regexp(r'^[a-zA-Z0-9\s]+$', message="Tag families must be separated only by spaces")])
-    nthreads = IntegerField('Number of threads', validators=[NumberRange(min=1)])
-    quad_decimate = FloatField('Quad Decimate', validators=[NumberRange(min=0)])
-    quad_sigma = FloatField('Quad Sigma', validators=[NumberRange(min=0)])
-    refine_edges = BooleanField('Refine Edges')
-    decode_sharpening = FloatField('Decode Sharpening', validators=[NumberRange(min=0)])
-    default_tag_size = FloatField('Default tag size (cm)', validators=[NumberRange(min=0)])
 
-    submit = SubmitField('Confirm')
+	
+	def __init__(self, existing_detector: AprilTagDetector = None, **kwargs):
+		super().__init__(**kwargs)
+		self.existing_detector = existing_detector
+	
+	families = StringField('Tag Families', validators=[DataRequired(),
+													   Regexp(r'^[a-zA-Z0-9\s]+$', message="Tag families must be separated only by spaces")])
+	nthreads = IntegerField('Number of threads', validators=[NumberRange(min=1)])
+	quad_decimate = FloatField('Quad Decimate', validators=[NumberRange(min=0)])
+	quad_sigma = FloatField('Quad Sigma', validators=[NumberRange(min=0)])
+	refine_edges = BooleanField('Refine Edges')
+	decode_sharpening = FloatField('Decode Sharpening', validators=[NumberRange(min=0)])
+	default_tag_size = FloatField('Default tag size (cm)', validators=[NumberRange(min=0)])
 
-    def validate_families(self, field: StringField):
-        for thing in ThingDatabase(AprilTagDetector).AllThingsListForReading():
-            if thing.families == field.data:
-                raise ValidationError('Families match existing detector')
+	submit = SubmitField('Confirm')
 
-        try:
-            Detector(families=field.data)
-        except Exception as ex:
-            raise ValidationError(str(ex))
+	def validate_families(self, field: StringField):
+		for thing in ThingDatabase(AprilTagDetector).AllThingsListForReading():
+			if thing != self.existing_detector and thing.families == field.data:
+				raise ValidationError('Families match existing detector')
+
+		try:
+			Detector(families=field.data)
+		except Exception as ex:
+			raise ValidationError(str(ex))
 
 class CreateDetectorForm(DetectorForm):
-    
-    display_name = StringField('Detector Name', validators=[DataRequired()])
-    submit = SubmitField('Create')
+	
+	display_name = StringField('Detector Name', validators=[DataRequired()])
+	submit = SubmitField('Create')
 
-    def validate_display_name(self, field: StringField):
-        for thing in ThingDatabase(AprilTagDetector).AllThingsListForReading():
-            if thing.display_name == field.data:
-                raise ValidationError('Name matches existing detector')
+	def validate_display_name(self, field: StringField):
+		for thing in ThingDatabase(AprilTagDetector).AllThingsListForReading():
+			if thing.display_name == field.data:
+				raise ValidationError('Name matches existing detector')
 
 class FoundTagForm(FlaskForm):
-    
-    display_name = StringField('Display Name', validators=[DataRequired()])
-    tag_size = FloatField('Tag Size (cm)', validators=[NumberRange(min=0)])
+	
+	display_name = StringField('Display Name', validators=[DataRequired()])
+	tag_size = FloatField('Tag Size (cm)', validators=[NumberRange(min=0)])
 
-    submit = SubmitField('Create')
+	submit = SubmitField('Create')
 
-    def validate_display_name(self, field: StringField):
-        for thing in ThingDatabase(AprilTag).AllThingsListForReading():
-            if thing.display_name == field.data:
-                raise ValidationError('Name matches existing detector')
-    
+	def validate_display_name(self, field: StringField):
+		for thing in ThingDatabase(AprilTag).AllThingsListForReading():
+			if thing.display_name == field.data:
+				raise ValidationError('Name matches existing detector')
+	
 class EditTagForm(FoundTagForm):
-    ensure_static = BooleanField('Ensure Static')
-    submit = SubmitField('Submit')
+	ensure_static = BooleanField('Ensure Static')
+	submit = SubmitField('Submit')

@@ -141,7 +141,7 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 	calib_res_height: int
 	camera_matrix: np.ndarray | None
 	dist_coeffs: np.ndarray | None
-	calib_err: float
+	calib_rms: float
 
 	references: list[CameraReference]
 	
@@ -153,7 +153,7 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 		self.calib_res_height = 0
 		self.camera_matrix = None
 		self.dist_coeffs = None
-		self.calib_err = -1.0
+		self.calib_rms = -1.0
 		self.transform = None
 		self.references = []
 
@@ -168,7 +168,7 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 		self.calib_res_height = Scribe_Values.Look(self.calib_res_height, 'CalibResHeight', int, defaultValue=0)
 		self.camera_matrix = Scribe_Values.Look(self.camera_matrix, 'CameraMatrix', np.ndarray)
 		self.dist_coeffs = Scribe_Values.Look(self.dist_coeffs, 'DistCoeffs', np.ndarray)
-		self.calib_err = Scribe_Values.Look(self.calib_err, 'CalibError', float, -1.0)
+		self.calib_rms = Scribe_Values.Look(self.calib_rms, 'CalibRMS', float, -1.0)
 
 		self.transform = Scribe_Values.Look(self.transform, 'transform', np.ndarray)
 
@@ -202,12 +202,12 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 		path = os.path.join(lifecycle.app.config["APPDATA_PATH"], 'cameras', self.display_name, *path_ext)
 		return path, os.path.isdir(path)
 
-	def set_camera_params(self, height: int, width: int, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, error: float):
+	def set_camera_params(self, height: int, width: int, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, rms: float):
 		self.calib_res_width = width
 		self.calib_res_height = height
 		self.camera_matrix = camera_matrix
 		self.dist_coeffs = dist_coeffs
-		self.calib_err = error
+		self.calib_rms = rms
 
 	def get_camera_params(self):
 		return (self.camera_matrix, self.dist_coeffs)
