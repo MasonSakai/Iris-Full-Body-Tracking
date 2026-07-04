@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Refresh } from '@app/ui/object_list';
+import '@app/ui/object_list';
 import { createMatrixT } from './util'
 import { PickHelper } from './PickHelper'
 
@@ -47,7 +47,7 @@ export function canvas_resized() {
 	renderer.setSize(rect.width, rect.height, false);
 }
 
-window.onload = () => {
+window.addEventListener('load', () => {
 	canvas_wrapper = document.getElementById('tag-canvas-wrapper') as HTMLDivElement;
 	canvas = document.getElementById('tag-canvas') as HTMLCanvasElement;
 
@@ -68,10 +68,8 @@ window.onload = () => {
 	camera.position.z = -3
 	controls.update()
 
-	Refresh()
-	
 	requestAnimationFrame(render)
-}
+});
 
 export function LookAt(obj: THREE.Object3D) {
 

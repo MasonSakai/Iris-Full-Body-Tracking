@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="row">
+<div class="row border-top border-2">
 	<div class="col-auto border-end border-2 tag-list" style="--tag-list-width: 200px">
 		editor
 	</div>
@@ -12,6 +12,8 @@
 	</div>
 
 	<div class="col-auto border-start border-2 tag-list list-group list-group-flush">
+		<button class="list-group-item" id="tags-refresh">Refresh List</button>
+
 		<div class="list-group-item list-group-item-light d-flex justify-content-between align-items-center" id="detectors">
 			Detectors
 			<a class="btn badge btn-outline-info rounded-pill ms-3" href="{{ url_for('apriltag.create_detector') }}" id="new-detector">+</a>
@@ -30,101 +32,6 @@
 		</div>
 		<div class="list-group-item list-group-item-light p-0" id="tags-end"></div>
 	</div>
-</div>
-
-{% endblock %}
-
-
-{% block rem %}
-<h1>April Tag Manager</h1>
-
-<div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
-	<table class="w-100 text-center table table-hover caption-top">
-		<caption class="ps-3 border-bottom border-dark-subtle">
-			<h5 style="display: inline-block;">April tag detectors: {{ detectors | length }}</h5>
-			<span style="display: inline-block; width: 100px;">&nbsp;</span>
-			<a class="btn btn-outline-info me-2" href="{{ url_for('apriltag.create_detector') }}" data-modal-new data-modal-refresh>+</a>
-		</caption>
-		{% if detectors|length > 0 %}
-		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
-			<tr>
-				<td class="p-2">ID</td>
-				<td class="p-2">Families</td>
-				<td class="p-2">Default Tag Size</td>
-			</tr>
-		</thead>
-		<tbody>
-			{% for detector in detectors %}
-			<tr id="detector-{{ detector.ThingID() }}" class="p-1 border-bottom border-dark-subtle" href="{{url_for('apriltag.view_detector', id=detector.ThingID())}}" data-modal-new data-modal-refresh>
-				<td class="p-2">{{ detector.display_name }}</td>
-				<td class="p-2">{{ detector.families }}</td>
-				<td class="p-2">{{ (detector.default_tag_size * 100)  | round(2, 'floor') }}cm</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-		{% endif %}
-	</table>
-</div>
-
-<div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
-	<table class="w-100 text-center table table-hover caption-top">
-		<caption class="ps-3 border-bottom border-dark-subtle"><h5>Known April Tags: {{ known_tags|length }}</h5></caption>
-		{% if known_tags|length > 0 %}
-		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
-			<tr>
-				<td class="p-2">Name</td>
-				<td class="p-2">Family</td>
-				<td class="p-2">ID</td>
-				<td class="p-2">Tag Size</td>
-			</tr>
-		</thead>
-		<tbody>
-			{% for tag in known_tags %}
-			<tr id="tag-{{ tag.ThingID() }}" class="p-1 border-bottom border-dark-subtle" href="{{url_for('apriltag.view_tag', id=tag.ThingID())}}" data-modal-new data-modal-refresh>
-				<td class="p-2">{{ tag.display_name }}</td>
-				<td class="p-2">{{ tag.tag_family }}</td>
-				<td class="p-2">{{ tag.tag_id }}</td>
-				<td class="p-2">{{ (tag.tag_size * 100) | round(2, 'floor') }}cm</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-		{% endif %}
-	</table>
-</div>
-
-<div class="mt-3 pb-3 rounded-5 bg-dark-subtle border border-dark-subtle">
-	<table class="w-100 text-center table table-hover caption-top">
-		<caption class="ps-3 border-bottom border-dark-subtle">
-			<h5 style="display: inline-block;">Discovered April Tags: {{ found_tags|length }}</h5>
-			<span style="display: inline-block; width: 100px;">&nbsp;</span>
-			<a href="{{ url_for('apriltag.clear_found_tags') }}" class="btn btn-outline-warning me-2">Clear Found Tags</a>
-			<a href="{{ url_for('apriltag.refresh_found_tags') }}" class="btn btn-outline-info me-2">Refresh Found Tags</a>
-			<div></div>
-		</caption>
-		{% if found_tags|length > 0 %}
-		<thead class="fw-bolder border-bottom border-4 border-start-0 border-end-0 border-top-0 border-dark-subtle">
-			<tr>
-				<td class="p-2">Family</td>
-				<td class="p-2">ID</td>
-				<td class="p-2">Seen by</td>
-			</tr>
-		</thead>
-		<tbody>
-			{% for (tag, size, sources) in found_tags %}
-			<tr id="tag-{{ tag.tag_family.decode("utf-8") }}:{{ tag.id }}" class="p-1 border-bottom border-dark-subtle"
-				href="{{url_for('apriltag.view_found_tag', family=tag.tag_family.decode("utf-8"), id=tag.tag_id)}}" data-modal-new data-modal-refresh>
-				<td class="p-2">{{ tag.tag_family.decode("utf-8") }}</td>
-				<td class="p-2">{{ tag.tag_id }}</td>
-				<td class="p-2">
-					{% for source in sources %}
-					<span class="list-span">{{ source.display_name }}</span>
-					{% endfor %}
-				</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-		{% endif %}
-	</table>
 </div>
 
 {% endblock %}
@@ -165,7 +72,7 @@
 	}
 
 	#body-container {
-		--body-height: calc(100vh - 56px);
+		--body-height: calc(100vh - 58px);
 	}
 
 	#body-container.mt-3 {

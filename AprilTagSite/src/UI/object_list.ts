@@ -7,18 +7,25 @@ import { PickHelper } from '@app/PickHelper'
 
 function CreateListElement(name: string, id: string = null, count: string = null, count_style: string = 'badge text-bg-secondary rounded-pill ms-3') {
 	var item = document.createElement('button');
-	item.className = 'list-group-item';
+	item.className = 'list-group-item d-flex justify-content-between align-items-center';
 	item.textContent = name;
 	item.id = id;
 
-	if (count != null) {
-		item.classList.add('d-flex', 'justify-content-between', 'align-items-center');
-		var el_count = document.createElement('span');
-		el_count.className = count_style;
-		el_count.innerText = count;
-		item.appendChild(el_count)
-	}
+	var el_count = document.createElement('span');
+	el_count.className = count_style;
+	el_count.innerText = count;
+	item.appendChild(el_count)
+
 	return item;
+}
+
+function ClearToNext(el: HTMLElement) {
+
+	var el_next = el.nextElementSibling as HTMLElement;
+	while (el_next && !el_next.classList.contains('list-group-item-light')) {
+		el_next.remove()
+		el_next = el.nextElementSibling as HTMLElement;
+	}
 }
 
 /*
@@ -235,15 +242,11 @@ async function FetchDetectors() {
 	var el_detectors = document.getElementById('detectors')
 	var p_data = fetch('detectors');
 
-	var el_next = el_detectors.nextElementSibling as HTMLElement;
-	while (el_next && !el_next.classList.contains('list-group-item-light')) {
-		el_next.remove()
-		el_next = el_detectors.nextElementSibling as HTMLElement;
-	}
+	ClearToNext(el_detectors)
 
 	var data = (await (await p_data).json()) as { name: string, id: string }[];
 
-	el_next = el_detectors;
+	var el_next = el_detectors;
 	for (const detector of data) {
 		var el = CreateListElement(detector.name, detector.id)
 		el.addEventListener('click', (e) => {
@@ -267,10 +270,18 @@ async function FetchDetectors() {
 	el_n_detectors.innerText = data.length ? data.length.toString() : '+'
 }
 
+async function FetchTags() {
+	var el_cameras = document.getElementById('tags-known')
+	var el_cameras = document.getElementById('tags-found')
+	var p_data = fetch('tags/scan');
+
+}
 
 async function FetchCameras() {
 	var el_cameras = document.getElementById('cameras')
 	var p_data = fetch('/cameras/list');
+
+	ClearToNext(el_cameras)
 
 	var el_next = el_cameras.nextElementSibling as HTMLElement;
 	while (el_next && !el_next.classList.contains('list-group-item-light')) {
@@ -280,7 +291,7 @@ async function FetchCameras() {
 
 	var data = (await (await p_data).json()) as { name: string, id: string, transform: number[][], active: string | false }[];
 
-	el_next = el_cameras;
+	var el_next = el_cameras;
 	for (const camera of data) {
 		var el = CreateListElement(camera.name, camera.id, camera.active ? '\u00A0' : null, `badge ${ camera.active ? 'text-bg-danger' : 'text-bg-secondary' } rounded-circle ms-3`)
 
@@ -300,10 +311,18 @@ async function FetchCameras() {
 
 export function Refresh() {
 	FetchDetectors()
+	FetchTags()
 	FetchCameras()
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+
+	var btn_refresh = document.getElementById('tags-refresh') as HTMLButtonElement;
+	btn_refresh.addEventListener('click', (e) => {
+		Refresh();
+	});
+
+
 	var btn_detector = document.getElementById('new-detector') as HTMLLinkElement;
 	btn_detector.addEventListener('click', (e) => {
 		e.preventDefault();
@@ -319,4 +338,6 @@ window.addEventListener('DOMContentLoaded', () => {
 			.then(FetchCameras)
 			.catch(() => { });
 	});
+
+	Refresh();
 });
