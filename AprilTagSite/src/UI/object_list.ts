@@ -278,6 +278,8 @@ async function FetchTags() {
 	ClearToNext(el_known)
 	ClearToNext(el_found)
 
+	//SEPARATE INTO SCAN AND FETCH
+
 	var el_next: HTMLElement = el_known;
 	for (const [ident, data] of Object.entries(p_data.known)) {
 		var num_cams = Object.keys(data.cams).length;
@@ -288,7 +290,8 @@ async function FetchTags() {
 		});
 		el.addEventListener('contextmenu', (e) => {
 			e.preventDefault();
-			window.Modal.open(`tags/${ident}`);
+			window.Modal.open(`tags/${ident}`)
+				.then(FetchTags).catch(() => { });;
 		});
 
 		el_next.after(el);

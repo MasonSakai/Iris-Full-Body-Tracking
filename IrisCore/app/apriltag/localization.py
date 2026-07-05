@@ -5,7 +5,7 @@ import numpy as np
 import cv2 as cv
 from pupil_apriltags import Detection
 
-from app.apriltag.registry import FoundTagDetails, TagDetails, clear_tags_for, drawTag, found_tags
+from app.apriltag.registry import FoundTagDetails, TagDetails, clear_tags_for, drawTag, set_found_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
 from app.cameras.models import Camera, CameraReference
 from utils.registry import ThingDatabase
@@ -37,7 +37,7 @@ def GetTags(cam: Camera, img: MatLike) -> tuple[list[tuple[float, Detection]], l
 		for r in dets:
 			drawTag(img, r, 1)
 			#add_found_tag(cam, detector.default_tag_size, r)
-		for (r, tag) in tags:
+		for (tag, r) in tags:
 			drawTag(img, r, 1)
 			#tag.detections[cam] = r
 			
@@ -142,8 +142,7 @@ def ScanTags(num_scans: int = 1, scan_sep: float = 0.25, ref_list: list[CameraRe
 				ref_tags[tag] = {}
 			ref_tags[tag][cam] = (len(dets), pos, rot, v_pos, v_mar)
 
-	global found_tags
-	found_tags = ref_dets
+	set_found_tags(ref_dets)
 
 	for tag, dets in ref_tags.items():
 		tag.detections.update(dets)

@@ -111,21 +111,21 @@ class AprilTagDetector(IExposable, IThing):
 			)
 		return self._detector
 
-	def detect(self, image, camera_matrix) -> tuple[list[Detection], list[tuple[Detection, AprilTag]]]:
+	def detect(self, image, camera_matrix) -> tuple[list[Detection], list[tuple[AprilTag, Detection]]]:
 		params = [camera_matrix[0, 0], camera_matrix[1, 1], camera_matrix[0, 2], camera_matrix[1, 2]]
 
 		res = self.getDetector().detect(image, True, params, self.default_tag_size)
 		res: list[Detection]
-
+		
 		tags: list[tuple[Detection, AprilTag]] = []
 
-		tags = ThingDatabase(AprilTag).AllThingsListForReading()
+		tag_list = ThingDatabase(AprilTag).AllThingsListForReading()
 		for i in range(len(res)-1, -1, -1):
-			tag = next((tag for tag in tags if (tag.tag_id == res[i].tag_id and tag.family == res[i].tag_family)), None)
+			tag = next((tag for tag in tag_list if (tag.tag_id == res[i].tag_id and tag.tag_family == res[i].tag_family.decode())), None)
 			if tag:
 				r = res.pop(i)
 				r.pose_t *= tag.tag_size / self.default_tag_size
-				tags.append((r, tag))
+				tags.append((tag, r))
 
 		return (res, tags)
 	

@@ -8,11 +8,32 @@ from app.apriltag.models import AprilTag
 from utils.registry import ThingDatabase
 
 
+
 type TagDetails = tuple[int, np.ndarray, np.ndarray, float, float]
+"""Reads as (num, pos, rot, v_pos, v_mar)
+
+num: number of samples
+pos: vertical column of 3
+rot: 3x3 rotation matrix
+v_pos: std(pos)
+v_mar: avg(detection.decision_margin)"""
+
 type FoundTagDetails = tuple[*TagDetails, float]
+"""Reads as (num, pos, rot, v_pos, v_mar, size)
+
+num: number of samples
+pos: vertical column of 3
+rot: 3x3 rotation matrix
+v_pos: std(pos)
+v_mar: avg(detection.decision_margin)
+size: default size in detector, m"""
     
 found_tags: dict[tuple[str, int], dict[Camera, FoundTagDetails]] = {}
 
+def set_found_tags(data):
+    global found_tags
+    found_tags.clear()
+    found_tags.update(data)
 
 def drawTag(image, r: Detection, scale):
     # extract the bounding box (x, y)-coordinates for the AprilTag
@@ -42,9 +63,12 @@ def clear_tags_for(source: Camera):
         if source in tag.detections:
             tag.detections.pop(source)
 
-    
-    for i in range(len(found_tags) - 1, -1, -1):
-        if source in found_tags[i][2]:
-            found_tags[i][2].pop(source)
-            if len(found_tags[i][2]) == 0:
-                found_tags.pop(i)
+    to_remove = []
+    for ident in found_tags:
+        if source in found_tags[ident]:
+            found_tags[ident].pop(source)
+            if len(found_tags[ident]) == 0:
+                to_remove.append(ident)
+
+    for ident in to_remove:
+        found_tags.pop(ident)

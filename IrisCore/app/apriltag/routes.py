@@ -1,3 +1,4 @@
+from statistics import mode
 from flask import Blueprint, jsonify, redirect, render_template, request, url_for, Response
 from pupil_apriltags import Detector
 from moms_apriltag import TagGenerator2
@@ -10,7 +11,7 @@ from app.main.modal import modal_redirect, modal_success
 from utils.registry import ThingDatabase
 from app.apriltag.registry import found_tags
 from app.apriltag.models import AprilTag, AprilTagDetector
-from app.apriltag.forms import DetectorForm, CreateDetectorForm, FoundTagForm, EditTagForm
+from app.apriltag.forms import DetectorForm, CreateDetectorForm, TagForm, EditTagForm
 from app.cameras.models import Camera
 
 bp_aptg = Blueprint('apriltag', __name__, static_folder='static', template_folder='templates', url_prefix='/apriltag')
@@ -106,7 +107,7 @@ def scan_tags():
 
     if tags is None:
         return jsonify({ 'known': { }, 'found': { } })
-
+    
     return jsonify({
         'known': {
             tag.ThingID(): {
@@ -135,32 +136,28 @@ def scan_tags():
 
 @bp_aptg.route('/tags/<id>', methods=['GET', 'POST'])
 def view_tag(id):
-    tag = ThingDatabase(AprilTag).GetByULID(id)
-    form = EditTagForm()
+    tag = ThingDatabase(AprilTag).Get(id)
+    form = EditTagForm(existing_tag=tag)
     if form.validate_on_submit():
 
-        if tag.id in seen_tags:
-            scale = tag.tag_size * 100 / form.tag_size.data
-            for src in seen_tags[tag.id]:
-                seen_tags[tag.id][src].pose_t *= scale
+        #if tag.id in seen_tags:
+        #    scale = tag.tag_size * 100 / form.tag_size.data
+        #    for src in seen_tags[tag.id]:
+        #        seen_tags[tag.id][src].pose_t *= scale
 
 
-        tag.tag_size = form.tag_size.data / 100
+        tag.tag_size = form.tag_size.data / 100.
         tag.display_name = form.display_name.data
         tag.ensure_static = form.ensure_static.data
 
-        return redirect(url_for('apriltag.index'))
+        return modal_success(id=tag.ThingID())
     
-    seen = seen_tags[tag.id] if tag.id in seen_tags else []
     if request.method == 'GET':
-
-        form.tag_size.data = tag.tag_size * 100
+        form.tag_size.data = tag.tag_size * 100.
         form.display_name.data = tag.display_name
         form.ensure_static.data = tag.ensure_static
-
-        return render_template('_view_tag.html', form=form, tag=tag, seen_sources=seen)
-
-    return index(popup_contents=render_template('_view_tag.html', form=form, tag=tag, seen_sources=seen))
+        
+    return render_template('_view_tag.html', form=form, tag=tag)
 
 @bp_aptg.route('/tags/<id>/delete')
 def delete_tag(id):
@@ -175,47 +172,35 @@ def delete_tag(id):
 def view_found_tag(family, id):
     id = int(id)
 
-    res: Detector = None
-    size = -1
-    sources: dict[Camera, list[Detector]] = {}
-    index = -1
+    data = found_tags.get((family, id), None)
 
-    for (i, (i_res, i_size, i_sources)) in enumerate(found_tags):
-        if i_res.tag_family.decode('utf-8') == family and i_res.tag_id == id:
-            index = i
-            res = i_res
-            size = i_size
-            sources = i_sources
-            break
+    if data is None:
+        return
 
-    r_sources = {}
-    for source in sources:
-        r_sources[source] = (sources[source], np.linalg.norm(sources[source].pose_t))
 
-    form = FoundTagForm()
+    form = TagForm()
     if form.validate_on_submit():
-        tag = AprilTag(tag_id = id, tag_family=family,
-                       tag_size = form.tag_size.data / 100., display_name=form.display_name.data)
+        tag = AprilTag()
+        tag.tag_id = id
+        tag.tag_family = family
+        tag.tag_size = form.tag_size.data / 100.
+        tag.display_name=form.display_name.data
+
+        tag.detections = { cam: (num, pos * tag.tag_size / size, rot, v_pos * tag.tag_size / size, v_mar) for cam, (num, pos, rot, v_pos, v_mar, size) in data.items() }
+
         ThingDatabase(AprilTag).Add(tag)
-        found_tags.pop(index)
+        found_tags.pop((family, id))
         #move tag to seen_tags
-        return redirect(url_for('apriltag.index'))
+        return redirect(url_for('apriltag.view_tag', id=tag.ThingID()))
 
     elif request.method == 'GET':
 
         form.display_name.data = '{}:{}'.format(family, id)
-        form.tag_size.data = size * 100.
-        return render_template('_add_tag.html', form=form, tag=res, sources=r_sources, size=size)
+        form.tag_size.data = mode([v[5] for v in data.values()]) * 100.
 
-    return index(popup_contents=render_template('_add_tag.html', form=form, tag=res, sources=r_sources, size=size))
+    return render_template('_add_tag.html', form=form, tag_family=family, tag_id=id, cams=data, np=np)
 
 @bp_aptg.route('/tags/found/clear')
 def clear_found_tags():
     found_tags.clear()
-    return redirect(url_for('apriltag.index'))
-
-@bp_aptg.route('/tags/found/refresh')
-def refresh_found_tags():
-    #found_tags.clear()
-    #send message to sources
-    return redirect(url_for('apriltag.index'))
+    return modal_success()

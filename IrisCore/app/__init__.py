@@ -21,7 +21,8 @@ def create_app(config_class=Config):
     
     from utils import debug
     debug.LoadConfig(config_class)
-
+    
+    os.environ["OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS"] = "0"
     lifecycle.init_app(app)
 
     return app

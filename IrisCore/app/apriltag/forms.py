@@ -44,8 +44,12 @@ class CreateDetectorForm(DetectorForm):
 			if thing.display_name == field.data:
 				raise ValidationError('Name matches existing detector')
 
-class FoundTagForm(FlaskForm):
+class TagForm(FlaskForm):
 	
+	def __init__(self, existing_tag: AprilTag = None, **kwargs):
+		super().__init__(**kwargs)
+		self.existing_tag = existing_tag
+
 	display_name = StringField('Display Name', validators=[DataRequired()])
 	tag_size = FloatField('Tag Size (cm)', validators=[NumberRange(min=0)])
 
@@ -53,9 +57,9 @@ class FoundTagForm(FlaskForm):
 
 	def validate_display_name(self, field: StringField):
 		for thing in ThingDatabase(AprilTag).AllThingsListForReading():
-			if thing.display_name == field.data:
+			if thing != self.existing_tag and thing.display_name == field.data:
 				raise ValidationError('Name matches existing detector')
 	
-class EditTagForm(FoundTagForm):
+class EditTagForm(TagForm):
 	ensure_static = BooleanField('Ensure Static')
 	submit = SubmitField('Submit')
