@@ -4,6 +4,7 @@ import { LoadCamModel, LoadTagModel } from '@app/ui/models'
 import { camera_list, CameraInfo, known_tag_list } from '@app/data/objects'
 import { createMatrixTR, createMatrixT } from '@app/util'
 import { PickHelper } from '@app/PickHelper'
+import { ScanResults } from '@app/data/network_objects'
 
 function CreateListElement(name: string, id: string = null, count: string = null, count_style: string = 'badge text-bg-secondary rounded-pill ms-3') {
 	var item = document.createElement('button');
@@ -240,11 +241,10 @@ socket.on('cams', ParseCameras)
 
 async function FetchDetectors() {
 	var el_detectors = document.getElementById('detectors')
-	var p_data = fetch('detectors');
+	var data = (await (await fetch('detectors')).json()) as { name: string, id: string }[];
 
 	ClearToNext(el_detectors)
 
-	var data = (await (await p_data).json()) as { name: string, id: string }[];
 
 	var el_next = el_detectors;
 	for (const detector of data) {
@@ -271,15 +271,51 @@ async function FetchDetectors() {
 }
 
 async function FetchTags() {
-	var el_cameras = document.getElementById('tags-known')
-	var el_cameras = document.getElementById('tags-found')
-	var p_data = fetch('tags/scan');
+	var el_known = document.getElementById('tags-known')
+	var el_found = document.getElementById('tags-found')
+	var p_data = await (await fetch('tags/scan')).json() as ScanResults;
 
+	ClearToNext(el_known)
+	ClearToNext(el_found)
+
+	var el_next: HTMLElement = el_known;
+	for (const [ident, data] of Object.entries(p_data.known)) {
+		var num_cams = Object.keys(data.cams).length;
+		var el = CreateListElement(data.name, ident, num_cams ? num_cams.toString() : null);
+
+		el.addEventListener('click', (e) => {
+			e.preventDefault();
+		});
+		el.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+			window.Modal.open(`tags/${ident}`);
+		});
+
+		el_next.after(el);
+		el_next = el;
+	}
+
+	el_next = el_found;
+	for (const [ident, cams] of Object.entries(p_data.found)) {
+		var el = CreateListElement(ident, ident, Object.keys(cams).length.toString());
+
+		el.addEventListener('click', (e) => {
+			e.preventDefault();
+		});
+		el.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+			window.Modal.open(`tags/found/${ident}`)
+				.then(FetchTags).catch(() => { });
+		});
+
+		el_next.after(el);
+		el_next = el;
+	}
 }
 
 async function FetchCameras() {
 	var el_cameras = document.getElementById('cameras')
-	var p_data = fetch('/cameras/list');
+	var data = (await (await fetch('/cameras/list')).json()) as { name: string, id: string, transform: number[][], active: string | false }[];
 
 	ClearToNext(el_cameras)
 
@@ -289,7 +325,6 @@ async function FetchCameras() {
 		el_next = el_cameras.nextElementSibling as HTMLElement;
 	}
 
-	var data = (await (await p_data).json()) as { name: string, id: string, transform: number[][], active: string | false }[];
 
 	var el_next = el_cameras;
 	for (const camera of data) {

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import cv2 as cv
 import numpy as np
 
@@ -6,7 +7,12 @@ from pupil_apriltags import Detection
 from app.apriltag.models import AprilTag
 from utils.registry import ThingDatabase
 
-found_tags: list[tuple[Detection, float, dict[Camera, Detection]]] = []
+
+type TagDetails = tuple[int, np.ndarray, np.ndarray, float, float]
+type FoundTagDetails = tuple[*TagDetails, float]
+    
+found_tags: dict[tuple[str, int], dict[Camera, FoundTagDetails]] = {}
+
 
 def drawTag(image, r: Detection, scale):
     # extract the bounding box (x, y)-coordinates for the AprilTag
@@ -29,14 +35,6 @@ def drawTag(image, r: Detection, scale):
     cv.putText(image, '{}:{} @ {}'.format(r.tag_family.decode("utf-8"), r.tag_id, dist),
         (ptA[0], ptA[1] - 15), cv.FONT_HERSHEY_SIMPLEX, 0.25 * scale, (255, 0, 0), scale)
 
-def add_found_tag(source: Camera, size: float, res: Detection):
-    for i in range(len(found_tags)):
-        det: Detection = found_tags[i][0]
-        if det.tag_family == res.tag_family and det.tag_id == res.tag_id:
-            found_tags[i][2][source] = res
-            return
-
-    found_tags.append((res, size, {source: res}))
 
 def clear_tags_for(source: Camera):
     

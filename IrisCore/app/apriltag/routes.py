@@ -3,6 +3,7 @@ from pupil_apriltags import Detector
 from moms_apriltag import TagGenerator2
 import numpy as np
 import cv2 as cv
+from scipy.spatial.transform import Rotation
 
 from app.apriltag.localization import GetTags, ScanTags
 from app.main.modal import modal_redirect, modal_success
@@ -103,9 +104,33 @@ def delete_detector(id):
 def scan_tags():
     dets, tags = ScanTags(10)
 
-    print(dets, tags)
+    if tags is None:
+        return jsonify({ 'known': { }, 'found': { } })
 
-    return "{}"
+    return jsonify({
+        'known': {
+            tag.ThingID(): {
+                'name': tag.display_name,
+                'size': tag.tag_size,
+                'cams': {
+                    cam.ThingID(): {
+                        'size': tag.tag_size, 'num': num,
+                        'pos': pos.flatten().tolist(), 'rot': Rotation.from_matrix(rot).as_quat().tolist(),
+                        'v_pos': v_pos, 'v_mar': v_mar 
+                    } for cam, (num, pos, rot, v_pos, v_mar) in cams.items()
+                }
+            } for tag, cams in tags.items()
+        },
+        'found': {
+            f"{family}:{id}": {
+                cam.ThingID(): {
+                    'size': size, 'n': num,
+                    'pos': pos.flatten().tolist(), 'rot': Rotation.from_matrix(rot).as_quat().tolist(),
+                    'v_pos': v_pos, 'v_mar': v_mar
+                } for cam, (num, pos, rot, v_pos, v_mar, size) in cams.items()
+            } for (family, id), cams in dets.items()
+        }
+    })
 
 
 @bp_aptg.route('/tags/<id>', methods=['GET', 'POST'])

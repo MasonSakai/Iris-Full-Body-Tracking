@@ -41,8 +41,8 @@ class ModuleManager:
                 continue
 
             module = self._load_module(entry, is_core)
-            print(f'Got Module: {module.module_id if module else module}')
             if module:
+                print(f'Got Module: {module.module_id if module else module}')
                 self.modules.append(module)
 
     def _load_module(self, folder: Path, is_core: bool) -> IrisModule | None:

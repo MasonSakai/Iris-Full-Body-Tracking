@@ -17,7 +17,7 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 
 	transform: np.ndarray
 
-	detections: dict[Camera, Detection]
+	detections: dict[Camera, TagDetails]
 	
 	def __init__(self):
 		super().__init__()
@@ -54,9 +54,6 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 
 	def get_transform(self) -> np.ndarray:
 		return self.transform
-
-	def add_detection(self, camera: Camera, detection: Detection):
-		self.detections[camera] = detection
 	
 
 class AprilTagDetector(IExposable, IThing):
@@ -132,3 +129,5 @@ class AprilTagDetector(IExposable, IThing):
 
 		return (res, tags)
 	
+	
+from app.apriltag.registry import TagDetails
