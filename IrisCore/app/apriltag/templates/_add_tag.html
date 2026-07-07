@@ -37,7 +37,7 @@
 				<button type="button" class="btn btn-secondary mb-3" data-modal-close>Close</button>
 				{{ form.submit(class="btn btn-primary mb-3") }}
 			</div>
-			<a href="{ { url_for('apriltag.remove_found_tag', family=tag.tag_family, id=tag.tag_id) }}" class="btn btn-outline-warning form-control mb-3">Clear</a>
+			<a href="{{ url_for('apriltag.clear_found_tag', family=tag_family, id=tag_id) }}" class="btn btn-outline-warning form-control mb-3" data-modal>Clear</a>
 		</div>
 	</form>
 </div>

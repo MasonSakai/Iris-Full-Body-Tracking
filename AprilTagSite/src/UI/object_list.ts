@@ -1,19 +1,19 @@
-import { Object3D } from 'three'
+import { Matrix4 } from 'three'
 import { scene, socket } from '@app/apriltag'
-import { LoadCamModel, LoadTagModel } from '@app/ui/models'
-import { camera_list, CameraInfo, known_tag_list } from '@app/data/objects'
+import { camera_list, CameraInfo, found_tag_list, FoundTagInfo, tag_list, TagInfo } from '@app/data/objects'
 import { createMatrixTR, createMatrixT } from '@app/util'
 import { PickHelper } from '@app/PickHelper'
-import { ScanResults } from '@app/data/network_objects'
+import { CamRecord, FoundTagRecord, ScanResults, TagIdent, TagRecord } from '@app/data/network_objects'
+import { cams_obj, tags_obj } from './models'
 
-function CreateListElement(name: string, id: string = null, count: string = null, count_style: string = 'badge text-bg-secondary rounded-pill ms-3') {
+function CreateListElement(name: string, id: string = null, count: string = null, count_bg: string = 'text-bg-secondary') {
 	var item = document.createElement('button');
 	item.className = 'list-group-item d-flex justify-content-between align-items-center';
 	item.textContent = name;
 	item.id = id;
 
 	var el_count = document.createElement('span');
-	el_count.className = count_style;
+	el_count.className = `badge ${ count_bg } rounded-pill ms-3`;
 	el_count.innerText = count;
 	item.appendChild(el_count)
 
@@ -28,6 +28,7 @@ function ClearToNext(el: HTMLElement) {
 		el_next = el.nextElementSibling as HTMLElement;
 	}
 }
+
 
 /*
 let found_tags_obj: Object3D = null
@@ -270,68 +271,17 @@ async function FetchDetectors() {
 	el_n_detectors.innerText = data.length ? data.length.toString() : '+'
 }
 
-async function FetchTags() {
-	var el_known = document.getElementById('tags-known')
-	var el_found = document.getElementById('tags-found')
-	var p_data = await (await fetch('tags/scan')).json() as ScanResults;
-
-	ClearToNext(el_known)
-	ClearToNext(el_found)
-
-	//SEPARATE INTO SCAN AND FETCH
-
-	var el_next: HTMLElement = el_known;
-	for (const [ident, data] of Object.entries(p_data.known)) {
-		var num_cams = Object.keys(data.cams).length;
-		var el = CreateListElement(data.name, ident, num_cams ? num_cams.toString() : null);
-
-		el.addEventListener('click', (e) => {
-			e.preventDefault();
-		});
-		el.addEventListener('contextmenu', (e) => {
-			e.preventDefault();
-			window.Modal.open(`tags/${ident}`)
-				.then(FetchTags).catch(() => { });;
-		});
-
-		el_next.after(el);
-		el_next = el;
-	}
-
-	el_next = el_found;
-	for (const [ident, cams] of Object.entries(p_data.found)) {
-		var el = CreateListElement(ident, ident, Object.keys(cams).length.toString());
-
-		el.addEventListener('click', (e) => {
-			e.preventDefault();
-		});
-		el.addEventListener('contextmenu', (e) => {
-			e.preventDefault();
-			window.Modal.open(`tags/found/${ident}`)
-				.then(FetchTags).catch(() => { });
-		});
-
-		el_next.after(el);
-		el_next = el;
-	}
-}
-
 async function FetchCameras() {
 	var el_cameras = document.getElementById('cameras')
-	var data = (await (await fetch('/cameras/list')).json()) as { name: string, id: string, transform: number[][], active: string | false }[];
+	var data = (await (await fetch('/cameras/list')).json()) as CamRecord[];
 
-	ClearToNext(el_cameras)
+	ClearToNext(el_cameras);
 
-	var el_next = el_cameras.nextElementSibling as HTMLElement;
-	while (el_next && !el_next.classList.contains('list-group-item-light')) {
-		el_next.remove()
-		el_next = el_cameras.nextElementSibling as HTMLElement;
-	}
-
+	var to_remove = Array.from(camera_list.keys());
 
 	var el_next = el_cameras;
 	for (const camera of data) {
-		var el = CreateListElement(camera.name, camera.id, camera.active ? '\u00A0' : null, `badge ${ camera.active ? 'text-bg-danger' : 'text-bg-secondary' } rounded-circle ms-3`)
+		var el = CreateListElement(camera.name, camera.id)
 
 		el.addEventListener('contextmenu', (e) => {
 			e.preventDefault();
@@ -341,16 +291,134 @@ async function FetchCameras() {
 		})
 		el_next.after(el);
 		el_next = el;
+
+		var cam: CameraInfo = null;
+		if (camera_list.has(camera.id)) {
+			cam = camera_list.get(camera.id);
+		}
+		else {
+			cam = new CameraInfo()
+			camera_list.set(camera.id, cam);
+		}
+		cam.set(el, camera);
+
+		var i = to_remove.indexOf(camera.id)
+		if (i > -1) to_remove.splice(i, 1);
 	}
+
+	for (const id of to_remove) camera_list.get(id).remove();
 
 	var el_n_cameras = el_cameras.lastElementChild as HTMLSpanElement;
 	el_n_cameras.innerText = data.length ? data.length.toString() : '+'
 }
 
+async function FetchTags() {
+	var el_known = document.getElementById('tags-known')
+	var data = await (await fetch('tags')).json() as Record<TagIdent, TagRecord>;
+
+	ClearToNext(el_known)
+
+	var to_remove = Array.from(tag_list.keys());
+
+	var el_next: HTMLElement = el_known;
+	for (const [id, d_tag] of Object.entries(data)) {
+		var num_cams = Object.keys(d_tag.detections).length;
+		var el = CreateListElement(d_tag.name, id, num_cams ? num_cams.toString() : null);
+
+		el.addEventListener('click', (e) => {
+			e.preventDefault();
+		});
+		el.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+			window.Modal.open(`tags/${id}`)
+				.then(FetchTags).catch(() => { });;
+		});
+
+		el_next.after(el);
+		el_next = el;
+
+		var tag: TagInfo = null;
+		if (tag_list.has(id)) {
+			tag = tag_list.get(id);
+		}
+		else {
+			tag = new TagInfo()
+			tag_list.set(id, tag);
+		}
+		tag.set(el, id, d_tag);
+
+		var i = to_remove.indexOf(id)
+		if (i > -1) to_remove.splice(i, 1);
+	}
+
+	for (const id of to_remove) tag_list.get(id).remove();
+
+	var el_n_known = el_known.lastElementChild as HTMLSpanElement;
+	var n_known = Object.keys(data).length;
+	el_n_known.innerText = n_known ? n_known.toString() : '+';
+}
+
+async function FetchFoundTags() {
+	var el_found = document.getElementById('tags-found')
+	var data = await (await fetch('tags/found')).json() as Record<TagIdent, FoundTagRecord>;
+
+	ClearToNext(el_found)
+
+	var to_remove = Array.from(found_tag_list.entries().filter(([s, i]) => !i.pinned).map(([s, i]) => s));
+
+	var el_next = el_found;
+	for (const [ident, cams] of Object.entries(data)) {
+		var num_cams = Object.keys(cams).length;
+		var el = CreateListElement(ident, ident, num_cams.toString());
+
+		el.addEventListener('click', (e) => {
+			e.preventDefault();
+		});
+		el.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+			window.Modal.open(`tags/found/${ident}`)
+				.then(() => { FetchTags(); FetchFoundTags() }).catch(() => { });
+		});
+
+		el_next.after(el);
+		el_next = el;
+
+		var tag: FoundTagInfo = null;
+		if (found_tag_list.has(ident)) {
+			tag = found_tag_list.get(ident);
+		}
+		else {
+			tag = new FoundTagInfo()
+			found_tag_list.set(ident, tag);
+		}
+		tag.set(el, ident, cams);
+
+		var i = to_remove.indexOf(ident)
+		if (i > -1) to_remove.splice(i, 1);
+	}
+
+	for (const id of to_remove) found_tag_list.get(id).remove();
+
+	var el_n_found = el_found.lastElementChild as HTMLSpanElement;
+	var n_found = Object.keys(data).length;
+	el_n_found.innerText = n_found ? n_found.toString() : '+';
+}
+
+
+export function Scan() {
+	fetch('tags/scan').then(() => {
+		FetchTags()
+		FetchFoundTags()
+	}).catch(() => { });
+}
+
 export function Refresh() {
+	console.log(camera_list, tag_list, found_tag_list)
 	FetchDetectors()
-	FetchTags()
 	FetchCameras()
+	FetchTags()
+	FetchFoundTags()
+	Scan()
 }
 
 window.addEventListener('DOMContentLoaded', () => {

@@ -1,43 +1,43 @@
 import { PickHelper } from '@app/PickHelper'
 import { LookAt } from '@app/apriltag'
-import { TagInfo, CameraInfo, known_tag_list, camera_list } from '@app/data/objects'
+import { TagInfo, CameraInfo, tag_list, camera_list } from '@app/data/objects'
 
 
 
 
-function on_tag_select(event: MouseEvent, ident: string = '') {
-	if (selected) {
-		selected.el.classList.toggle('active', false)
-		selected = null
-	}
+//function on_tag_select(event: MouseEvent, ident: string = '') {
+//	if (selected) {
+//		selected.el.classList.toggle('active', false)
+//		selected = null
+//	}
 
-	if (ident in known_tag_list) {
-		selected = known_tag_list[ident]
-		selected.el.classList.toggle('active', true)
+//	if (ident in tag_list) {
+//		selected = tag_list[ident]
+//		selected.el.classList.toggle('active', true)
 
-		LookAt(selected.obj)
-	}
-	selectionChange_listeners.forEach(f => f(event))
-}
+//		LookAt(selected.obj)
+//	}
+//	selectionChange_listeners.forEach(f => f(event))
+//}
 
-function on_cam_select(event: MouseEvent, id: number = -1) {
-	if (selected) {
-		selected.el.classList.toggle('active', false)
-		selected = null
-	}
+//function on_cam_select(event: MouseEvent, id: number = -1) {
+//	if (selected) {
+//		selected.el.classList.toggle('active', false)
+//		selected = null
+//	}
 
-	if (id in camera_list) {
-		selected = camera_list[id]
-		selected.el.classList.toggle('active', true)
+//	if (id in camera_list) {
+//		selected = camera_list[id]
+//		selected.el.classList.toggle('active', true)
 
-		LookAt(selected.obj)
-	}
-	selectionChange_listeners.forEach(f => f(event))
-}
-PickHelper.add_default_listener(on_tag_select)
+//		LookAt(selected.obj)
+//	}
+//	selectionChange_listeners.forEach(f => f(event))
+//}
+//PickHelper.add_default_listener(on_tag_select)
 
-export let selected: TagInfo | CameraInfo = null
-export let selectionChange_listeners: ((event: MouseEvent) => void)[] = []
+//export let selected: TagInfo | CameraInfo = null
+//export let selectionChange_listeners: ((event: MouseEvent) => void)[] = []
 
 
 //let pose_obj: THREE.Object3D = null

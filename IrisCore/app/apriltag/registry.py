@@ -6,6 +6,7 @@ from app.cameras.models import Camera
 from pupil_apriltags import Detection
 from app.apriltag.models import AprilTag
 from utils.registry import ThingDatabase
+from scipy.spatial.transform import Rotation
 
 
 
@@ -28,6 +29,19 @@ v_pos: std(pos)
 v_mar: avg(detection.decision_margin)
 size: default size in detector, m"""
     
+def jsonify_TagDetails(data: TagDetails):
+    (num, pos, rot, v_pos, v_mar) = data
+    return {
+		'num': num,
+		'pos': pos.flatten().tolist(), 'rot': Rotation.from_matrix(rot).as_quat().tolist(),
+		'v_pos': v_pos, 'v_mar': v_mar 
+	}
+
+def jsonify_FoundTagDetails(data: FoundTagDetails):
+    return {
+		'size': data[5], **jsonify_TagDetails(data[:5])
+    }
+
 found_tags: dict[tuple[str, int], dict[Camera, FoundTagDetails]] = {}
 
 def set_found_tags(data):

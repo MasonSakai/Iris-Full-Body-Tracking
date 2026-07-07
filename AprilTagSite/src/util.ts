@@ -4,7 +4,7 @@ export function transposeMatrix(matrix) {
 	return matrix[0].map((_, i) => matrix.map(row => row[i]));
 }
 
-export function createMatrixTR(pose_t: number[], pose_r: number[]): THREE.Matrix4 {
+export function createMatrixTR(pose_t: number[] | number[][], pose_r: number[] | number[][]): THREE.Matrix4 {
 	pose_t = pose_t.flat()
 	pose_r = pose_r.flat()
 
@@ -16,7 +16,9 @@ export function createMatrixTR(pose_t: number[], pose_r: number[]): THREE.Matrix
 	)
 }
 
-export function createMatrixT(transform: number[]): THREE.Matrix4 {
+export function createMatrixT(transform: number[] | number[][]): THREE.Matrix4 {
+	if (transform == null) return null;
+
 	transform = transform.flat()
 
 	return new THREE.Matrix4(

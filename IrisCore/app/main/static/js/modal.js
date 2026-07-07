@@ -87,7 +87,7 @@
                         });
                     });
 
-                    // Links that open another modal
+                    // Links that open in the modal
                     container.querySelectorAll('[data-modal]').forEach(link => {
                         link.addEventListener('click', async (e) => {
                             e.preventDefault();

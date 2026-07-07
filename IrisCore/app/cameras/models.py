@@ -193,7 +193,7 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 				ref.parent = self
 	
 	def ThingID(self) -> str:
-		return self.display_name
+		return f'{type(self).__qualname__}:{self.display_name}'
 
 	def Rename(self, new_name: str) -> bool:
 		if ThingDatabase(Camera).Get(new_name, False):
@@ -208,7 +208,7 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 		return True
 
 	def GetUniqueLoadID(self) -> str:
-		return f'{type(self).__qualname__}:{self.display_name}'
+		return self.ThingID()
 
 	def ActiveReference(self) -> CameraReference | None:
 		return next(filter(lambda r: r.active, self.references), None)

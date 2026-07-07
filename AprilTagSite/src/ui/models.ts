@@ -1,11 +1,22 @@
 import * as THREE from 'three'
+import { ATagInfo } from '@app/data/objects'
+import { scene } from '@app/apriltag';
 
+THREE.Cache.enabled = true;
 let texLoader = new THREE.TextureLoader()
 
-export async function LoadTagModel(ident: string, size = 1): Promise<THREE.Object3D> {
-	var geom = new THREE.PlaneGeometry(size, size)
+export let tags_obj = new THREE.Object3D();
+export let found_tags_obj = new THREE.Object3D();
+export let cams_obj = new THREE.Object3D();
 
-	var tex = await texLoader.loadAsync(`tags/image/${ident}.png`)
+window.addEventListener('load', () => {
+	scene.add(tags_obj, found_tags_obj, cams_obj);
+})
+
+export async function LoadTagModel(tag: ATagInfo): Promise<THREE.Object3D> {
+	var geom = new THREE.PlaneGeometry(1)
+
+	var tex = texLoader.load(`tags/image/${tag.ident}.png`)
 	tex.magFilter = THREE.NearestFilter
 	tex.flipY = false
 
@@ -13,7 +24,7 @@ export async function LoadTagModel(ident: string, size = 1): Promise<THREE.Objec
 	mat.side = THREE.DoubleSide
 
 	var model = new THREE.Mesh(geom, mat)
-	model.add(new THREE.AxesHelper(size))
+	model.add(new THREE.AxesHelper(1))
 	return model
 }
 
