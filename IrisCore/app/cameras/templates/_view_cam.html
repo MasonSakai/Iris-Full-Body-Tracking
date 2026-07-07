@@ -6,7 +6,7 @@
 			Update Camera
 		</h4>
 	</div>
-	<form action="{{ url_for('cameras.view_camera', cam_id=camera.ThingID()) }}" method="POST">
+	<form action="{{ url_for('cameras.view_camera', cam_id=camera.ThingID) }}" method="POST">
 		{{ form.hidden_tag() }}
 
 		<div class="card-body">
@@ -18,21 +18,21 @@
 				{%- endfor %}
 			</div>
 
-			<a type="button" class="form-control mb-3 btn btn-outline-{% if camera.calib_err == -1 %}warning{% else %}secondary{% endif %}" href="{{ url_for("cameras.calibrate", cam_id=camera.ThingID()) }}" data-modal-new>Calibrate</a>
+			<a type="button" class="form-control mb-3 btn btn-outline-{% if camera.calib_err == -1 %}warning{% else %}secondary{% endif %}" href="{{ url_for("cameras.calibrate", cam_id=camera.ThingID) }}" data-modal-new>Calibrate</a>
 
 			<div class="input-group">
 				{% if camera.references | length > 0 %}
 				<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">References</button>
 				<ul class="dropdown-menu">
 					{% for ref in camera.references %}
-					<li><a class="dropdown-item" href="{{ url_for("cameras.view_ref", cam_id=camera.ThingID(), ref_id=ref.ThingID()) }}" data-modal-new data-modal-refresh>{{ ref.display_name }}</a></li>
+					<li><a class="dropdown-item" href="{{ url_for("cameras.view_ref", cam_id=camera.ThingID, ref_id=ref.ThingID) }}" data-modal-new data-modal-refresh>{{ ref.display_name }}</a></li>
 					{% endfor %}
 				</ul>
 				{% endif %}
 
 				<span class="input-group-text form-control">Create Reference</span>
-				<a type="button" class="btn btn-outline-secondary" href="{{ url_for("cameras.new_lref", cam_id=camera.ThingID()) }}" data-modal-new data-modal-refresh>Local</a>
-				<a type="button" class="btn btn-outline-secondary" href="{{ url_for("cameras.calibrate", cam_id=camera.ThingID()) }}" data-modal-new>Remote</a>
+				<a type="button" class="btn btn-outline-secondary" href="{{ url_for("cameras.new_lref", cam_id=camera.ThingID) }}" data-modal-new data-modal-refresh>Local</a>
+				<a type="button" class="btn btn-outline-secondary" href="{{ url_for("cameras.calibrate", cam_id=camera.ThingID) }}" data-modal-new>Remote</a>
 			</div>
 		</div>
 
@@ -43,7 +43,7 @@
 			</div>
 			<button class="btn btn-danger form-control mb-3"
 					onclick="if (event.target.innerText == 'DELETE') { event.stopPropagation(); event.preventDefault(); event.target.innerText = 'ARE YOU SURE? (DELETE)' }
-							else { event.preventDefault(); window.Modal.stack.at(-1).load('{{ url_for('cameras.delete_camera', cam_id=camera.ThingID()) }}'); }">
+							else { event.preventDefault(); window.Modal.stack.at(-1).load('{{ url_for('cameras.delete_camera', cam_id=camera.ThingID) }}'); }">
 				DELETE
 			</button>
 		</div>

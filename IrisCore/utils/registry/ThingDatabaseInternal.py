@@ -44,15 +44,15 @@ class ThingDatabaseInternal(Generic[T]):
 	def Add(self, *things: T) -> None: #add conflict check?
 		for thing in things:
 			if not isinstance(thing, self.__my_type):
-				Log.Error(Log.LogLevel.Error, f"ThingDatabase failed to add {thing.ThingID()} because {type(thing)} is not {self.__my_type}")
+				Log.Error(Log.LogLevel.Error, f"ThingDatabase failed to add {thing.ThingID} because {type(thing)} is not {self.__my_type}")
 				continue
 			self.__thingList.append(thing)
-			self.__thingsByID[thing.ThingID()] = thing
+			self.__thingsByID[thing.ThingID] = thing
 
 	def Remove(self, *things: T) -> None:
 		for thing in things:
 			self.__thingList.remove(thing)
-			del self.__thingsByID[thing.ThingID()]
+			del self.__thingsByID[thing.ThingID]
 
 	def Clear(self) -> None:
 		self.__thingList.clear()

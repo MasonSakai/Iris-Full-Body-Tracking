@@ -30,6 +30,7 @@
     <Compile Include="app\cameras\forms.py" />
     <Compile Include="app\main\modal.py" />
     <Compile Include="app\main\module.py" />
+    <Compile Include="tests\registry\test_thing_id.py" />
     <Compile Include="utils\modules\lifecycle.py" />
     <Compile Include="app\cameras\module.py" />
     <Compile Include="app\apriltag\localization.py" />
@@ -93,6 +94,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="utils\registry\ThingDatabaseInternal.py" />
+    <Compile Include="utils\registry\ThingIDManager.py" />
     <Compile Include="utils\registry\__init__.py">
       <SubType>Code</SubType>
     </Compile>

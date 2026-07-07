@@ -2,13 +2,8 @@ import unittest
 
 from utils.registry import CreateThingDatabase, HasThingDatabase, IThing, ThingDatabase
 
-class TestThing(IThing):
-    def __init__(self, name: str):
-        self._name = name
-        self.post_set_called = False
-
-    def ThingID(self) -> str:
-        return self._name
+class TestThing(IThing, ThingName='TestThing'):
+    pass
 
 
 class test_thing_db(unittest.TestCase):
@@ -28,10 +23,10 @@ class test_thing_db(unittest.TestCase):
     def test_02_get_named_success(self):
         db = CreateThingDatabase(TestThing)
 
-        a = TestThing("Alpha")
+        a = TestThing()
         db.Add(a)
 
-        self.assertIs(db.Get("Alpha"), a)
+        self.assertIs(db.Get(a.ThingID), a)
 
     def test_03_getnamed_missing(self):
         db = CreateThingDatabase(TestThing)
@@ -40,23 +35,12 @@ class test_thing_db(unittest.TestCase):
             db.Get("Missing", errorOnFail=False)
         )
 
-    def test_04_duplicate_names_last_wins(self):
-        db = CreateThingDatabase(TestThing)
-
-        a1 = TestThing("Dup")
-        a2 = TestThing("Dup")
-
-        db.Add(a1)
-        db.Add(a2)
-
-        self.assertIs(db.Get("Dup"), a2)
-        self.assertIn(a1, db.AllThingsListForReading())
 
     def test_05_remove_things(self):
         db = CreateThingDatabase(TestThing)
 
-        a = TestThing("A")
-        b = TestThing("B")
+        a = TestThing()
+        b = TestThing()
 
         db.Add(a, b)
         db.Remove(a)
@@ -68,7 +52,7 @@ class test_thing_db(unittest.TestCase):
     def test_06_mutable_add_remove_visibility(self):
         db = CreateThingDatabase(TestThing)
 
-        a = TestThing("A")
+        a = TestThing()
         db.Add(a)
 
         self.assertIn(a, db.AllThings())
@@ -79,7 +63,7 @@ class test_thing_db(unittest.TestCase):
     def test_07_clear_resets_database(self):
         db = CreateThingDatabase(TestThing)
 
-        db.Add(TestThing("A"), TestThing("B"))
+        db.Add(TestThing(), TestThing())
         db.Clear()
 
         self.assertEqual(db.ThingCount(), 0)
@@ -88,7 +72,7 @@ class test_thing_db(unittest.TestCase):
     def test_08_get_random(self):
         db = CreateThingDatabase(TestThing)
 
-        things = [TestThing(str(i)) for i in range(10)]
+        things = [TestThing() for i in range(10)]
         db.Add(*things)
 
         rand = db.GetRandom()
@@ -100,7 +84,7 @@ class test_thing_db(unittest.TestCase):
         lst = db.AllThingsListForReading()
         self.assertIs(lst, db.AllThingsListForReading())
 
-        t = TestThing("X")
+        t = TestThing()
         db.Add(t)
 
         self.assertIn(t, lst)

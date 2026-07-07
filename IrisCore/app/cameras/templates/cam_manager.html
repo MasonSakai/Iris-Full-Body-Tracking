@@ -20,7 +20,7 @@
 		</thead>
 		<tbody>
 			{% for cam in cams %}
-			<tr class="p-1 border-bottom border-dark-subtle" href="{{ url_for("cameras.view_camera", cam_id=cam.ThingID()) }}" data-modal-new data-modal-refresh-always>
+			<tr class="p-1 border-bottom border-dark-subtle" href="{{ url_for("cameras.view_camera", cam_id=cam.ThingID) }}" data-modal-new data-modal-refresh-always>
 				<td class="p-2">{{ cam.display_name }}</td>
 				<td class="p-2">
 				{% if cam.references | length == 0 %}
@@ -28,7 +28,7 @@
 				{% else %}
 					<div class="btn-group btn-group-sm">
 						{% for ref in cam.references %}
-						<button class="btn btn-outline-secondary" href="{{ url_for("cameras.view_ref", cam_id=cam.ThingID(), ref_id=ref.ThingID()) }}" data-modal-new data-modal-refresh>{{ ref.display_name }}</button>
+						<button class="btn btn-outline-secondary" href="{{ url_for("cameras.view_ref", cam_id=cam.ThingID, ref_id=ref.ThingID) }}" data-modal-new data-modal-refresh>{{ ref.display_name }}</button>
 						{% endfor %}
 					</div>
 				{% endif %}

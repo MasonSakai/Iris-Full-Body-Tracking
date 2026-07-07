@@ -1,20 +1,45 @@
-from abc import ABC, abstractmethod
-from typing import Callable, Type, TypeVar, cast
+from __future__ import annotations
+from typing import Callable, Type, TypeVar, cast, final
 
 from utils import Log
+from utils.scribe import LoadSaveMode, Scribe, Scribe_Values
 
-class IThing(ABC):
+class IThing:
 	"""
 	Interface for ThingDatabase
 	"""
 
-	@abstractmethod
+	def __init_subclass__(cls, ThingName: str | None = None, **kwargs):
+		super().__init_subclass__(**kwargs)
+		ThingIDManager.register_class(cls, ThingName)
+
+	_thing_id: str | None
+
+	def __init__(self):
+		super().__init__()
+		self._thing_id = None
+
+	def ExposeData(self):
+		super().ExposeData()
+		self._thing_id = Scribe_Values.Look(self._thing_id, 'ThingID', str)
+
+		match Scribe.mode:
+			case LoadSaveMode.LoadingVars:
+				ThingIDManager.register(self)
+			case LoadSaveMode.PostLoadInit:
+				self.ThingID
+
+	@final
+	@property
 	def ThingID(self) -> str:
 		"""
 		Unique id for this item in the database
 		"""
-		raise NotImplementedError(f"{type(self).__qualname__} has not implemented ThingID")
+		if self._thing_id is None:
+			self._thing_id = ThingIDManager.next(type(self))
+		return self._thing_id
 	
+from utils.registry.ThingIDManager import ThingIDManager
 from utils.registry.ThingDatabaseInternal import ThingDatabaseInternal
 
 T = TypeVar('T_Thing', bound=IThing)
@@ -60,5 +85,5 @@ def CreateThingDatabase(t: Type[T], db_factory: Callable[[Type[T]], ThingDatabas
 	return _internal_databases[t]
 
 def ClearAllThingDatabases():
-    for db in _internal_databases.values():
-        db.Clear()
+	for db in _internal_databases.values():
+		db.Clear()

@@ -36,7 +36,7 @@ def generate_tag_image(family, id, fileType):
 
 @bp_aptg.route('/detectors')
 def get_detectors():
-	return jsonify([{ 'name': d.display_name, 'id': d.ThingID() } for d in ThingDatabase(AprilTagDetector).AllThingsListForReading()])
+	return jsonify([{ 'name': d.display_name, 'id': d.ThingID } for d in ThingDatabase(AprilTagDetector).AllThingsListForReading()])
 
 @bp_aptg.route('/detectors/new', methods=['GET', 'POST'])
 def create_detector():
@@ -53,7 +53,7 @@ def create_detector():
 		detector.default_tag_size = form.default_tag_size.data / 100.
 
 		ThingDatabase(AprilTagDetector).Add(detector)
-		return modal_success(id=detector.ThingID())
+		return modal_success(id=detector.ThingID)
 	elif request.method == 'GET':
 		form.display_name.data = 'tag36h11'
 		form.families.data = 'tag36h11'
@@ -79,7 +79,7 @@ def view_detector(id):
 		detector.decode_sharpening = form.decode_sharpening.data
 		detector.default_tag_size = form.default_tag_size.data / 100.
 
-		return modal_success(id=detector.ThingID())
+		return modal_success(id=detector.ThingID)
 	elif request.method == 'GET':
 		form.families.data = detector.families
 		form.nthreads.data = detector.nthreads
@@ -109,21 +109,21 @@ def scan_tags():
 	
 	return jsonify({
 		'known': {
-			tag.ThingID(): {
+			tag.ThingID: {
 				'name': tag.display_name,
 				'size': tag.tag_size,
 				'static': tag.ensure_static,
 				'ident': f"{ tag.tag_family }:{ tag.tag_id }",
 				'transform': tag.transform.tolist() if tag.transform else None,
 				'detections': {
-					cam.ThingID(): jsonify_TagDetails(det)
+					cam.ThingID: jsonify_TagDetails(det)
 					for cam, det in cams.items()
 				}
 			} for tag, cams in tags.items()
 		},
 		'found': {
 			f"{family}:{id}": {
-				cam.ThingID(): jsonify_FoundTagDetails(det)
+				cam.ThingID: jsonify_FoundTagDetails(det)
 				for cam, det in cams.items()
 			} for (family, id), cams in dets.items()
 		}
@@ -133,14 +133,14 @@ def scan_tags():
 @bp_aptg.route('/tags')
 def get_tags():
 	return jsonify({
-		tag.ThingID(): {
+		tag.ThingID: {
 			'name': tag.display_name,
 			'size': tag.tag_size,
 			'static': tag.ensure_static,
 			'ident': f"{ tag.tag_family }:{ tag.tag_id }",
 				'transform': tag.transform.tolist() if tag.transform else None,
 			'detections': {
-				cam.ThingID(): jsonify_TagDetails(det)
+				cam.ThingID: jsonify_TagDetails(det)
 				for cam, det in tag.detections.items()
 			}
 		} for tag in ThingDatabase(AprilTag).AllThingsListForReading()
@@ -162,7 +162,7 @@ def view_tag(id):
 		tag.display_name = form.display_name.data
 		tag.ensure_static = form.ensure_static.data
 
-		return modal_success(id=tag.ThingID())
+		return modal_success(id=tag.ThingID)
 	
 	if request.method == 'GET':
 		form.tag_size.data = tag.tag_size * 100.
@@ -185,7 +185,7 @@ def delete_tag(id):
 def get_found_tags():
 	return jsonify({
 		f"{family}:{id}": {
-			cam.ThingID(): jsonify_FoundTagDetails(det)
+			cam.ThingID: jsonify_FoundTagDetails(det)
 			for cam, det in cams.items()
 		} for (family, id), cams in found_tags.items()
 	})
@@ -217,7 +217,7 @@ def view_found_tag(family, id):
 
 		ThingDatabase(AprilTag).Add(tag)
 		found_tags.pop((family, id))
-		return modal_success(id=tag.ThingID())
+		return modal_success(id=tag.ThingID)
 
 	elif request.method == 'GET':
 

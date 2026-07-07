@@ -6,7 +6,7 @@
 			Create Reference
 		</h4>
 	</div>
-	<form action="{{ url_for('cameras.new_lref', cam_id=camera.ThingID()) }}" method="POST">
+	<form action="{{ url_for('cameras.new_lref', cam_id=camera.ThingID) }}" method="POST">
 		{{ form.hidden_tag() }}
 
 		<div class="card-body">

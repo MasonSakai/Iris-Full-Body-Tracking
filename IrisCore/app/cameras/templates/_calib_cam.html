@@ -16,11 +16,11 @@
 				<div class="mb-1">
 					<span class="card-text">This camera has {{ files | length }} files</span>
 					{% if (files | length) > 0 %}
-					<a class="btn btn-outline-danger btn-sm" href="{{ url_for('cameras.calibrate_clear_files', cam_id=camera.ThingID()) }}" data-modal>Clear</a>
+					<a class="btn btn-outline-danger btn-sm" href="{{ url_for('cameras.calibrate_clear_files', cam_id=camera.ThingID) }}" data-modal>Clear</a>
 					{% endif %}
 				</div>
 
-				<form action="{{ url_for('cameras.calibrate_files_upload', cam_id=camera.ThingID()) }}" method="POST">
+				<form action="{{ url_for('cameras.calibrate_files_upload', cam_id=camera.ThingID) }}" method="POST">
 					{{ file_form.hidden_tag() }}
 					<div class="input-group">
 						{{ file_form.image_files(class='form-control') }}
@@ -38,7 +38,7 @@
 				<h5 class="card-title">Checkerboard Config</h5>
 			</div>
 			<div class="card-body">
-				<form action="{{ url_for('cameras.calibrate', cam_id=camera.ThingID()) }}" method="POST" id="config_form">
+				<form action="{{ url_for('cameras.calibrate', cam_id=camera.ThingID) }}" method="POST" id="config_form">
 					{{ config_form.hidden_tag() }}
 					<div class="input-group mb-1">
 						{{ config_form.checkerboard_x.label(class='input-group-text') }}
@@ -93,7 +93,7 @@
 	</div>
 
 <div class="card-footer">
-	<form action="{{ url_for('cameras.calibrate', cam_id=camera.ThingID()) }}" method="POST">
+	<form action="{{ url_for('cameras.calibrate', cam_id=camera.ThingID) }}" method="POST">
 		<div class="form-hor mb-3">
 			<button type="button" class="btn btn-secondary" data-modal-close>Close</button>
 			<button type="submit" class="btn btn-primary" form="config_form">Calibrate</button>

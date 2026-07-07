@@ -14,7 +14,7 @@ from app import lifecycle
 from utils.registry import IThing, ThingDatabase
 from utils.scribe import  IExposable, ILoadReferenceable, LoadSaveMode, Scribe, Scribe_Values, Scribe_Collections
 
-class CameraReference(IExposable, IDataSource):
+class CameraReference(IDataSource, IExposable, ThingName='CameraReference'):
 	parent: Camera
 
 	autostart: bool
@@ -33,9 +33,6 @@ class CameraReference(IExposable, IDataSource):
 		super().ExposeData()
 		self.display_name = Scribe_Values.Look(self.display_name, 'display_name', str)
 		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool, defaultValue=False)
-
-	def ThingID(self):
-		return f"{type(self).__qualname__}:{self.display_name}:{self.parent.display_name}"
 
 	def RequestStart(self, *args, **kwargs) -> bool:
 		return False
@@ -147,7 +144,7 @@ class LocalCameraReference(CameraReference):
 		return self.cap.read()
 	
 
-class Camera(IExposable, IThing, ILoadReferenceable):
+class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 	
 	display_name : str
 	transform: np.ndarray | None
@@ -191,24 +188,9 @@ class Camera(IExposable, IThing, ILoadReferenceable):
 		if Scribe.mode == LoadSaveMode.LoadingVars:
 			for ref in self.references:
 				ref.parent = self
-	
-	def ThingID(self) -> str:
-		return f'{type(self).__qualname__}:{self.display_name}'
-
-	def Rename(self, new_name: str) -> bool:
-		if ThingDatabase(Camera).Get(new_name, False):
-			return False
-		path, exists = self.get_file_path()
-		ThingDatabase(Camera).Remove(self)
-		self.display_name = new_name
-		ThingDatabase(Camera).Add(self)
-		if exists:
-			new_path, exists = self.get_file_path()
-			os.rename(path, new_path)
-		return True
 
 	def GetUniqueLoadID(self) -> str:
-		return self.ThingID()
+		return self.ThingID
 
 	def ActiveReference(self) -> CameraReference | None:
 		return next(filter(lambda r: r.active, self.references), None)

@@ -6,7 +6,7 @@
 			Reference Details
 		</h4>
 	</div>
-	<form action="{{ url_for('cameras.view_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}" method="POST">
+	<form action="{{ url_for('cameras.view_ref', cam_id=ref.parent.ThingID, ref_id=ref.ThingID) }}" method="POST">
 		{{ form.hidden_tag() }}
 
 		<div class="card-body">
@@ -27,9 +27,9 @@
 				<span class="form-control">{{ 'Active' if ref.active else ('Other Source Active' if other_source_active else 'Inactive') }}</span>
 				{% if can_request_activate %}
 				{% if ref.active %}
-				<a class="btn btn-outline-danger" href="{{ url_for('cameras.stop_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}" onclick="event.target.innerText = '...'" data-modal>Stop</a>
+				<a class="btn btn-outline-danger" href="{{ url_for('cameras.stop_ref', cam_id=ref.parent.ThingID, ref_id=ref.ThingID) }}" onclick="event.target.innerText = '...'" data-modal>Stop</a>
 				{% elif not other_source_active %}
-				<a class="btn btn-outline-success" href="{{ url_for('cameras.start_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}" onclick="event.target.innerText = '...'" data-modal>Start</a>
+				<a class="btn btn-outline-success" href="{{ url_for('cameras.start_ref', cam_id=ref.parent.ThingID, ref_id=ref.ThingID) }}" onclick="event.target.innerText = '...'" data-modal>Start</a>
 				{% endif %}
 				{% endif %}
 				{%- for error in form.autostart.errors %}
@@ -47,7 +47,7 @@
 			</div>
 			<button class="btn btn-danger form-control mb-3"
 					onclick="if (event.target.innerText == 'DELETE') { event.stopPropagation(); event.preventDefault(); event.target.innerText = 'ARE YOU SURE? (DELETE)' }
-							else { event.preventDefault(); window.Modal.stack.at(-1).load('{{ url_for('cameras.delete_ref', cam_id=ref.parent.ThingID(), ref_id=ref.ThingID()) }}'); }">
+							else { event.preventDefault(); window.Modal.stack.at(-1).load('{{ url_for('cameras.delete_ref', cam_id=ref.parent.ThingID, ref_id=ref.ThingID) }}'); }">
 				DELETE
 			</button>
 		</div>

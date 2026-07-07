@@ -3,7 +3,7 @@
 	<div class="card-header text-center">
 		<h4>Edit Tag {{ tag.display_name }}</h4>
 	</div>
-	<form action="{{ url_for('apriltag.view_tag', id=tag.ThingID()) }}" method="POST">
+	<form action="{{ url_for('apriltag.view_tag', id=tag.ThingID) }}" method="POST">
 		{{ form.hidden_tag() }}
 
 		<div class="card-body">
@@ -36,7 +36,7 @@
 			</div>
 			<button class="btn btn-danger form-control mb-3"
 					onclick="if (event.target.innerText == 'DELETE') { event.stopPropagation(); event.preventDefault(); event.target.innerText = 'ARE YOU SURE? (DELETE)' }
-							else { event.preventDefault(); window.Modal.stack.at(-1).load('{{ url_for('apriltag.delete_tag', id=tag.ThingID()) }}'); }">
+							else { event.preventDefault(); window.Modal.stack.at(-1).load('{{ url_for('apriltag.delete_tag', id=tag.ThingID) }}'); }">
 				DELETE
 			</button>
 		</div>

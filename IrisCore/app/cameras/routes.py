@@ -20,9 +20,9 @@ def get_cameras():
 	return jsonify([
 		{
 			'name': d.display_name,
-			'id': d.ThingID(),
+			'id': d.ThingID,
 			'transform': d.transform.tolist() if d.transform else None,
-			'active': r.ThingID() if (r := d.ActiveReference()) else False
+			'active': r.ThingID if (r := d.ActiveReference()) else False
 		} for d in ThingDatabase(Camera).AllThingsListForReading()])
 
 @bp_cam.route('/new', methods=['GET', 'POST'])
@@ -32,7 +32,7 @@ def new_camera():
 		cam = Camera()
 		cam.display_name = form.display_name.data
 		ThingDatabase(Camera).Add(cam)
-		return redirect(url_for('cameras.view_camera', cam_id=cam.ThingID()))
+		return redirect(url_for('cameras.view_camera', cam_id=cam.ThingID))
 	return render_template('_new_cam.html', form=form)
 
 @bp_cam.route('/<cam_id>', methods=['GET', 'POST'])
@@ -42,7 +42,7 @@ def view_camera(cam_id):
 	if form.validate_on_submit():
 		if cam.display_name != form.display_name.data:
 			cam.Rename(form.display_name.data)
-		return modal_success(cam_id=cam.ThingID())
+		return modal_success(cam_id=cam.ThingID)
 	elif request.method == 'GET':
 		form.display_name.data = cam.display_name
 	return render_template('_view_cam.html', form=form, camera=cam)
@@ -83,7 +83,7 @@ def new_lref(cam_id: str):
 
 def get_ref(cam_id: str, ref_id: str) -> tuple[Camera, CameraReference | None]:
 	cam = ThingDatabase(Camera).Get(cam_id)
-	return cam, next(filter(lambda r: r.ThingID() == ref_id, cam.references), None)
+	return cam, next(filter(lambda r: r.ThingID == ref_id, cam.references), None)
 
 @bp_cam.route('/<cam_id>/references/<ref_id>', methods=['GET', 'POST'])
 def view_ref(cam_id: str, ref_id: str):

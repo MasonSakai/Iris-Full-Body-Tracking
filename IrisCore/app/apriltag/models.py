@@ -6,7 +6,7 @@ from app.cameras.models import Camera
 from utils.registry import IThing, ThingDatabase
 from utils.scribe import IExposable, ILoadReferenceable, Scribe_Values
 
-class AprilTag(IExposable, IThing, ILoadReferenceable):
+class AprilTag(IThing, IExposable, ILoadReferenceable, ThingName='AprilTag'):
 	
 	tag_id : int
 	tag_family : str
@@ -42,12 +42,9 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 
 		self.ensure_static = Scribe_Values.Look(self.ensure_static, 'EnsureStatic', bool, False)
 		self.transform = Scribe_Values.Look(self.transform, 'transform', np.ndarray)
-		
-	def ThingID(self) -> str:
-		return self.GetUniqueLoadID()
 
 	def GetUniqueLoadID(self) -> str:
-		return f'{type(self).__qualname__}:{self.display_name}'
+		return self.ThingID
 
 	def set_transform(self, transform: np.ndarray):
 		self.transform = transform
@@ -56,7 +53,7 @@ class AprilTag(IExposable, IThing, ILoadReferenceable):
 		return self.transform
 	
 
-class AprilTagDetector(IExposable, IThing):
+class AprilTagDetector(IThing, IExposable, ThingName='AprilTagDetector'):
 	display_name : str
 	families : str
 
@@ -71,6 +68,7 @@ class AprilTagDetector(IExposable, IThing):
 	
 	#functions
 	def __init__(self):
+		super().__init__()
 		self.display_name = None
 		self.families = None
 		self.nthreads = 1
@@ -85,6 +83,7 @@ class AprilTagDetector(IExposable, IThing):
 		return '<AprilTagDetector - {} "{}">'.format(self.display_name, self.families)
 
 	def ExposeData(self):
+		super().ExposeData()
 		self.display_name = Scribe_Values.Look(self.display_name, 'name', str)
 		self.families = Scribe_Values.Look(self.families, 'families', str)
 
@@ -94,9 +93,6 @@ class AprilTagDetector(IExposable, IThing):
 		self.refine_edges = Scribe_Values.Look(self.refine_edges, 'RefineEdges', bool, True)
 		self.decode_sharpening = Scribe_Values.Look(self.decode_sharpening, 'DecodeSharpening', float, 0.25)
 		self.default_tag_size = Scribe_Values.Look(self.default_tag_size, 'DefaultTagSize', float, 0.175)
-
-	def ThingID(self) -> str:
-		return f'{type(self).__qualname__}:{self.display_name}'
 
 	def getDetector(self) -> Detector:
 		if not self._detector:
