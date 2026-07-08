@@ -27,6 +27,37 @@
 					{{ form.ensure_static(class='form-check-input mt-0') }}
 				</div>
 			</div>
+
+			{% if tag.detections | length > 0 %}
+			<div class="mt-3 card">
+				<div class="card-header text-center"><h5 class="m-0">Detections</h5></div>
+				<div class="card-body p-0">
+					<table class="m-0 table">
+						<thead>
+							<tr>
+								<th>Camera</th>
+								<th>Num</th>
+								<th>Distance</th>
+								<th><small>Position<br/>Variance</small></th>
+								<th><small>Decision<br/>Margin</small></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for cam, (num, pos, rot, v_pos, v_mar) in tag.detections.items() %}
+							<tr>
+								<td>{{ cam.display_name }}</td>
+								<td>{{ num }}</td>
+								<td>{{ "%.3g" | format(np.linalg.norm(pos)) }}m</td>
+								<td>{{ "%.3g" | format(v_pos * 1000) }}mm</td>
+								<td>{{ "%.3g" | format(v_mar) }}</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				<div class="card-footer"></div>
+			</div>
+			{% endif %}
 		</div>
 
 		<div class="card-footer">

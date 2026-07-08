@@ -104,6 +104,9 @@ def delete_detector(id):
 def scan_tags():
 	dets, tags = ScanTags(10)
 
+	if ('noreturn' in request.args) and (request.args['noreturn'].lower() in ['', 'true']):
+		return "{}"
+
 	if tags is None:
 		return jsonify({ 'known': { }, 'found': { } })
 	
@@ -138,7 +141,7 @@ def get_tags():
 			'size': tag.tag_size,
 			'static': tag.ensure_static,
 			'ident': f"{ tag.tag_family }:{ tag.tag_id }",
-				'transform': tag.transform.tolist() if tag.transform else None,
+			'transform': tag.transform.tolist() if tag.transform else None,
 			'detections': {
 				cam.ThingID: jsonify_TagDetails(det)
 				for cam, det in tag.detections.items()
@@ -224,7 +227,7 @@ def view_found_tag(family, id):
 		form.display_name.data = '{}:{}'.format(family, id)
 		form.tag_size.data = mode([v[5] for v in data.values()]) * 100.
 
-	return render_template('_add_tag.html', form=form, tag_family=family, tag_id=id, cams=data, np=np)
+	return render_template('_add_tag.html', form=form, tag_family=family, tag_id=id, cams=data)
 
 @bp_aptg.route('/tags/found/<family>:<id>/clear')
 def clear_found_tag(family, id):

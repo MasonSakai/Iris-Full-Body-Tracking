@@ -406,14 +406,13 @@ async function FetchFoundTags() {
 
 
 export function Scan() {
-	fetch('tags/scan').then(() => {
+	fetch('tags/scan?noreturn').then(() => {
 		FetchTags()
 		FetchFoundTags()
 	}).catch(() => { });
 }
 
 export function Refresh() {
-	console.log(camera_list, tag_list, found_tag_list)
 	FetchDetectors()
 	FetchCameras()
 	FetchTags()

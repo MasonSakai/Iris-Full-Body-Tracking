@@ -22,13 +22,33 @@
 				{%- endfor %}
 			</div>
 
-			<h6>Cameras:</h6>
-			<div class="input-group">
-				{% for cam, (num, pos, rot, v_pos, v_mar, size) in cams.items() %}
-				<div>
-					{{ cam.display_name }} @ {{ np.linalg.norm(pos) }}m ({{ size }})
+			<div class="mt-3 card">
+				<div class="card-header text-center"><h5 class="m-0">Detections</h5></div>
+				<div class="card-body p-0">
+					<table class="m-0 table">
+						<thead>
+							<tr>
+								<th>Camera</th>
+								<th>Size</th>
+								<th>Distance</th>
+								<th><small>Position<br />Variance</small></th>
+								<th><small>Decision<br />Margin</small></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for cam, (num, pos, rot, v_pos, v_mar, size) in cams.items() %}
+							<tr>
+								<td>{{ cam.display_name }}</td>
+								<td>{{ "%.3g" | format(size*100) }}cm</td>
+								<td>{{ "%.3g" | format(np.linalg.norm(pos)) }}m</td>
+								<td>{{ "%.3g" | format(v_pos * 1000) }}mm</td>
+								<td>{{ "%.3g" | format(v_mar) }}</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
 				</div>
-				{% endfor %}
+				<div class="card-footer"></div>
 			</div>
 		</div>
 

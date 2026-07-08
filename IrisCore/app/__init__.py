@@ -2,6 +2,7 @@ import atexit
 import os
 import sys
 from flask import Flask
+import numpy as np
 from utils.modules.lifecycle import AppLifecycle
 from config import Config
 from flask_moment import Moment
@@ -28,12 +29,16 @@ def create_app(config_class=Config):
     return app
 
 
-def initialize_runtime():
+def initialize_runtime(app: Flask):
     lifecycle.initialize()
     def shutdown():
         lifecycle.shutdown()
     atexit.register(shutdown)
 
+    @app.context_processor
+    def inject_numpy():
+        return dict(np=np)
+
 def start_app(app):
-    initialize_runtime()
+    initialize_runtime(app)
     socketio.run(app, debug=True, use_reloader=False, host='0.0.0.0', port=2674)
