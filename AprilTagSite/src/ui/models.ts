@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { ATagInfo } from '@app/data/objects'
+import { ATagObject } from '@app/data/objects'
 import { scene } from '@app/apriltag';
 
 THREE.Cache.enabled = true;
@@ -13,7 +13,7 @@ window.addEventListener('load', () => {
 	scene.add(tags_obj, found_tags_obj, cams_obj);
 })
 
-export async function LoadTagModel(tag: ATagInfo): Promise<THREE.Object3D> {
+export async function LoadTagModel(tag: ATagObject): Promise<THREE.Object3D> {
 	var geom = new THREE.PlaneGeometry(1)
 
 	var tex = texLoader.load(`tags/image/${tag.ident}.png`)

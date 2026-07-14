@@ -2,7 +2,7 @@
 const path = require('path');
 
 base_exp = {
-    mode: 'production',
+    mode: 'development',
     entry: {
         apriltag: './build/apriltag.js',
     },

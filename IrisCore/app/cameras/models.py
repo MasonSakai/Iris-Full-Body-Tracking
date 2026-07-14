@@ -80,6 +80,7 @@ class LocalCameraReference(CameraReference):
 		for cam in enumerate_cameras():
 			if (cam.name, cam.vid, cam.pid) == (self.name, self.vid, self.pid):
 				break
+		else: cam = None
 		if not cam:
 			return False
 		self.cap = cv.VideoCapture(cam.index, cam.backend) # add params?

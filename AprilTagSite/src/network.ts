@@ -1,6 +1,6 @@
 import { PickHelper } from '@app/PickHelper'
 import { LookAt } from '@app/apriltag'
-import { TagInfo, CameraInfo, tag_list, camera_list } from '@app/data/objects'
+import { TagObject, CameraObject, tag_list, camera_list } from '@app/data/objects'
 
 
 

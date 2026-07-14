@@ -3,7 +3,7 @@ import { TagIdent, CameraId, TagDetails, FoundTagDetails, TagID, CamRecord, TagR
 import { cams_obj, LoadCamModel, LoadTagModel } from '@app/ui/models'
 import { createMatrixT } from '@app/util'
 
-export class CameraInfo {
+export class CameraObject {
 	obj: Object3D
 	list_el: HTMLButtonElement
 	num_el: HTMLSpanElement
@@ -16,8 +16,8 @@ export class CameraInfo {
 	transform: Matrix4
 
 	tags = {
-		known: [] as TagID[],
-		found: [] as TagIdent[]
+		known: new Set<TagID>(),
+		found: new Set<TagIdent>()
 	}
 
 	async set(el: HTMLButtonElement, cam: CamRecord) {
@@ -25,9 +25,25 @@ export class CameraInfo {
 		this.num_el = el.lastElementChild as HTMLSpanElement;
 		this.name = cam.name;
 		this.id = cam.id;
+		this.fetch_tags();
 		await this.get_obj();
 		this.set_transform(createMatrixT(cam.transform));
 		this.set_active(cam.active);
+	}
+
+	fetch_tags() {
+		this.tags.known.clear();
+		this.tags.found.clear();
+
+		for (const [id, tag] of tag_list)
+			if (tag.detections.has(this.id))
+				this.tags.known.add(id)
+
+		for (const [ident, tag] of found_tag_list)
+			if (tag.detections.has(this.id))
+				this.tags.found.add(ident)
+
+		this.update_count();
 	}
 
 	async get_obj() {
@@ -58,7 +74,7 @@ export class CameraInfo {
 	}
 
 	update_count() {
-		var num = this.tags.known.length + this.tags.found.length;
+		var num = this.tags.known.size + this.tags.found.size;
 		this.num_el.innerText = num > 0 ? num.toString() : (this.active ? '\u00A0' : null);
 	}
 
@@ -79,7 +95,7 @@ export class FoundTagDetection extends TagDetection {
 	size: number
 };
 
-export class ATagInfo {
+export class ATagObject {
 	obj: Object3D
 	list_el: HTMLButtonElement
 	num_el: HTMLSpanElement
@@ -109,7 +125,7 @@ export class ATagInfo {
 	}
 }
 
-export class TagInfo extends ATagInfo {
+export class TagObject extends ATagObject {
 	name: string
 	id: TagID
 
@@ -163,10 +179,14 @@ export class TagInfo extends ATagInfo {
 	remove() {
 		if (this.obj) this.obj.removeFromParent();
 		tag_list.delete(this.id)
+
+		for (const cam in this.detections) {
+			console.log(cam)
+		}
 	}
 }
 
-export class FoundTagInfo extends ATagInfo {
+export class FoundTagObject extends ATagObject {
 	pinned: boolean = false
 	detections: Map<CameraId, FoundTagDetection> = new Map()
 
@@ -209,6 +229,6 @@ export class FoundTagInfo extends ATagInfo {
 	}
 }
 
-export let tag_list: Map<TagID, TagInfo> = new Map()
-export let found_tag_list: Map<TagIdent, FoundTagInfo> = new Map()
-export let camera_list: Map<CameraId, CameraInfo> = new Map()
+export let tag_list = new Map<TagID, TagObject>()
+export let found_tag_list = new Map<TagIdent, FoundTagObject>()
+export let camera_list = new Map<CameraId, CameraObject>()
