@@ -1,7 +1,9 @@
 import { Object3D, Matrix4, Vector3, Quaternion } from 'three'
-import { TagIdent, CameraId, TagDetails, FoundTagDetails, TagID, CamRecord, TagRecord, FoundTagRecord } from '@app/data/network_objects'
+import { TagIdent, CameraId, TagID, CamRecord, TagRecord, FoundTagRecord } from '@app/data/network_objects'
 import { cams_obj, LoadCamModel, LoadTagModel } from '@app/ui/models'
 import { createMatrixT } from '@app/util'
+import { PickHelper } from '@app/PickHelper'
+import { ObjectSelector } from '@app/ui/object_selector'
 
 export class CameraObject {
 	obj: Object3D
@@ -79,7 +81,11 @@ export class CameraObject {
 	}
 
 	remove() {
-		if (this.obj) this.obj.removeFromParent();
+		if (this.obj) {
+			this.obj.removeFromParent();
+			PickHelper.removeListener(this.obj);
+		}
+		if (ObjectSelector.is_selected(this)) ObjectSelector.deselect(null, 'delete');
 		camera_list.delete(this.id)
 	}
 }
@@ -177,12 +183,12 @@ export class TagObject extends ATagObject {
 	}
 
 	remove() {
-		if (this.obj) this.obj.removeFromParent();
-		tag_list.delete(this.id)
-
-		for (const cam in this.detections) {
-			console.log(cam)
+		if (this.obj) {
+			this.obj.removeFromParent();
+			PickHelper.removeListener(this.obj);
 		}
+		if (ObjectSelector.is_selected(this)) ObjectSelector.deselect(null, 'delete');
+		tag_list.delete(this.id)
 	}
 }
 
@@ -224,7 +230,11 @@ export class FoundTagObject extends ATagObject {
 	}
 
 	remove() {
-		if (this.obj) this.obj.removeFromParent();
+		if (this.obj) {
+			this.obj.removeFromParent();
+			PickHelper.removeListener(this.obj);
+		}
+		if (ObjectSelector.is_selected(this)) ObjectSelector.deselect(null, 'delete');
 		found_tag_list.delete(this.ident)
 	}
 }

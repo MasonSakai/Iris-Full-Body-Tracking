@@ -30,10 +30,10 @@ export class PickHelper {
 		// cast a ray through the frustum
 		PickHelper.raycaster.setFromCamera(PickHelper.pickPosition, camera);
 		// get the list of objects the ray intersected
-		const intersectedObjects = PickHelper.raycaster.intersectObjects(scene.children, false);
-		for (const i in intersectedObjects) {
-			var obj = intersectedObjects[i].object
-			if (obj.visible) {
+		const intersectedObjects = PickHelper.raycaster.intersectObjects(scene.children, true);
+		for (const i of intersectedObjects) {
+			var obj = i.object
+			if (obj.visible && obj.id in this.listeners) {
 				PickHelper.pickedObject = obj
 				return
 			}
@@ -51,13 +51,9 @@ export class PickHelper {
 		if (Math.abs(event.x - PickHelper.md_pos.x) > 5
 			|| Math.abs(event.y - PickHelper.md_pos.y) > 5) return
 
-		if (!(PickHelper.pickedObject && PickHelper.pickedObject.id in PickHelper.listeners)) {
-			PickHelper.default_listeners.forEach(f => f(event))
-			return
-		}
-
-		PickHelper.listeners[PickHelper.pickedObject.id]
-			.forEach(f => f(event, PickHelper.pickedObject))
+		if (PickHelper.pickedObject && PickHelper.pickedObject.id in PickHelper.listeners)
+			PickHelper.listeners[PickHelper.pickedObject.id](event, PickHelper.pickedObject);
+		else PickHelper.default_listeners.forEach(f => f(event))
 	}
 	
 	static getCanvasRelativePosition(event) {
@@ -88,19 +84,13 @@ export class PickHelper {
 
 	}
 
-	static listeners: { [id: number]: ((event: MouseEvent, obj: THREE.Object3D) => void)[] } = {}
+	static listeners: Record<number, ((event: MouseEvent, obj: THREE.Object3D) => void)> = {}
 	static default_listeners: ((event: MouseEvent) => void)[] = []
 
-	static removeListeners(obj: THREE.Object3D) {
-		delete PickHelper.listeners[obj.id]
+	static removeListener(obj: THREE.Object3D) {
+		delete PickHelper.listeners[obj.id];
 	}
 	static addListener(obj: THREE.Object3D, func: (event: MouseEvent, obj: THREE.Object3D) => void) {
-		if (obj.id in PickHelper.listeners)
-			PickHelper.listeners[obj.id].push(func)
-		else PickHelper.listeners[obj.id] = [func]
-	}
-
-	static add_default_listener(func: (event: MouseEvent) => void) {
-		PickHelper.default_listeners.push(func)
+		PickHelper.listeners[obj.id] = func;
 	}
 }
