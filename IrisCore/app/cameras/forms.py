@@ -30,8 +30,6 @@ class FileUploadForm(FlaskForm):
 		FileRequired(),
 		FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')
 	])
-	
-	submit = SubmitField('Upload')
 
 class CalibrationConfigForm(FlaskForm):
 	

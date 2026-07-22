@@ -36,9 +36,7 @@
 				</ul>
 			</div>
 			<span class="col"></span>
-			<a class="navbar-brand" href="https://github.com/MasonSakai/Iris-Full-Body-Tracking" target="_blank">
-				<img src="{{ url_for('main.static', filename='img/github-mark-white.png') }}" alt="Github" height="24" />
-			</a>
+			<a class="navbar-brand bi bi-github fs-4 p-0" href="https://github.com/MasonSakai/Iris-Full-Body-Tracking" target="_blank"></a>
 		</div>
 	</nav>
 
@@ -56,5 +54,9 @@
 	</div>
 
 	<script src="{{ url_for('main.static', filename='js/bootstrap.bundle.js') }}"></script>
+	<script>
+		const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+		const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+	</script>
 </body>
 </html>

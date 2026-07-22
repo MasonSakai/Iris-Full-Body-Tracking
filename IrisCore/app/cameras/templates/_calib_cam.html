@@ -24,7 +24,7 @@
 					{{ file_form.hidden_tag() }}
 					<div class="input-group">
 						{{ file_form.image_files(class='form-control') }}
-						{{ file_form.submit(class="btn btn-outline-secondary") }}
+						<button class="btn btn-outline-secondary bi bi-upload"></button>
 					</div>
 					{%- for error in file_form.image_files.errors %}
 					<div class="invalid-feedback" style="display: block;">{{ error }}</div>

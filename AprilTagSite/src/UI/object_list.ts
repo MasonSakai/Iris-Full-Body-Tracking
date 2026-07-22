@@ -171,7 +171,7 @@ async function FetchFoundTags() {
 
 	ClearType('found');
 
-	var to_remove = Array.from(found_tag_list.entries().filter(([s, i]) => !i.pinned).map(([s, i]) => s));
+	var to_remove = Array.from(found_tag_list.keys());
 
 	var el_next = el_found;
 	for (const [ident, cams] of Object.entries(data)) {

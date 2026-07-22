@@ -1,8 +1,9 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import '@app/ui/object_list';
-import { createMatrixT } from './util'
-import { PickHelper } from './PickHelper'
+import '@app/ui/placement_rules';
+import { createMatrixT } from '@app/util'
+import { PickHelper } from '@app/PickHelper'
 
 import { io } from 'socket.io-client'
 export let socket = io('/apriltag')

@@ -171,6 +171,8 @@
     <Content Include="app\main\static\css\bootstrap-icons.css" />
     <Content Include="app\main\static\css\bootstrap.css" />
     <Content Include="app\main\static\css\bootstrap.css.map" />
+    <Content Include="app\main\static\css\fonts\bootstrap-icons.woff" />
+    <Content Include="app\main\static\css\fonts\bootstrap-icons.woff2" />
     <Content Include="app\main\static\css\form-decorators.css" />
     <Content Include="app\apriltag\static\pdf\april-tags-pairs.pdf" />
     <Content Include="app\apriltag\static\pdf\april-tags-sixes.pdf" />
@@ -178,8 +180,6 @@
     <Content Include="app\apriltag\templates\_view_detector.html" />
     <Content Include="app\main\static\css\main.css" />
     <Content Include="app\main\static\css\modal.css" />
-    <Content Include="app\main\static\img\github-mark-white.png" />
-    <Content Include="app\main\static\img\github-mark.png" />
     <Content Include="app\main\static\js\bootstrap.bundle.js" />
     <Content Include="app\main\static\js\bootstrap.bundle.js.map" />
     <Content Include="app\main\static\js\modal.js" />
@@ -214,6 +214,7 @@
     <Folder Include="app\cameras\static\" />
     <Folder Include="app\dataprocessing\" />
     <Folder Include="app\dataproviders\" />
+    <Folder Include="app\main\static\css\fonts\" />
     <Folder Include="tests\" />
     <Folder Include="tests\registry\" />
     <Folder Include="tests\scribe\" />

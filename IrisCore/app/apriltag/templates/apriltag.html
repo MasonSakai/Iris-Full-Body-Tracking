@@ -3,12 +3,48 @@
 {% block content %}
 
 <div class="row border-top border-2">
-	<div class="col-auto border-end border-2 tag-list" style="--tag-list-width: 200px">
-		editor
+	<div class="col-auto border-end border-2 tag-list d-flex flex-column" style="--tag-list-width: 200px">
+		<div class="h-75 border-bottom border-2 list-group list-group-flush">
+			<div class="list-group-item list-group-item-light" id="list-rules"
+				 data-bs-toggle="tooltip" data-bs-custom-class="tool-tooltip" data-bs-title="The constraints used to place objects, applied in order where applicable">Placement Rules</div>
+			<div class="list-group-item list-group-item-light" id="list-pins" hidden
+				 data-bs-toggle="tooltip" data-bs-custom-class="tool-tooltip" data-bs-title="Pins a tag's detected position, useful for marking the floor with a temporary tag">Pinned Tags <span class="bi bi-pin-fill"></span></div>
+			<div class="list-group-item list-group-item-light p-0"></div>
+		</div>
+		<div class="flex-fill">
+			2
+		</div>
 	</div>
 
-	<div id="tag-canvas-wrapper" class="col bg-secondary-subtle">
-		<canvas id="tag-canvas" style="margin-bottom: -6px;"></canvas>
+	<div class="col d-flex flex-column">
+		<div class="border-bottom border-2 btn-toolbar" role="toolbar">
+			<div class="btn-group me-2" role="group" aria-label="Second group">
+				<button id="tool-norm" type="button" class="btn bi bi-box-arrow-up-right"
+						data-bs-toggle="tooltip" data-bs-custom-class="tool-tooltip" data-bs-title="Facing"></button>
+				<button id="tool-offset" type="button" class="btn bi bi-arrow-bar-up"
+						data-bs-toggle="tooltip" data-bs-custom-class="tool-tooltip" data-bs-title="Offset"></button>
+			</div>
+			<div class="vr"></div>
+			<div class="btn-group me-2" role="group" aria-label="Second group">
+				<button id="tool-pin" type="button" class="btn bi bi-pin-angle" data-bs-toggle="tooltip" data-bs-custom-class="tool-tooltip" data-bs-title="Pin Found Tag"></button>
+			</div>
+		</div>
+		<div id="tag-canvas-wrapper" class="bg-secondary-subtle flex-fill">
+			<canvas id="tag-canvas" style="margin-bottom: -6px;"></canvas>
+			<div class="card position-absolute top-0 start-0 m-2 bg-body-secondary" style="width: 18rem;" id="card-overlay">
+				<div class="card-header input-group input-group-sm p-0">
+					<span id="card-icon" class="input-group-text" ></span>
+					<input id="card-rename" type="text" aria-label="Rename" class="form-control">
+					<button id="card-rename" class="btn btn-outline-secondary bi bi-pencil-square"></button>
+					<button id="card-confirm" class="btn btn-outline-success bi bi-check-lg"></button>
+					<button id="card-dismiss" class="btn btn-outline-danger bi bi-x-lg"></button>
+				</div>
+				<div class="card-body">
+					<h5 class="card-title">Floating Card</h5>
+					<p class="card-text">This text overlays the element below it without filling the container.</p>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="col-auto border-start border-2 tag-list list-group list-group-flush" id="object-list">
@@ -77,6 +113,11 @@
 
 	#body-container.mt-3 {
 		margin-top: 0 !important;
+	}
+
+	.tool-tooltip {
+		--bs-tooltip-bg: var(--bs-secondary-bg-subtle);
+		--bs-tooltip-color: var(--bs-white);
 	}
 </style>
 {% endblock %}

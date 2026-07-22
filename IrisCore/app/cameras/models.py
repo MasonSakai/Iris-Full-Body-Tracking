@@ -197,7 +197,7 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 		return next(filter(lambda r: r.active, self.references), None)
 
 	def get_file_path(self, *path_ext: str) -> tuple[str, bool]:
-		path = os.path.join(lifecycle.app.config["APPDATA_PATH"], 'cameras', self.display_name, *path_ext)
+		path = os.path.join(lifecycle.app.config["APPDATA_PATH"], 'cameras', self.ThingID, *path_ext)
 		return path, os.path.isdir(path)
 
 	def set_camera_params(self, height: int, width: int, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, rms: float):

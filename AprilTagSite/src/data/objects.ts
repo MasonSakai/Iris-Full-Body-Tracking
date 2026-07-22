@@ -193,7 +193,6 @@ export class TagObject extends ATagObject {
 }
 
 export class FoundTagObject extends ATagObject {
-	pinned: boolean = false
 	detections: Map<CameraId, FoundTagDetection> = new Map()
 
 
@@ -217,15 +216,6 @@ export class FoundTagObject extends ATagObject {
 
 		await this.get_obj();
 		this.set_transform(null);
-		this.update_count();
-	}
-
-	set_pinned(is_pinned: boolean) {
-		this.pinned = is_pinned;
-
-		this.num_el.classList.toggle('text-bg-warning', is_pinned);
-		this.num_el.classList.toggle('text-bg-secondary', !is_pinned);
-
 		this.update_count();
 	}
 
