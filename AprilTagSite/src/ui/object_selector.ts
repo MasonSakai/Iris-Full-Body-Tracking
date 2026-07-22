@@ -1,9 +1,12 @@
 import { CameraObject, FoundTagObject, TagObject } from "@app/data/objects";
 import { PickHelper } from "@app/PickHelper";
+import { PlacementRuleManager } from "./placement_rules";
 
 
 type SelectSource = 'list' | '3D';
-type Selectable = CameraObject | TagObject | FoundTagObject;
+export type Selectable = CameraObject | TagObject | FoundTagObject;
+
+export function get_name(obj: Selectable) { return obj instanceof FoundTagObject ? obj.ident : obj.name; }
 
 export class ObjectSelector {
 	
@@ -16,6 +19,7 @@ export class ObjectSelector {
 		if (this.is_selected(cam)) return;
 		this.deselect(ev, 'select');
 
+		if (PlacementRuleManager.on_select(ev, cam)) return;
 		console.log(ev, cam, source)
 
 		this.selected = cam;
@@ -27,6 +31,7 @@ export class ObjectSelector {
 		if (this.is_selected(tag)) return;
 		this.deselect(ev, 'select');
 
+		if (PlacementRuleManager.on_select(ev, tag)) return;
 		console.log(ev, tag, source)
 		
 		this.selected = tag;
@@ -37,6 +42,7 @@ export class ObjectSelector {
 		if (this.is_selected(tag)) return;
 		this.deselect(ev, 'select');
 
+		if (PlacementRuleManager.on_select(ev, tag)) return;
 		console.log(ev, tag, source)
 		
 		this.selected = tag;

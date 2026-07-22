@@ -18,15 +18,32 @@ class CameraReference(IDataSource, IExposable, ThingName='CameraReference'):
 	parent: Camera
 
 	autostart: bool
-	active: bool
+	_active: bool
 	display_name: str
 
 	def __init__(self):
 		super().__init__()
 		self.parent = None
 		self.autostart = False
-		self.active = False
+		self._active = False
 		self.display_name = None
+
+
+	@property
+	def active(self):
+		return self._active
+
+	@active.setter
+	def active(self, value: bool):
+		active_ref = self.parent._active_reference
+		if value:
+			if active_ref and active_ref != self:
+				active_ref.RequestStop(source=self)
+			self.parent._active_reference = self
+		elif active_ref == self:
+			self.parent._active_reference = None
+		self._active = value
+
 
 
 	def ExposeData(self):
@@ -157,6 +174,7 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 	calib_rms: float
 
 	references: list[CameraReference]
+	_active_reference: CameraReference | None
 	
 	#functions
 	def __init__(self):
@@ -169,6 +187,7 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 		self.calib_rms = -1.0
 		self.transform = None
 		self.references = []
+		self._active_reference = None
 
 	def __repr__(self):
 		return '<Camera - "{}">'.format(self.display_name)
@@ -194,7 +213,7 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 		return self.ThingID
 
 	def ActiveReference(self) -> CameraReference | None:
-		return next(filter(lambda r: r.active, self.references), None)
+		return self._active_reference
 
 	def get_file_path(self, *path_ext: str) -> tuple[str, bool]:
 		path = os.path.join(lifecycle.app.config["APPDATA_PATH"], 'cameras', self.ThingID, *path_ext)

@@ -25,7 +25,9 @@
 				<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">References</button>
 				<ul class="dropdown-menu">
 					{% for ref in camera.references %}
-					<li><a class="dropdown-item" href="{{ url_for("cameras.view_ref", cam_id=camera.ThingID, ref_id=ref.ThingID) }}" data-modal-new data-modal-refresh>{{ ref.display_name }}</a></li>
+					<li><a class="dropdown-item" href="{{ url_for("cameras.view_ref", cam_id=camera.ThingID, ref_id=ref.ThingID) }}" data-modal-new data-modal-refresh>
+						{{ ref.display_name }}{% if ref == camera.ActiveReference() %}<span class="badge text-bg-danger rounded-pill ms-2">&nbsp;</span>{% endif %}
+					</a></li>
 					{% endfor %}
 				</ul>
 				{% endif %}

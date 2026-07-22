@@ -11,11 +11,12 @@ let el_list: HTMLElement = null;
 
 function CreateListElement(name: string, id: string, attribute: string, count: string = null, count_bg: string = 'text-bg-secondary') {
 	var item = document.createElement('button');
-	item.className = 'list-group-item d-flex justify-content-between align-items-center';
+	item.className = 'btn btn-outline-secondary list-group-item d-flex justify-content-between align-items-center';
 	item.textContent = name;
 	item.id = id;
 
 	item.setAttribute('ltype', attribute);
+	item.toggleAttribute('keepfocus', true);
 
 	var el_count = document.createElement('span');
 	el_count.className = `badge ${ count_bg } rounded-pill ms-3`;

@@ -1,7 +1,7 @@
 
 export class CardHolder {
 
-	write_card(card_overlay: HTMLElement) {
+	write_card(card_overlay: HTMLElement, { ...kwargs }: { [key: string]: any } = {}) {
 		throw new Error("Method not implemented.");
 	}
 
@@ -13,13 +13,9 @@ export class CardHolder {
 		throw new Error("Method not implemented.");
 	}
 
-	confirm(): boolean {
-		throw new Error("Method not implemented.");
-	}
+	confirm: () => boolean = () => true;
 
-	dismiss() {
-		throw new Error("Method not implemented.");
-	}
+	dismiss = () => { };
 }
 
 export class CardHandler {
@@ -45,15 +41,20 @@ export class CardHandler {
 		document.getElementById('card-dismiss').addEventListener('click', CardHandler.Dismiss);
 	}
 
-	public static RequestElement(holder: CardHolder) {
+	public static RequestElement(holder: CardHolder, { ...kwargs }: { [key: string]: any } = {}) {
 		CardHandler.Dismiss();
 		CardHandler.card_overlay.hidden = false;
 		CardHandler.active_holder = holder;
-		CardHandler.btn_rename.hidden = !holder.can_rename;
-		CardHandler.txt_rename.disabled = !holder.can_rename;
-		CardHandler.txt_rename.value = holder.card_name;
-		CardHandler.icn_rename.classList = holder.card_icon ? `input-group-text bi ${holder.card_icon}` : 'input-group-text';
-		holder.write_card(CardHandler.card_body);
+		holder.write_card(CardHandler.card_body, { ...kwargs });
+		CardHandler.UpdateName();
+		return CardHandler.card_body;
+	}
+
+	public static UpdateName() {
+		CardHandler.btn_rename.hidden = !CardHandler.active_holder.can_rename;
+		CardHandler.txt_rename.disabled = !CardHandler.active_holder.can_rename;
+		CardHandler.txt_rename.value = CardHandler.active_holder.card_name;
+		CardHandler.icn_rename.classList = CardHandler.active_holder.card_icon ? `input-group-text bi ${CardHandler.active_holder.card_icon}` : 'input-group-text';
 	}
 
 	public static Confirm() {
