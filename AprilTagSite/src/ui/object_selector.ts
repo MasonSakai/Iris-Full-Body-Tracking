@@ -1,6 +1,6 @@
 import { CameraObject, FoundTagObject, TagObject } from "@app/data/objects";
 import { PickHelper } from "@app/PickHelper";
-import { PlacementRuleManager } from "./placement_rules";
+import { RuleHandler } from "./placement_rules";
 
 
 type SelectSource = 'list' | '3D';
@@ -16,10 +16,11 @@ export class ObjectSelector {
 	static is_selected(obj: Selectable) { return this.selected == obj; }
 
 	static async select_camera(ev: PointerEvent | MouseEvent, cam: CameraObject, source: SelectSource) {
+		if (RuleHandler.on_select(ev, cam)) return;
+
 		if (this.is_selected(cam)) return;
 		this.deselect(ev, 'select');
 
-		if (PlacementRuleManager.on_select(ev, cam)) return;
 		console.log(ev, cam, source)
 
 		this.selected = cam;
@@ -28,10 +29,11 @@ export class ObjectSelector {
 	}
 
 	static async select_tag(ev: PointerEvent | MouseEvent, tag: TagObject, source: SelectSource) {
+		if (RuleHandler.on_select(ev, tag)) return;
+
 		if (this.is_selected(tag)) return;
 		this.deselect(ev, 'select');
 
-		if (PlacementRuleManager.on_select(ev, tag)) return;
 		console.log(ev, tag, source)
 		
 		this.selected = tag;
@@ -39,10 +41,11 @@ export class ObjectSelector {
 	}
 
 	static async select_found_tag(ev: PointerEvent | MouseEvent, tag: FoundTagObject, source: SelectSource) {
+		if (RuleHandler.on_select(ev, tag)) return;
+
 		if (this.is_selected(tag)) return;
 		this.deselect(ev, 'select');
 
-		if (PlacementRuleManager.on_select(ev, tag)) return;
 		console.log(ev, tag, source)
 		
 		this.selected = tag;
