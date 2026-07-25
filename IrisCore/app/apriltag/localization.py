@@ -116,13 +116,17 @@ def ScanTags(num_scans: int = 1, scan_sep: float = 0.25, ref_list: list[CameraRe
 			q_rot = np.average(q_rots, axis=0, weights=margins)
 			q_rot = q_rot / np.linalg.norm(q_rot)
 			rot = Rotation.from_quat(q_rot).as_matrix()
+			
+			trans = np.eye(4)
+			trans[:3, :3] = rot
+			trans[:3, 3] = pos.flatten()
 
 			v_pos = float(np.linalg.norm(np.std(poses, axis=0)))
 			v_mar = float(np.average(margins))
 
 			if ident not in ref_dets:
 				ref_dets[ident] = {}
-			ref_dets[ident][cam] = (len(dets), pos, rot, v_pos, v_mar, base_size)
+			ref_dets[ident][cam] = (len(dets), trans, v_pos, v_mar, base_size)
 
 		for tag, dets in all_tags.items():
 
@@ -135,12 +139,16 @@ def ScanTags(num_scans: int = 1, scan_sep: float = 0.25, ref_list: list[CameraRe
 			q_rot = q_rot / np.linalg.norm(q_rot)
 			rot = Rotation.from_quat(q_rot).as_matrix()
 
+			trans = np.eye(4)
+			trans[:3, :3] = rot
+			trans[:3, 3] = pos.flatten()
+
 			v_pos = float(np.linalg.norm(np.std(poses, axis=0)))
 			v_mar = float(np.average(margins))
 
 			if tag not in ref_tags:
 				ref_tags[tag] = {}
-			ref_tags[tag][cam] = (len(dets), pos, rot, v_pos, v_mar)
+			ref_tags[tag][cam] = (len(dets), trans, v_pos, v_mar)
 
 	set_found_tags(ref_dets)
 

@@ -1,10 +1,8 @@
 import { Matrix4 } from 'three'
 import { scene, socket } from '@app/apriltag'
 import { camera_list, CameraObject, found_tag_list, FoundTagObject, tag_list, TagObject } from '@app/data/objects'
-import { createMatrixTR, createMatrixT } from '@app/util'
 import { PickHelper } from '@app/PickHelper'
 import { CamRecord, FoundTagRecord, ScanResults, TagIdent, TagRecord } from '@app/data/network_objects'
-import { cams_obj, tags_obj } from './models'
 import { ObjectSelector } from '@app/ui/object_selector'
 
 let el_list: HTMLElement = null;

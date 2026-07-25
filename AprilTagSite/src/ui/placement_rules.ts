@@ -1,6 +1,7 @@
 import { CardHandler } from "@app/ui/card_handler";
 import { Selectable } from "@app/ui/object_selector";
 import { PlacementRule, PlacementRule_Norm } from "@app/ui/placement_rule_classes";
+import { RequestLocalization } from "@app/data/solver";
 
 export class RuleHandler {
 
@@ -16,6 +17,8 @@ export class RuleHandler {
 			RuleHandler.selected_rule = new PlacementRule_Norm();
 			CardHandler.RequestElement(RuleHandler.selected_rule, { source: 'new' });
 		});
+
+		document.getElementById('localize').addEventListener('click', () => RequestLocalization())
 	}
 
 
@@ -32,6 +35,10 @@ export class RuleHandler {
 		RuleHandler.lbl_rules.parentElement.querySelectorAll('placement-rule').forEach((el) => el.remove());
 
 		RuleHandler.lbl_rules.after(...RuleHandler.rules.map((rule) => rule.write_list()));
+	}
+
+	public static get_rules() {
+		return this.rules;
 	}
 }
 

@@ -11,7 +11,9 @@ from utils.registry import ThingDatabase
 from app.apriltag.registry import found_tags, jsonify_FoundTagDetails, jsonify_TagDetails
 from app.apriltag.models import AprilTag, AprilTagDetector
 from app.apriltag.forms import DetectorForm, CreateDetectorForm, TagForm, EditTagForm
-from app.cameras.models import Camera
+from utils.localization.objects import Detection, SolverObject
+from utils.localization.placement_rules import parseRule
+from utils.localization.solver import Solve
 
 bp_aptg = Blueprint('apriltag', __name__, static_folder='static', template_folder='templates', url_prefix='/apriltag')
 
@@ -237,3 +239,31 @@ def clear_found_tag(family, id):
 		found_tags.pop((family, id))
 
 	return modal_success()
+
+
+@bp_aptg.route('/localizer', methods=['POST'])
+def localize():
+
+	data = request.get_json()
+	
+	objects = [
+		SolverObject(
+			ident=tuple(obj['ident']),
+			previous_pose=np.array(obj['previous_pose']) if obj['previous_pose'] else None,
+			static=obj['static'],
+			rules=[parseRule(rule) for rule in obj['rules']]
+		) for obj in data['objects']
+	]
+	
+	detections = [
+		Detection(
+			tag=tuple(det['tag']),
+			camera=tuple(det['camera']),
+			transform=np.array(det['transform']) if det['transform'] else None,
+			weight=det['weight']
+		) for det in data['detections']
+	]
+
+	Solve(objects, detections)
+
+	return jsonify()

@@ -14,6 +14,7 @@
     <InterpreterId>MSBuild|venv|$(MSBuildProjectFullPath)</InterpreterId>
     <TestFramework>unittest</TestFramework>
     <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,6 +29,21 @@
     <Compile Include="app\apriltag\registry.py" />
     <Compile Include="app\cameras\calibration.py" />
     <Compile Include="app\cameras\forms.py" />
+    <Compile Include="tests\localization\testscene.py" />
+    <Compile Include="tests\localization\test_graph.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\localization\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="utils\localization\graph.py" />
+    <Compile Include="utils\localization\module.py" />
+    <Compile Include="utils\localization\objects.py" />
+    <Compile Include="utils\localization\placement_rules.py" />
+    <Compile Include="utils\localization\solver.py" />
+    <Compile Include="utils\localization\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\main\modal.py" />
     <Compile Include="app\main\module.py" />
     <Compile Include="tests\registry\test_thing_id.py" />
@@ -214,6 +230,8 @@
     <Folder Include="app\cameras\static\" />
     <Folder Include="app\dataprocessing\" />
     <Folder Include="app\dataproviders\" />
+    <Folder Include="tests\localization\" />
+    <Folder Include="utils\localization\" />
     <Folder Include="app\main\static\css\fonts\" />
     <Folder Include="tests\" />
     <Folder Include="tests\registry\" />

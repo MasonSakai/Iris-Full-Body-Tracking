@@ -1,6 +1,6 @@
 import { CameraObject, FoundTagObject, TagObject } from "@app/data/objects";
 import { PickHelper } from "@app/PickHelper";
-import { RuleHandler } from "./placement_rules";
+import { RuleHandler } from "@app/ui/placement_rules";
 
 
 type SelectSource = 'list' | '3D';

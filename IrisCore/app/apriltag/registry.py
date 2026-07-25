@@ -10,8 +10,8 @@ from scipy.spatial.transform import Rotation
 
 
 
-type TagDetails = tuple[int, np.ndarray, np.ndarray, float, float]
-"""Reads as (num, pos, rot, v_pos, v_mar)
+type TagDetails = tuple[int, np.ndarray, float, float]
+"""Reads as (num, trans, v_pos, v_mar)
 
 num: number of samples
 pos: vertical column of 3
@@ -20,7 +20,7 @@ v_pos: std(pos)
 v_mar: avg(detection.decision_margin)"""
 
 type FoundTagDetails = tuple[*TagDetails, float]
-"""Reads as (num, pos, rot, v_pos, v_mar, size)
+"""Reads as (num, trans, v_pos, v_mar, size)
 
 num: number of samples
 pos: vertical column of 3
@@ -30,16 +30,16 @@ v_mar: avg(detection.decision_margin)
 size: default size in detector, m"""
     
 def jsonify_TagDetails(data: TagDetails):
-    (num, pos, rot, v_pos, v_mar) = data
+    (num, trans, v_pos, v_mar) = data
     return {
 		'num': num,
-		'pos': pos.flatten().tolist(), 'rot': Rotation.from_matrix(rot).as_quat().tolist(),
+		'trans': trans.tolist(),
 		'v_pos': v_pos, 'v_mar': v_mar 
 	}
 
 def jsonify_FoundTagDetails(data: FoundTagDetails):
     return {
-		'size': data[5], **jsonify_TagDetails(data[:5])
+		'size': data[4], **jsonify_TagDetails(data[:4])
     }
 
 found_tags: dict[tuple[str, int], dict[Camera, FoundTagDetails]] = {}

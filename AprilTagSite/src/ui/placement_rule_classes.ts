@@ -4,6 +4,8 @@ import { RuleHandler } from "@app/ui/placement_rules";
 
 export class PlacementRule extends CardHolder {
 
+	protected target: Selectable;
+
 	protected list_el: HTMLElement;
 	protected list_lbl: Text;
 	protected list_icon: HTMLSpanElement;
@@ -30,6 +32,12 @@ export class PlacementRule extends CardHolder {
 	}
 
 	on_select: (ev: PointerEvent | MouseEvent, obj: Selectable) => boolean = () => false;
+
+	public get_target() { return this.target; }
+
+	public jsonify() {
+
+	}
 }
 
 
@@ -38,7 +46,6 @@ type NormMode_Axis = '+x' | '-x' | '+y' | '-y' | '+z' | '-z';
 
 export class PlacementRule_Norm extends PlacementRule {
 
-	private selected: Selectable;
 	private mode: NormMode;
 	private axis_mode: NormMode_Axis;
 	private pitch: number = 0;
@@ -59,7 +66,7 @@ export class PlacementRule_Norm extends PlacementRule {
 				else this.card_name = 'Facing';
 				break;
 			default:
-				selected = this.selected;
+				selected = this.target;
 				break;
 		}
 
@@ -259,7 +266,7 @@ export class PlacementRule_Norm extends PlacementRule {
 				return false;
 			}
 
-			this.selected = selected;
+			this.target = selected;
 			this.mode = sel_mode.value as NormMode;
 			switch (this.mode) {
 				case 'axis':

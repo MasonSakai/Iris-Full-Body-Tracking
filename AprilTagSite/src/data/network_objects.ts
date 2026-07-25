@@ -13,8 +13,7 @@ export type CamRecord = {
 
 export type TagDetails = {
 	num: number,
-	pos: number[],
-	rot: number[],
+	trans: number[][],
 	v_pos: number,
 	v_mar: number
 };

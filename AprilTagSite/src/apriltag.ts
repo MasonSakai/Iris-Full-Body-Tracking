@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import '@app/ui/object_list';
 import '@app/ui/placement_rules';
-import { createMatrixT } from '@app/util'
+import { CreateMatrix } from '@app/util'
 import { PickHelper } from '@app/PickHelper'
 
 import { io } from 'socket.io-client'
@@ -14,7 +14,7 @@ let canvas_wrapper: HTMLDivElement = null;
 export let scene = new THREE.Scene()
 var ax = new THREE.AxesHelper(1)
 ax.matrixAutoUpdate = false
-ax.matrix.copy(createMatrixT([
+ax.matrix.copy(CreateMatrix([
 	1, 0, 0, 0,
 	0, 1, 0, 0,
 	0, 0, 1, 0,

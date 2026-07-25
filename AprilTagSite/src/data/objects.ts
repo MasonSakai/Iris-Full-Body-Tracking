@@ -1,7 +1,7 @@
 import { Object3D, Matrix4, Vector3, Quaternion } from 'three'
 import { TagIdent, CameraId, TagID, CamRecord, TagRecord, FoundTagRecord } from '@app/data/network_objects'
 import { cams_obj, LoadCamModel, LoadTagModel } from '@app/ui/models'
-import { createMatrixT } from '@app/util'
+import { CreateMatrix, CorrectMatrix } from '@app/util'
 import { PickHelper } from '@app/PickHelper'
 import { ObjectSelector } from '@app/ui/object_selector'
 
@@ -29,7 +29,7 @@ export class CameraObject {
 		this.id = cam.id;
 		this.fetch_tags();
 		await this.get_obj();
-		this.set_transform(createMatrixT(cam.transform));
+		this.set_transform(CreateMatrix(cam.transform));
 		this.set_active(cam.active);
 	}
 
@@ -92,8 +92,7 @@ export class CameraObject {
 
 export class TagDetection {
 	num: number
-	pos: Vector3
-	rot: Quaternion
+	trans: Matrix4
 	v_pos: number
 	v_mar: number
 }
@@ -121,7 +120,7 @@ export class ATagObject {
 	set_transform(mat: Matrix4) {
 		this.obj.visible = mat != null;
 		if (mat != null) {
-			mat.decompose(this.obj.position, this.obj.quaternion, new Vector3());
+			CorrectMatrix(mat).decompose(this.obj.position, this.obj.quaternion, new Vector3());
 			this.obj.updateMatrix();
 		}
 	}
@@ -156,15 +155,14 @@ export class TagObject extends ATagObject {
 		for (const [id, d] of Object.entries(d_tag.detections)) {
 			var det = new TagDetection();
 			det.num = d.num;
-			det.pos = new Vector3(d.pos[0], d.pos[1], d.pos[2])
-			det.rot = new Quaternion(d.rot[0], d.rot[1], d.rot[2], d.rot[3])
+			det.trans = CreateMatrix(d.trans);
 			det.v_pos = d.v_pos;
 			det.v_mar = d.v_mar;
 			this.detections.set(id, det);
 		}
 
 		await this.get_obj();
-		this.set_transform(createMatrixT(d_tag.transform));
+		this.set_transform(CreateMatrix(d_tag.transform));
 		this.set_static(d_tag.static);
 	}
 
@@ -206,8 +204,7 @@ export class FoundTagObject extends ATagObject {
 		for (const [id, d] of Object.entries(d_tag)) {
 			var det = new FoundTagDetection();
 			det.num = d.num;
-			det.pos = new Vector3(d.pos[0], d.pos[1], d.pos[2])
-			det.rot = new Quaternion(d.rot[0], d.rot[1], d.rot[2], d.rot[3])
+			det.trans = CreateMatrix(d.trans);
 			det.v_pos = d.v_pos;
 			det.v_mar = d.v_mar;
 			det.size = d.size;
