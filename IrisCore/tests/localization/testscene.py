@@ -6,9 +6,8 @@ from scipy.spatial.transform import Rotation
 
 from utils.localization.graph import Graph, TraverseResult, annotate_components, build_scene_graph, connected_components, traverse
 from utils.localization.objects import Detection, SolverIdent, SolverObject
-from utils.localization.optimizer import optimize_world
+from utils.localization.optimizer import optimize_relative, optimize_world
 from utils.localization.placement_rules import PlacementRule, PlacementRule_Facing, PlacementRule_Offset
-from utils.localization.solver import optimize_relative
 
 class TestScene:
     def __init__(self):

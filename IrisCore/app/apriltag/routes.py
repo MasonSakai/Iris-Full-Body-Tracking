@@ -13,7 +13,7 @@ from app.apriltag.models import AprilTag, AprilTagDetector
 from app.apriltag.forms import DetectorForm, CreateDetectorForm, TagForm, EditTagForm
 from utils.localization.objects import Detection, SolverObject
 from utils.localization.placement_rules import parseRule
-from utils.localization.solver import Solve
+from utils.localization import Solve
 
 bp_aptg = Blueprint('apriltag', __name__, static_folder='static', template_folder='templates', url_prefix='/apriltag')
 
@@ -267,6 +267,6 @@ def localize():
 
 	print(rules)
 
-	Solve(objects, detections, rules)
+	graph, traversal, relative, world, poses = Solve(objects, detections, rules)
 
 	return jsonify()

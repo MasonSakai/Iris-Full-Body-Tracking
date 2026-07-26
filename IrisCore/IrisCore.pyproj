@@ -46,7 +46,6 @@
     <Compile Include="utils\localization\objects.py" />
     <Compile Include="utils\localization\optimizer.py" />
     <Compile Include="utils\localization\placement_rules.py" />
-    <Compile Include="utils\localization\solver.py" />
     <Compile Include="utils\localization\validation.py" />
     <Compile Include="utils\localization\__init__.py">
       <SubType>Code</SubType>

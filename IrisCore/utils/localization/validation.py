@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from utils.localization.graph import ConnectedComponent
+from utils.localization.graph import ConnectedComponent, Graph
 from utils.localization.placement_rules import PlacementRule
 
 @dataclass
@@ -48,3 +48,20 @@ def validate_components(
             )
 
     return warnings
+
+def validate_rules(
+    rules: list[PlacementRule],
+    graph: Graph,
+) -> list[SolverWarning]:
+    errors: list[SolverWarning] = []
+
+    for rule in rules:
+        if rule.target not in graph:
+            errors.append(
+                SolverWarning(
+                    severity="warning",
+                    message=f"Rule target {rule.target} not found"
+                )
+            )
+
+    return errors
