@@ -119,7 +119,7 @@ class TestScene:
         result = optimize_relative(
             graph,
             self._detections,
-            traversal.components,
+            traversal,
         )
 
         return graph, result

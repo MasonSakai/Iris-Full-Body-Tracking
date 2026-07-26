@@ -1,6 +1,8 @@
 import { CardHandler, CardHolder } from "@app/ui/card_handler";
 import { get_name, ObjectSelector, Selectable } from "@app/ui/object_selector";
 import { RuleHandler } from "@app/ui/placement_rules";
+import { Vector3 } from "three";
+import { DEG_TO_RAD, yawPitchToOpenCVVector } from "@app/util";
 
 export class PlacementRule extends CardHolder {
 
@@ -9,6 +11,8 @@ export class PlacementRule extends CardHolder {
 	protected list_el: HTMLElement;
 	protected list_lbl: Text;
 	protected list_icon: HTMLSpanElement;
+
+	protected weight: number = 1.0;
 
 	can_rename = false;
 
@@ -36,7 +40,7 @@ export class PlacementRule extends CardHolder {
 	public get_target() { return this.target; }
 
 	public jsonify(): any {
-
+		return { weight: this.weight }
 	}
 }
 
@@ -285,6 +289,36 @@ export class PlacementRule_Norm extends PlacementRule {
 
 			this.write_list();
 			return true;
+		}
+	}
+
+	private get_direction() {
+		switch (this.mode) {
+			case 'axis':
+				switch (this.axis_mode) {
+					case '+x':
+						return new Vector3( 1, 0, 0);
+					case '-x':
+						return new Vector3(-1, 0, 0);
+					case '+y':
+						return new Vector3(0,  1, 0);
+					case '-y':
+						return new Vector3(0, -1, 0);
+					case '+z':
+						return new Vector3(0, 0,  1);
+					case '-z':
+						return new Vector3(0, 0, -1);
+				}
+			case 'angle':
+				return yawPitchToOpenCVVector(this.yaw * DEG_TO_RAD, this.pitch * DEG_TO_RAD)
+		}
+	}
+
+	public jsonify() {
+		return {
+			rule_type: 'facing',
+			direction: this.get_direction().toArray(),
+			...super.jsonify()
 		}
 	}
 }

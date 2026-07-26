@@ -4,9 +4,9 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from tests.localization.testscene import TestScene
-from utils.localization.graph import Graph, connected_components, from_detections
+from utils.localization.graph import Graph
 from utils.localization.objects import SolverIdent
-from utils.localization.optimizer import optimize_relative
+from utils.localization.optimizer import pack_variables
 
 class TestRelativeOptimizer(unittest.TestCase):
 
@@ -281,6 +281,84 @@ class TestRelativeOptimizer(unittest.TestCase):
             scene.poses,
             camB,
             tag2,
+        )
+
+    def test_06_root_not_optimized(self):
+
+        scene = TestScene()
+
+        cam = scene.camera(
+            "cam",
+            scene.T((0, 0, 0)),
+        )
+
+        tag = scene.tag(
+            "tag",
+            scene.T((1, 2, 3)),
+        )
+
+        found = scene.tag(
+            "found",
+            scene.T((2, 0, 0)),
+        )
+
+        scene.observe(cam, tag)
+        scene.observe(cam, found)
+
+        graph, traversal = scene.solve_graph()
+
+        state = pack_variables(
+            graph,
+            traversal,
+        )
+
+        self.assertEqual(
+            len(state.x0),
+            len(state.index) * 6,
+        )
+
+        for root in traversal.roots:
+            self.assertNotIn(root, state.index)
+
+        for ident in graph:
+            pose = state.unpack_pose(
+                state.x0,
+                ident,
+            )
+
+            self.assertIsNotNone(pose)
+
+    def test_07_optimization_state_root_fixed(self):
+
+        scene = TestScene()
+
+        cam = scene.camera("cam")
+        tag = scene.tag(
+            "tag",
+            scene.T((1, 2, 3)),
+        )
+
+        scene.observe(cam, tag)
+
+        graph, traversal = scene.solve_graph()
+
+        state = pack_variables(
+            graph,
+            traversal,
+        )
+
+        roots = {
+            c.root
+            for c in traversal.components
+        }
+
+        for root in roots:
+            self.assertIn(root, state.fixed)
+            self.assertNotIn(root, state.index)
+
+        self.assertEqual(
+            len(state.x0),
+            len(state.index) * 6,
         )
 
 

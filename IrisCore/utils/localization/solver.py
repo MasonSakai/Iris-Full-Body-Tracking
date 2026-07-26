@@ -9,14 +9,14 @@ from utils.localization.placement_rules import PlacementRule
 def Solve(objects: list[SolverObject], detections: list[Detection], rules: list[PlacementRule]):
     
     graph = from_detections(detections)
-    print(graph)
+    #print(graph)
 
     connections = connected_components(graph)
-    print(connections)
+    #print(connections)
 
     traversal = traverse(graph, connections)
-    print(traversal)
+    #print(traversal)
 
-    optimization = optimize_relative(graph, detections, traversal.roots)
+    optimization = optimize_relative(graph, detections, traversal)
     print(optimization)
 

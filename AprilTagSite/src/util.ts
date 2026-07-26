@@ -39,3 +39,19 @@ export function CorrectMatrix(mat: THREE.Matrix4): THREE.Matrix4 {
     );
     return new THREE.Matrix4().multiplyMatrices(corrective, mat);
 }
+
+export const DEG_TO_RAD = Math.PI / 180;
+
+export function yawPitchToOpenCVVector(yaw: number, pitch: number) {
+    const cp = Math.cos(pitch);
+    const sp = Math.sin(pitch);
+    const cy = Math.cos(yaw);
+    const sy = Math.sin(yaw);
+
+    // OpenCV coordinates: X = right, Y = down, Z = forward (depth)
+    return new THREE.Vector3(
+        cp * sy,  // X right
+        -sp,      // Y down
+        cp * cy   // Z forward
+    );
+}

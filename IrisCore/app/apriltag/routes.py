@@ -265,6 +265,8 @@ def localize():
 
 	rules = [ parseRule(rule) for rule in data['rules'] ]
 
+	print(rules)
+
 	Solve(objects, detections, rules)
 
 	return jsonify()

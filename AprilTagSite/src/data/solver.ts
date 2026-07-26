@@ -75,7 +75,7 @@ export async function RequestLocalization() {
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ detections: detections, objects: objects, rulse: rules })
+		body: JSON.stringify({ detections: detections, objects: objects, rules: rules })
 	})).json();
 
 	console.log(resp);
