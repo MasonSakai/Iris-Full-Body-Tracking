@@ -7,6 +7,25 @@ from utils.localization.graph import ConnectedComponent, Graph, TraverseResult
 from utils.localization.objects import Detection, SolverIdent
 from utils.localization.placement_rules import PlacementRule
 
+
+@dataclass
+class ConstraintAnalysis:
+    component_id: int
+
+    # Number of independent constrained directions
+    rank: int
+
+    # Number of remaining freedoms
+    degrees_of_freedom: int
+
+    # Columns are unconstrained motions in:
+    # [tx,ty,tz,rx,ry,rz]
+    nullspace: np.ndarray
+
+    # Convenience splits
+    translation_nullspace: np.ndarray
+    rotation_nullspace: np.ndarray
+
 @dataclass
 class OptimizationResult:
     success: bool
@@ -19,7 +38,9 @@ class OptimizationResult:
     initial_residual_norm: float
     final_residual_norm: float
 
-    scipy_result: OptimizeResult
+    constraint_analysis: dict[int, ConstraintAnalysis]
+
+    scipy_result: OptimizeResult | None
 
 
 @dataclass
@@ -173,6 +194,8 @@ def optimize_relative_component(graph: Graph, component: ConnectedComponent, det
         initial_residual_norm=np.linalg.norm(initial_residual),
         final_residual_norm=np.linalg.norm(result.fun),
 
+        constraint_analysis={},
+
         scipy_result=result
     )
 
@@ -208,6 +231,57 @@ class WorldOptimizationState:
 
     # Fixed relative poses
     relative_poses: dict[SolverIdent, np.ndarray]
+
+def analyze_constraints(
+    jacobian: np.ndarray,
+    state: WorldOptimizationState,
+    tolerance: float = 1e-6,
+) -> dict[int, ConstraintAnalysis]:
+
+    analyses = {}
+
+    for component_id, variable_index in state.index.items():
+
+        start = variable_index * 6
+        end = start + 6
+
+        # Extract the columns belonging to this component
+        component_jacobian = jacobian[:, start:end]
+
+        component_jacobian = component_jacobian[
+            np.any(
+                np.abs(component_jacobian) > tolerance,
+                axis=1,
+            )
+        ]
+
+        # SVD:
+        #
+        # J = U S Vt
+        #
+        # The rows of Vt after the rank are the null-space directions.
+        u, s, vh = np.linalg.svd(
+            component_jacobian,
+            full_matrices=True,
+        )
+
+        rank = np.sum(
+            s > tolerance
+        )
+
+        nullspace = vh[rank:].T
+
+        analyses[component_id] = ConstraintAnalysis(
+            component_id=component_id,
+            rank=int(rank),
+            degrees_of_freedom=6 - int(rank),
+            nullspace=nullspace,
+            translation_nullspace=nullspace[:3],
+            rotation_nullspace=nullspace[3:],
+        )
+
+    return analyses
+
 
 def pack_world_variables(
     graph: Graph,
@@ -270,6 +344,28 @@ def get_world_poses(
 
     return poses
 
+def empty_world_optimization_result(traversal: TraverseResult) -> OptimizationResult:
+    return OptimizationResult(
+        success=True,
+        function_evaluations=0,
+        initial_cost=0.0,
+        final_cost=0.0,
+        initial_residual_norm=0.0,
+        final_residual_norm=0.0,
+        scipy_result=None,
+        constraint_analysis={
+            component.id: ConstraintAnalysis(
+                component_id=component.id,
+                rank=0,
+                degrees_of_freedom=6,
+                nullspace=np.eye(6),
+                translation_nullspace=np.eye(6)[:3],
+                rotation_nullspace=np.eye(6)[3:],
+            )
+            for component in traversal.components
+        },
+    )
+
 def optimize_world(
     graph: Graph,
     traversal: TraverseResult,
@@ -277,6 +373,12 @@ def optimize_world(
 ):
 
     state = pack_world_variables(graph, traversal)
+
+    if not rules:
+        return (
+            empty_world_optimization_result(traversal),
+            get_world_poses(state, state.x0, traversal)
+        )
 
     def residual(x: np.ndarray):
         world_poses = get_world_poses(state, x, traversal)
@@ -310,6 +412,8 @@ def optimize_world(
 
         initial_residual_norm=np.linalg.norm(initial_residual),
         final_residual_norm=np.linalg.norm(result.fun),
+
+        constraint_analysis=analyze_constraints(result.jac, state),
 
         scipy_result=result
     ), poses

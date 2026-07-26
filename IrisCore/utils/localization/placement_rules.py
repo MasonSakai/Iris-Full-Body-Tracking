@@ -1,10 +1,32 @@
 
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum
 
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 from utils.localization.objects import SolverIdent
+
+
+def pose_error(actual: np.ndarray, target: np.ndarray) -> np.ndarray:
+    """
+    Returns the residual between two poses.
+
+    Translation is meters.
+    Rotation is axis-angle radians.
+    """
+
+    # Translation error
+    t_error = actual[:3, 3] - target[:3, 3]
+
+    # Rotation error
+    r_actual = Rotation.from_matrix(actual[:3, :3])
+
+    r_target = Rotation.from_matrix(target[:3, :3])
+
+    r_error = (r_target.inv() * r_actual).as_rotvec()
+
+    return np.concatenate([ t_error, r_error ])
 
 
 @dataclass(init=False)
@@ -91,7 +113,12 @@ class PlacementRule_Offset(PlacementRule):
 
     def constrained_dofs(self) -> set[str]:
         return {f'translation_{ self.axis }'}
-
+    
+#@dataclass(init=False)
+#class PoseRule_Previous(PlacementRule):
+#
+#    def residual(self, world_pose):
+#        return pose_error(world_pose, self.previous_pose)
 
 
 def parseRule(data: dict[str, any]) -> PlacementRule:

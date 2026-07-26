@@ -6,6 +6,7 @@ from scipy.spatial.transform import Rotation
 from tests.localization.testscene import TestScene
 from utils.localization.graph import Graph
 from utils.localization.objects import SolverIdent
+from utils.localization.optimizer import ConstraintAnalysis
 
 class TestWorldOptimizer(unittest.TestCase):
 
@@ -45,6 +46,21 @@ class TestWorldOptimizer(unittest.TestCase):
             actual,
             expected,
             atol=1e-5,
+        )
+
+    def assertConstraint(
+        self,
+        analysis: ConstraintAnalysis,
+        rank: int,
+        dof: int,
+    ):
+        self.assertEqual(
+            analysis.rank,
+            rank,
+        )
+        self.assertEqual(
+            analysis.degrees_of_freedom,
+            dof,
         )
 
     def perturb_graph(
@@ -238,6 +254,132 @@ class TestWorldOptimizer(unittest.TestCase):
             atol=1e-5,
         )
 
+    def test_07_constraints_offset_xyz(self):
+        scene = TestScene()
+
+        tag = scene.tag("tag")
+
+        scene.offset(tag, "x", 1)
+        scene.offset(tag, "y", 2)
+        scene.offset(tag, "z", 3)
+
+        _, _, world, poses = scene.solve_scene()
+
+        analysis = world.constraint_analysis[0]
+
+        self.assertConstraint(
+            analysis,
+            rank=3,
+            dof=3,
+        )
+
+    def test_08_constraints_facing(self):
+        scene = TestScene()
+
+        tag = scene.tag("tag")
+
+        scene.facing(
+            tag,
+            [1,0,0],
+        )
+
+        _, _, world, poses = scene.solve_scene()
+
+        analysis = world.constraint_analysis[0]
+
+        self.assertConstraint(
+            analysis,
+            rank=2,
+            dof=4,
+        )
+
+    def test_09_constraints_offset_and_facing(self):
+        scene = TestScene()
+
+        tag = scene.tag("tag")
+
+        scene.offset(tag, "x", 1)
+        scene.offset(tag, "y", 2)
+        scene.offset(tag, "z", 3)
+
+        scene.facing(
+            tag,
+            [1,0,0],
+        )
+
+        _, _, world, poses = scene.solve_scene()
+
+        analysis = world.constraint_analysis[0]
+
+        self.assertConstraint(
+            analysis,
+            rank=5,
+            dof=1,
+        )
+
+    def test_10_duplicate_constraints_do_not_add_rank(self):
+        scene = TestScene()
+
+        tag = scene.tag("tag")
+
+        scene.offset(tag, "x", 1)
+        scene.offset(tag, "x", 5)
+        scene.offset(tag, "x", 10)
+
+        _, _, world, poses = scene.solve_scene()
+
+        analysis = world.constraint_analysis[0]
+
+        self.assertConstraint(
+            analysis,
+            rank=1,
+            dof=5,
+        )
+
+    def test_11_constraints_are_per_component(self):
+        scene = TestScene()
+
+        tag_a = scene.tag("tagA")
+        tag_b = scene.tag("tagB")
+
+        scene.offset(tag_a, "x", 1)
+        scene.offset(tag_a, "y", 2)
+        scene.offset(tag_a, "z", 3)
+
+        scene.offset(tag_b, "x", 4)
+        scene.offset(tag_b, "y", 5)
+        scene.offset(tag_b, "z", 6)
+
+        _, _, world, poses = scene.solve_scene()
+
+        self.assertEqual(
+            len(world.constraint_analysis),
+            2,
+        )
+
+        for analysis in world.constraint_analysis.values():
+            self.assertConstraint(
+                analysis,
+                rank=3,
+                dof=3,
+            )
+
+    def test_12_unconstrained_component(self):
+        scene = TestScene()
+
+        tag = scene.tag("tag")
+
+        _, _, world, poses = scene.solve_scene()
+
+        analysis = world.constraint_analysis[0]
+
+        self.assertConstraint(
+            analysis,
+            rank=0,
+            dof=6,
+        )
+        self.assertEqual(world.function_evaluations, 0)
+        self.assertEqual(world.final_cost, 0)
 
 if __name__ == '__main__':
     unittest.main()
