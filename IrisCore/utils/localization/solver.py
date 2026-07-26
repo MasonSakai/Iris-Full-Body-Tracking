@@ -2,21 +2,21 @@
 
 from utils.localization.objects import Detection, SolverObject
 from utils.localization.graph import connected_components, from_detections, traverse
+from utils.localization.optimizer import optimize_relative
+from utils.localization.placement_rules import PlacementRule
 
 
-def Solve(objects: list[SolverObject], detections: list[Detection]):
+def Solve(objects: list[SolverObject], detections: list[Detection], rules: list[PlacementRule]):
     
-    d_objects = { obj.ident: obj for obj in objects }
-
     graph = from_detections(detections)
-
     print(graph)
 
     connections = connected_components(graph)
-
     print(connections)
 
-    results = traverse(graph, connections)
+    traversal = traverse(graph, connections)
+    print(traversal)
 
-    print(results)
-    print(graph)
+    optimization = optimize_relative(graph, detections, traversal.roots)
+    print(optimization)
+

@@ -35,7 +35,7 @@ export class PlacementRule extends CardHolder {
 
 	public get_target() { return this.target; }
 
-	public jsonify() {
+	public jsonify(): any {
 
 	}
 }

@@ -250,8 +250,7 @@ def localize():
 		SolverObject(
 			ident=tuple(obj['ident']),
 			previous_pose=np.array(obj['previous_pose']) if obj['previous_pose'] else None,
-			static=obj['static'],
-			rules=[parseRule(rule) for rule in obj['rules']]
+			static=obj['static']
 		) for obj in data['objects']
 	]
 	
@@ -259,11 +258,13 @@ def localize():
 		Detection(
 			tag=tuple(det['tag']),
 			camera=tuple(det['camera']),
-			transform=np.array(det['transform']) if det['transform'] else None,
+			transform=np.array(det['transform']),
 			weight=det['weight']
 		) for det in data['detections']
 	]
 
-	Solve(objects, detections)
+	rules = [ parseRule(rule) for rule in data['rules'] ]
+
+	Solve(objects, detections, rules)
 
 	return jsonify()

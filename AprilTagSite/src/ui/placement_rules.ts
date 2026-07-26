@@ -37,8 +37,8 @@ export class RuleHandler {
 		RuleHandler.lbl_rules.after(...RuleHandler.rules.map((rule) => rule.write_list()));
 	}
 
-	public static get_rules() {
-		return this.rules;
+	public static jsonify() {
+		return this.rules.map((rule) => rule.jsonify());
 	}
 }
 

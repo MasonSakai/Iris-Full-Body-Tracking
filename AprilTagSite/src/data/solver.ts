@@ -8,15 +8,14 @@ import { RuleHandler } from '@app/ui/placement_rules';
 
 type SolverIdent = [string, 'camera' | 'tag' | 'found' | 'pinned'];
 
-type SolverObject = { ident: SolverIdent, previous_pose: number[][] | null, static: boolean, rules: any[] };
+type SolverObject = { ident: SolverIdent, previous_pose: number[][] | null, static: boolean };
 
 function jsonify_SolverObject(obj: Selectable) {
 
 	let ret: SolverObject = {
 		ident: null,
 		previous_pose: null,
-		static: false,
-		rules: RuleHandler.get_rules().filter((rule) => rule.get_target() == obj).map((rule) => rule.jsonify())
+		static: false
 	};
 
 	switch (true) {
@@ -69,12 +68,14 @@ export async function RequestLocalization() {
 		detections.push(...tag.detections.entries().map(([cam, det]) => jsonify_Detection([tag.ident, 'found'], cam, det)))
 	});
 
+	let rules = RuleHandler.jsonify();
+
 	let resp = await (await fetch('localizer', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ detections: detections, objects: objects })
+		body: JSON.stringify({ detections: detections, objects: objects, rulse: rules })
 	})).json();
 
 	console.log(resp);

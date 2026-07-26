@@ -38,7 +38,7 @@ class TestGraphSolver(unittest.TestCase):
         """
 
         expected_tf = np.linalg.inv(expected[a]) @ expected[b]
-        actual_tf = np.linalg.inv(graph[a].pose) @ graph[b].pose
+        actual_tf = np.linalg.inv(graph[a].relative_pose) @ graph[b].relative_pose
 
         self.assertPoseAlmostEqual(
             expected_tf,
@@ -123,7 +123,7 @@ class TestGraphSolver(unittest.TestCase):
         scene.observe(camA, tag)
         scene.observe(camB, tag)
 
-        graph = scene.solve_graph()
+        graph, result = scene.solve_graph()
 
         self.assertRelativePose(
             graph,
@@ -165,7 +165,7 @@ class TestGraphSolver(unittest.TestCase):
         scene.observe(camB, tag1)
         scene.observe(camB, tag2)
         
-        graph = scene.solve_graph()
+        graph, result = scene.solve_graph()
 
         est0 = graph[tag2].estimates[0].pose
         est1 = graph[tag2].estimates[1].pose
@@ -188,7 +188,7 @@ class TestGraphSolver(unittest.TestCase):
 
         scene.observe(cam, tag)
 
-        graph = scene.solve_graph()
+        graph, result = scene.solve_graph()
 
         self.assertRelativePose(
             graph,

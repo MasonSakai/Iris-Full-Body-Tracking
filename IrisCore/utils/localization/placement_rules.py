@@ -3,14 +3,16 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from utils.localization.objects import SolverObject
+from utils.localization.objects import Pose
 
 
 @dataclass
 class PlacementRule:
-    object: SolverObject
-    
-    def residual(self, poses) -> np.ndarray:
+
+    def residual(
+        self,
+        pose: Pose,
+    ) -> np.ndarray:
         ...
 
 

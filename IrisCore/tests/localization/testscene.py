@@ -3,8 +3,9 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 
-from utils.localization.graph import connected_components, from_detections, traverse
+from utils.localization.graph import Graph, TraverseResult, connected_components, from_detections, traverse
 from utils.localization.objects import Detection, SolverIdent, SolverObject
+from utils.localization.solver import optimize_relative
 
 class TestScene:
     def __init__(self):
@@ -107,12 +108,21 @@ class TestScene:
 
         graph = from_detections(detections)
 
-        traverse(
+        result = traverse(
             graph,
             connected_components(graph),
         )
 
-        return graph
+        return graph, result
+
+    def optimize_relative(self, graph: Graph, traversal: TraverseResult):
+        result = optimize_relative(
+            graph,
+            self._detections,
+            traversal.components,
+        )
+
+        return graph, result
 
     # ------------------------------------------------------------------
     # Expected poses

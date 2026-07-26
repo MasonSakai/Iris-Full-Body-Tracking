@@ -2,9 +2,9 @@ from collections import deque
 from dataclasses import dataclass, field
 import heapq
 import numpy as np
+from scipy.spatial.transform import Rotation
 
-from utils.localization.objects import Detection, SolverIdent, SolverObject
-
+from utils.localization.objects import Detection, Pose, SolverIdent, SolverObject
 
 @dataclass(slots=True)
 class GraphEdge:
@@ -14,25 +14,33 @@ class GraphEdge:
 
 @dataclass(slots=True)
 class PoseEstimate:
-    pose: np.ndarray
-    weight: float
-    path_cost: float
+	pose: np.ndarray
+	weight: float
+	path_cost: float
 
-    from_node: SolverIdent
-    to_node: SolverIdent
+	from_node: SolverIdent
+	to_node: SolverIdent
 
 @dataclass(slots=True)
 class GraphNode:
 	ident: SolverIdent
-	pose: np.ndarray | None = None
+	
+	relative_pose: np.ndarray | None = field(default=None)
+	world_pose: Pose = field(default=None)
 
 	estimates: list[PoseEstimate] = field(default_factory=list)
 	edges: list[GraphEdge] = field(default_factory=list)
 
 @dataclass
+class ConnectedComponent:
+	root: SolverIdent
+	members: set[SolverIdent]
+
+@dataclass
 class TraverseResult:
-    roots: set[SolverIdent] = field(default_factory=set)
-    path_costs: dict[SolverIdent, float] = field(default_factory=dict)
+	roots: set[SolverIdent] = field(default_factory=set)
+	components: list[ConnectedComponent] = field(default_factory=list)
+	path_costs: dict[SolverIdent, float] = field(default_factory=dict)
 
 type Graph = dict[SolverIdent, GraphNode]
 
@@ -111,7 +119,6 @@ def traverse(graph: Graph, connections: list[set[SolverIdent]]):
 
 	for conn in connections:
 		root = choose_graph_root(graph, conn)
-		results.roots.add(root)
 		best_cost = { root: 0.0 }
 		best_pose = { root: np.eye(4) }
 		pq = [(0.0, root)]
@@ -135,8 +142,11 @@ def traverse(graph: Graph, connections: list[set[SolverIdent]]):
 					heapq.heappush(pq, (new_cost, edge.target))
 
 		for ident, pose in best_pose.items():
-			graph[ident].pose = pose
+			graph[ident].relative_pose = pose
 
+		results.roots.add(root)
 		results.path_costs.update(best_cost)
+		results.components.append(ConnectedComponent(root=root, members=set(best_pose.keys())))
 
 	return results
+
