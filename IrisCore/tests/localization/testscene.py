@@ -167,3 +167,4 @@ class TestScene:
             ident: pose.copy()
             for ident, (pose, _) in self._objects.items()
         }
+    

@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
-from scipy.spatial.transform import Rotation
 
 
 type SolverIdent = tuple[str, Literal["camera", "tag", "found", "pinned"]]

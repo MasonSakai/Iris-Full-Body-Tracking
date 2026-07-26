@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import heapq
 import numpy as np
 
-from utils.localization.objects import Detection, Pose, SolverIdent, SolverObject
+from utils.localization.objects import Detection, SolverIdent, SolverObject
 from utils.localization.placement_rules import PlacementRule
 
 @dataclass(slots=True)
@@ -28,7 +28,7 @@ class GraphNode:
     static: bool
     
     relative_pose: np.ndarray | None = field(default=None)
-    world_pose: Pose = field(default=None)
+    world_pose: np.ndarray | None = field(default=None)
 
     estimates: list[PoseEstimate] = field(default_factory=list)
     edges: list[GraphEdge] = field(default_factory=list)

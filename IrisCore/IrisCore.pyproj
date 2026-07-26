@@ -33,6 +33,9 @@
     <Compile Include="tests\localization\test_graph.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\localization\test_validation.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\localization\test_world_optimizer.py" />
     <Compile Include="tests\localization\test_relative_optimizer.py" />
     <Compile Include="tests\localization\__init__.py">
@@ -44,6 +47,7 @@
     <Compile Include="utils\localization\optimizer.py" />
     <Compile Include="utils\localization\placement_rules.py" />
     <Compile Include="utils\localization\solver.py" />
+    <Compile Include="utils\localization\validation.py" />
     <Compile Include="utils\localization\__init__.py">
       <SubType>Code</SubType>
     </Compile>

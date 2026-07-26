@@ -23,6 +23,9 @@ class PlacementRule:
     ) -> np.ndarray:
         ...
 
+    def constrained_dofs(self) -> set[str]:
+        ...
+
         
 @dataclass(init=False)
 class PlacementRule_Facing(PlacementRule):
@@ -37,6 +40,9 @@ class PlacementRule_Facing(PlacementRule):
         facing = world_pose[:3, :3] @ np.array([0., 0., 1.])
         facing /= np.linalg.norm(facing)
         return self.weight * (facing - self.direction)
+
+    def constrained_dofs(self) -> set[str]:
+        return { 'pitch', 'yaw' }
     
 class OffsetAxis(Enum):
     X = 'x'
@@ -55,7 +61,6 @@ class PlacementRule_Offset(PlacementRule):
         self.distance = np.array(data['distance'], dtype=np.float64)
 
     def residual(self, world_pose):
-
         match self.axis:
             case OffsetAxis.X:
                 direction = np.array([1., 0., 0.])
@@ -73,6 +78,10 @@ class PlacementRule_Offset(PlacementRule):
         return np.asarray([
             self.weight * (projection - self.distance)
         ])
+
+    def constrained_dofs(self) -> set[str]:
+        return {f'translation_{ self.axis }'}
+
 
 
 def parseRule(data: dict[str, any]) -> PlacementRule:
