@@ -297,7 +297,7 @@ class TestRelativeOptimizer(unittest.TestCase):
             scene.T((1, 2, 3)),
         )
 
-        found = scene.tag(
+        found = scene.found(
             "found",
             scene.T((2, 0, 0)),
         )

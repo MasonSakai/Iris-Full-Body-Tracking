@@ -1,17 +1,20 @@
 
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Literal
 
 import numpy as np
+
+from utils.localization.objects import SolverIdent
 
 
 @dataclass(init=False)
 class PlacementRule:
+    target: SolverIdent
     weight: float
     
     def __init__(self, data: dict[str, any]):
         super().__init__()
+        self.target = tuple(data['target'])
         self.weight = float(data['weight'])
 
     def residual(
@@ -36,20 +39,20 @@ class PlacementRule_Facing(PlacementRule):
         return self.weight * (facing - self.direction)
     
 class OffsetAxis(Enum):
-    X = auto()
-    Y = auto()
-    Z = auto()
-    NORMAL = auto()
+    X = 'x'
+    Y = 'y'
+    Z = 'z'
+    NORMAL = 'normal'
 
 @dataclass(init=False)
 class PlacementRule_Offset(PlacementRule):
-    direction: OffsetAxis
+    axis: OffsetAxis
     distance: float
     
     def __init__(self, data: dict[str, any]):
         super().__init__(data)
-        self.direction = OffsetAxis[data['direction']]
-        self.distance = np.array(data['distance'])
+        self.axis = OffsetAxis(data['axis'])
+        self.distance = np.array(data['distance'], dtype=np.float64)
 
     def residual(self, world_pose):
 

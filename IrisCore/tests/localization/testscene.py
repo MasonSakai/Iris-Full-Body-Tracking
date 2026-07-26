@@ -5,6 +5,7 @@ from scipy.spatial.transform import Rotation
 
 from utils.localization.graph import Graph, TraverseResult, connected_components, from_detections, traverse
 from utils.localization.objects import Detection, SolverIdent, SolverObject
+from utils.localization.optimizer import optimize_world
 from utils.localization.solver import optimize_relative
 
 class TestScene:
@@ -118,11 +119,28 @@ class TestScene:
     def optimize_relative(self, graph: Graph, traversal: TraverseResult):
         result = optimize_relative(
             graph,
-            self._detections,
             traversal,
+            self._detections
         )
 
         return graph, result
+
+    def solve_world(self, rules):
+        graph, traversal = self.solve_graph()
+
+        optimize_relative(
+            graph,
+            traversal,
+            self._detections
+        )
+
+        result, poses = optimize_world(
+            graph,
+            traversal,
+            rules,
+        )
+
+        return graph, traversal, result, poses
 
     # ------------------------------------------------------------------
     # Expected poses

@@ -98,11 +98,10 @@ def unpack_all(state: OptimizationState, x: np.ndarray):
         for ident in state.fixed.keys() | state.index.keys()
     }
 
-
 def optimize_relative(
     graph: Graph,
-    detections: list[Detection],
-    traversal: TraverseResult
+    traversal: TraverseResult,
+    detections: list[Detection]
 ) -> OptimizationResult:
     """
     Refine the propagated poses using nonlinear least-squares.
@@ -181,3 +180,124 @@ def optimize_relative(
 
         scipy_result=result
     )
+
+
+@dataclass
+class WorldOptimizationState:
+    x0: np.ndarray
+
+    # Component index -> optimizer variable index
+    index: dict[int, int]
+
+    # Fixed relative poses
+    relative_poses: dict[SolverIdent, np.ndarray]
+
+def pack_world_variables(
+    graph: Graph,
+    traversal: TraverseResult,
+) -> WorldOptimizationState:
+
+    x = []
+    index = {}
+
+    relative = {
+        ident: node.relative_pose
+        for ident, node in graph.items()
+    }
+
+    for i, component in enumerate(
+        traversal.components
+    ):
+        index[i] = i
+
+        x.extend([
+            0, 0, 0,   # translation
+            0, 0, 0,   # rotation
+        ])
+
+    return WorldOptimizationState(
+        x0=np.asarray(x),
+        index=index,
+        relative_poses=relative,
+    )
+
+def unpack_component(
+    x: np.ndarray,
+    index: int,
+    component_id: int,
+):
+    start = index[component_id] * 6
+
+    t = x[start:start+3]
+    r = Rotation.from_rotvec(
+        x[start+3:start+6]
+    )
+
+    T = np.eye(4)
+    T[:3,:3] = r.as_matrix()
+    T[:3,3] = t
+
+    return T
+
+def get_world_poses(
+    state: WorldOptimizationState,
+    x: np.ndarray,
+    traversal: TraverseResult,
+):
+    poses: dict[SolverIdent, np.ndarray] = {}
+
+    for component_id, component in enumerate(traversal.components):
+        C = unpack_component(x, state.index, component_id)
+        for ident in component.members:
+            poses[ident] = C @ state.relative_poses[ident]
+
+    return poses
+
+def optimize_world(
+    graph: Graph,
+    traversal: TraverseResult,
+    rules: list[PlacementRule]
+):
+
+    state = pack_world_variables(graph, traversal)
+
+    def residual(x: np.ndarray):
+        world_poses = get_world_poses(state, x, traversal)
+
+        errors = []
+
+        for rule in rules:
+            errors.extend(
+                rule.residual(
+                    world_poses[rule.target]
+                )
+            )
+
+        return np.asarray(errors)
+    
+    initial_residual = residual(state.x0)
+    initial_cost = 0.5 * np.dot(initial_residual, initial_residual)
+
+    result = least_squares(
+        residual,
+        state.x0
+    )
+
+    poses = get_world_poses(
+        state,
+        result.x,
+        traversal,
+    )
+
+    return OptimizationResult(
+        success=result.success,
+        function_evaluations=result.nfev,
+
+        initial_cost=initial_cost,
+        final_cost=result.cost,
+
+        initial_residual_norm=np.linalg.norm(initial_residual),
+        final_residual_norm=np.linalg.norm(result.fun),
+
+        scipy_result=result
+    ), poses

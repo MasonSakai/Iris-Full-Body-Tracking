@@ -33,7 +33,8 @@
     <Compile Include="tests\localization\test_graph.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="tests\localization\test_optimizer.py" />
+    <Compile Include="tests\localization\test_world_optimizer.py" />
+    <Compile Include="tests\localization\test_relative_optimizer.py" />
     <Compile Include="tests\localization\__init__.py">
       <SubType>Code</SubType>
     </Compile>

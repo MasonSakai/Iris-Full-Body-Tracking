@@ -33,6 +33,7 @@ class GraphNode:
 
 @dataclass
 class ConnectedComponent:
+	id: int
 	root: SolverIdent
 	members: set[SolverIdent]
 
@@ -146,7 +147,7 @@ def traverse(graph: Graph, connections: list[set[SolverIdent]]):
 
 		results.roots.add(root)
 		results.path_costs.update(best_cost)
-		results.components.append(ConnectedComponent(root=root, members=set(best_pose.keys())))
+		results.components.append(ConnectedComponent(id=len(results.components), root=root, members=set(best_pose.keys())))
 
 	return results
 

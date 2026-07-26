@@ -2,7 +2,7 @@
 
 from utils.localization.objects import Detection, SolverObject
 from utils.localization.graph import connected_components, from_detections, traverse
-from utils.localization.optimizer import optimize_relative
+from utils.localization.optimizer import optimize_relative, optimize_world
 from utils.localization.placement_rules import PlacementRule
 
 
@@ -17,6 +17,10 @@ def Solve(objects: list[SolverObject], detections: list[Detection], rules: list[
     traversal = traverse(graph, connections)
     #print(traversal)
 
-    optimization = optimize_relative(graph, detections, traversal)
-    print(optimization)
+    relative = optimize_relative(graph, traversal, detections)
+    print(relative)
+
+    world, poses = optimize_world(graph, traversal, rules)
+    print(world)
+    print(poses)
 

@@ -3,6 +3,7 @@ import { get_name, ObjectSelector, Selectable } from "@app/ui/object_selector";
 import { RuleHandler } from "@app/ui/placement_rules";
 import { Vector3 } from "three";
 import { DEG_TO_RAD, yawPitchToOpenCVVector } from "@app/util";
+import { jsonify_Ident } from "@app/data/solver";
 
 export class PlacementRule extends CardHolder {
 
@@ -40,7 +41,7 @@ export class PlacementRule extends CardHolder {
 	public get_target() { return this.target; }
 
 	public jsonify(): any {
-		return { weight: this.weight }
+		return { target: jsonify_Ident(this.target), weight: this.weight }
 	}
 }
 

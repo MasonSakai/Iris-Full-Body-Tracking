@@ -10,26 +10,36 @@ type SolverIdent = [string, 'camera' | 'tag' | 'found' | 'pinned'];
 
 type SolverObject = { ident: SolverIdent, previous_pose: number[][] | null, static: boolean };
 
+export function jsonify_Ident(obj: Selectable): SolverIdent {
+	switch (true) {
+		case obj instanceof CameraObject:
+			return [obj.id, 'camera'];
+		case obj instanceof TagObject:
+			return [obj.id, 'tag'];
+		case obj instanceof FoundTagObject:
+			return [obj.ident, 'found'];
+		default:
+			obj satisfies never;
+	}
+}
+
 function jsonify_SolverObject(obj: Selectable) {
 
 	let ret: SolverObject = {
-		ident: null,
+		ident: jsonify_Ident(obj),
 		previous_pose: null,
 		static: false
 	};
 
 	switch (true) {
 		case obj instanceof CameraObject:
-			ret.ident = [obj.id, 'camera'];
 			ret.previous_pose = jsonifyMatrix(obj.transform);
 			break;
 		case obj instanceof TagObject:
-			ret.ident = [obj.id, 'tag'];
 			ret.previous_pose = jsonifyMatrix(obj.transform);
 			ret.static = obj.static;
 			break;
 		case obj instanceof FoundTagObject:
-			ret.ident = [obj.ident, 'found'];
 			break;
 		default:
 			obj satisfies never;
