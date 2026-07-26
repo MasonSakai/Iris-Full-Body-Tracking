@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from tests.localization.testscene import TestScene
-from utils.localization.graph import Graph, connected_components, from_detections
+from utils.localization.graph import Graph, build_scene_graph, connected_components
 from utils.localization.objects import SolverIdent
 
 class TestGraphSolver(unittest.TestCase):
@@ -59,8 +59,8 @@ class TestGraphSolver(unittest.TestCase):
         scene.observe(cam, tag)
 
         objects, detections = scene.build()
-
-        graph = from_detections(detections)
+        
+        graph = build_scene_graph(objects, detections)
 
         self.assertEqual(len(graph), 2)
 
@@ -95,15 +95,15 @@ class TestGraphSolver(unittest.TestCase):
         scene.observe(camB, tagB)
 
         objects, detections = scene.build()
-
-        graph = from_detections(detections)
+        
+        graph = build_scene_graph(objects, detections)
 
         components = connected_components(graph)
 
         self.assertEqual(len(components), 2)
 
         self.assertSetEqual(
-            components[0] | components[1],
+            components[0].members | components[1].members,
             {camA, tagA, camB, tagB},
         )
 
@@ -195,6 +195,170 @@ class TestGraphSolver(unittest.TestCase):
             scene.poses,
             cam,
             tag,
+        )
+
+    # ------------------------------------------------------------------
+    # Scene graph construction
+    # ------------------------------------------------------------------
+
+    def test_06_isolated_object_exists(self):
+
+        scene = TestScene()
+
+        tag = scene.tag(
+            "tag",
+            scene.T((1,2,3)),
+        )
+
+        objects, detections = scene.build()
+
+        graph = build_scene_graph(
+            objects,
+            detections,
+        )
+
+        self.assertIn(
+            tag,
+            graph,
+        )
+
+        self.assertEqual(
+            len(graph[tag].edges),
+            0,
+        )
+
+
+    def test_07_detection_creates_connection(self):
+
+        scene = TestScene()
+
+        cam = scene.camera(
+            "cam",
+            scene.T((0,0,0)),
+        )
+
+        tag = scene.tag(
+            "tag",
+            scene.T((1,0,0)),
+        )
+
+        scene.observe(
+            cam,
+            tag,
+        )
+
+        objects, detections = scene.build()
+
+        graph = build_scene_graph(
+            objects,
+            detections,
+        )
+
+        self.assertIn(
+            tag,
+            graph,
+        )
+
+        self.assertIn(
+            cam,
+            graph,
+        )
+
+        self.assertEqual(
+            len(graph[cam].edges),
+            1,
+        )
+
+
+    # ------------------------------------------------------------------
+    # Components
+    # ------------------------------------------------------------------
+
+    def test_08_mixed_connected_and_isolated_components(self):
+
+        scene = TestScene()
+
+        cam = scene.camera(
+            "cam",
+        )
+
+        tag_a = scene.tag(
+            "tagA",
+        )
+
+        tag_b = scene.tag(
+            "tagB",
+        )
+
+        scene.observe(
+            cam,
+            tag_a,
+        )
+
+        objects, detections = scene.build()
+
+        graph = build_scene_graph(
+            objects,
+            detections,
+        )
+
+        components = connected_components(
+            graph,
+        )
+
+        self.assertEqual(
+            len(components),
+            2,
+        )
+
+        component_sets = [
+            c.members
+            for c in components
+        ]
+
+        self.assertIn(
+            {cam, tag_a},
+            component_sets,
+        )
+
+        self.assertIn(
+            {tag_b},
+            component_sets,
+        )
+
+
+    def test_09_rule_only_object_has_component(self):
+
+        scene = TestScene()
+
+        tag = scene.tag(
+            "tag",
+        )
+
+        scene.facing(
+            tag,
+            [1,0,0],
+        )
+
+        objects, detections = scene.build()
+
+        graph = build_scene_graph(
+            objects,
+            detections,
+        )
+
+        components = connected_components(
+            graph,
+        )
+
+        self.assertEqual(
+            len(components),
+            1,
+        )
+
+        self.assertEqual(
+            components[0].members,
+            {tag},
         )
 
 

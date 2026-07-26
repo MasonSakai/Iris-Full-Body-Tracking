@@ -1,17 +1,20 @@
 from dataclasses import dataclass
+from typing import Literal
 import numpy as np
 from scipy.spatial.transform import Rotation
 
 
-from utils.localization.graph import Graph, TraverseResult, connected_components, from_detections, traverse
+from utils.localization.graph import Graph, TraverseResult, annotate_components, build_scene_graph, connected_components, traverse
 from utils.localization.objects import Detection, SolverIdent, SolverObject
 from utils.localization.optimizer import optimize_world
+from utils.localization.placement_rules import PlacementRule, PlacementRule_Facing, PlacementRule_Offset
 from utils.localization.solver import optimize_relative
 
 class TestScene:
     def __init__(self):
         self._objects: dict[SolverIdent, tuple[np.ndarray, bool]] = {}
         self._detections: list[Detection] = []
+        self._rules: list[PlacementRule] = []
 
     # ------------------------------------------------------------------
     # Transform helper
@@ -62,6 +65,21 @@ class TestScene:
             pose = self.T()
         return self.add((name, "pinned"), pose)
 
+    def facing(self, target: SolverIdent, direction: list[float], weight: float = 1):
+        self._rules.append(PlacementRule_Facing({
+            'target': target,
+            'weight': weight,
+            'direction': direction,
+        }))
+
+    def offset(self, target: SolverIdent, axis: Literal['x'] | Literal['y'] | Literal['z'] | Literal['normal'], distance: float, weight: float = 1):
+        self._rules.append(PlacementRule_Offset({
+            'weight': weight,
+            'target': target,
+            'axis': axis,
+            'distance': distance
+        }))
+
     # ------------------------------------------------------------------
     # Observation generation
     # ------------------------------------------------------------------
@@ -107,7 +125,7 @@ class TestScene:
     def solve_graph(self):
         objects, detections = self.build()
 
-        graph = from_detections(detections)
+        graph = build_scene_graph(objects, detections)
 
         result = traverse(
             graph,
@@ -125,22 +143,31 @@ class TestScene:
 
         return graph, result
 
-    def solve_world(self, rules):
-        graph, traversal = self.solve_graph()
+    def solve_scene(self):
+        objects, detections = self.build()
+        graph = build_scene_graph(objects, detections)
 
-        optimize_relative(
+        components = connected_components(graph)
+        annotate_components(components, self._rules)
+
+        traversal = traverse(
             graph,
-            traversal,
-            self._detections
+            components,
         )
 
-        result, poses = optimize_world(
+        relative = optimize_relative(
             graph,
             traversal,
-            rules,
+            detections,
         )
 
-        return graph, traversal, result, poses
+        world, poses = optimize_world(
+            graph,
+            traversal,
+            self._rules,
+        )
+
+        return graph, relative, world, poses
 
     # ------------------------------------------------------------------
     # Expected poses

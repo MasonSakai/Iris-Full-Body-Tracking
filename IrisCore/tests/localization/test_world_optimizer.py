@@ -106,28 +106,11 @@ class TestWorldOptimizer(unittest.TestCase):
 
         scene.observe(cam, tag)
 
-        rules = [
-            PlacementRule_Offset({
-                'weight': 1,
-                'target': tag,
-                'axis': "x",
-                'distance': 5
-            }),
-            PlacementRule_Offset({
-                'weight': 1,
-                'target': tag,
-                'axis': "y",
-                'distance': 2
-            }),
-            PlacementRule_Offset({
-                'weight': 1,
-                'target': tag,
-                'axis': "z",
-                'distance': 3
-            }),
-        ]
+        scene.offset(tag, 'x', 5)
+        scene.offset(tag, 'y', 2)
+        scene.offset(tag, 'z', 3)
 
-        graph, traversal, result, poses = scene.solve_world(rules)
+        _, _, _, poses = scene.solve_scene()
         
         np.testing.assert_allclose(
             poses[tag][:3,3],
@@ -139,21 +122,13 @@ class TestWorldOptimizer(unittest.TestCase):
         scene = TestScene()
 
         cam = scene.camera("cam")
-
-        tag = scene.tag(
-            "tag",
-            scene.T((0,0,0))
-        )
+        tag = scene.tag("tag")
 
         scene.observe(cam, tag)
 
-        rule = PlacementRule_Facing({
-            'target': tag,
-            'weight': 1,
-            'direction': [1,0,0],
-        })
+        scene.facing(tag, [1,0,0])
 
-        _, _, _, poses = scene.solve_world([rule])
+        _, _, _, poses = scene.solve_scene()
 
         self.assertFacing(
             poses[tag],
