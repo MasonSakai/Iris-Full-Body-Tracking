@@ -302,14 +302,13 @@ class TestRelativeOptimizer(unittest.TestCase):
             scene.T((2, 0, 0)),
         )
 
-        scene.observe(cam, tag)
-        scene.observe(cam, found)
+        scene.observe_all(cam, tag, found)
 
         graph, traversal = scene.solve_graph()
 
         state = pack_variables(
             graph,
-            traversal,
+            traversal.components[0]
         )
 
         self.assertEqual(
@@ -344,7 +343,7 @@ class TestRelativeOptimizer(unittest.TestCase):
 
         state = pack_variables(
             graph,
-            traversal,
+            traversal.components[0]
         )
 
         roots = {

@@ -150,22 +150,10 @@ class TestScene:
         components = connected_components(graph)
         annotate_components(components, self._rules)
 
-        traversal = traverse(
-            graph,
-            components,
-        )
+        traversal = traverse(graph, components)
 
-        relative = optimize_relative(
-            graph,
-            traversal,
-            detections,
-        )
-
-        world, poses = optimize_world(
-            graph,
-            traversal,
-            self._rules,
-        )
+        relative = optimize_relative(graph, traversal, detections)
+        world, poses = optimize_world(graph, traversal, self._rules)
 
         return graph, relative, world, poses
 

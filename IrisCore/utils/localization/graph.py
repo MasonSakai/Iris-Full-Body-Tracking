@@ -41,6 +41,8 @@ class ConnectedComponent:
     
     has_detections: bool = False
     has_rules: bool = False
+
+    relative_solved: bool = False
     
 
 @dataclass

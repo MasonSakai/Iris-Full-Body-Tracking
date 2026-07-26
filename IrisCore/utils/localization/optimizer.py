@@ -3,7 +3,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 from scipy.optimize import least_squares, OptimizeResult
 
-from utils.localization.graph import Graph, TraverseResult
+from utils.localization.graph import ConnectedComponent, Graph, TraverseResult
 from utils.localization.objects import Detection, SolverIdent
 from utils.localization.placement_rules import PlacementRule
 
@@ -59,7 +59,7 @@ class OptimizationState:
 
 def pack_variables(
     graph: Graph,
-    traversal: TraverseResult,
+    component: ConnectedComponent,
 ):
     x = []
     index = {}
@@ -67,9 +67,10 @@ def pack_variables(
 
     variable_index = 0
 
-    for ident, node in graph.items():
+    for ident in component.members:
+        node = graph[ident]
 
-        if ident in traversal.roots:
+        if ident == component.root:
             fixed[ident] = node.relative_pose
             continue
 
@@ -98,19 +99,8 @@ def unpack_all(state: OptimizationState, x: np.ndarray):
         for ident in state.fixed.keys() | state.index.keys()
     }
 
-def optimize_relative(
-    graph: Graph,
-    traversal: TraverseResult,
-    detections: list[Detection]
-) -> OptimizationResult:
-    """
-    Refine the propagated poses using nonlinear least-squares.
-
-    The graph should already contain an initial estimate for every node
-    from the traversal stage.
-    """
-
-    state = pack_variables(graph, traversal)
+def optimize_relative_component(graph: Graph, component: ConnectedComponent, detections: list[Detection]):
+    state = pack_variables(graph, component)
     state.validate()
 
     def residual(x: np.ndarray):
@@ -168,6 +158,8 @@ def optimize_relative(
     for ident, pose in poses.items():
         graph[ident].relative_pose = pose
 
+    component.relative_solved = True
+
     return OptimizationResult(
         success=result.success,
         function_evaluations=result.nfev,
@@ -180,6 +172,29 @@ def optimize_relative(
 
         scipy_result=result
     )
+
+def optimize_relative(
+    graph: Graph,
+    traversal: TraverseResult,
+    detections: list[Detection]
+) -> dict[int, OptimizationResult]:
+    """
+    Refine the propagated poses using nonlinear least-squares.
+
+    The graph should already contain an initial estimate for every node
+    from the traversal stage.
+    """
+
+    results = {}
+
+    for component in traversal.components:
+
+        if not component.has_detections:
+            continue
+
+        results[component.id] = optimize_relative_component(graph, component, detections)
+
+    return results
 
 
 @dataclass

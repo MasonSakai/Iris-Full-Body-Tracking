@@ -6,8 +6,6 @@ from scipy.spatial.transform import Rotation
 from tests.localization.testscene import TestScene
 from utils.localization.graph import Graph
 from utils.localization.objects import SolverIdent
-from utils.localization.optimizer import pack_variables
-from utils.localization.placement_rules import PlacementRule_Facing, PlacementRule_Offset
 
 class TestWorldOptimizer(unittest.TestCase):
 
@@ -133,6 +131,49 @@ class TestWorldOptimizer(unittest.TestCase):
         self.assertFacing(
             poses[tag],
             [1,0,0],
+        )
+
+    def test_03_rule_only_object_world_solve(self):
+        scene = TestScene()
+
+        tag = scene.tag("tag")
+
+        scene.offset(tag, "x", 5)
+        scene.offset(tag, "y", 2)
+        scene.offset(tag, "z", 3)
+
+        graph, relative, world, poses = scene.solve_scene()
+
+        self.assertIn(tag, poses)
+
+        np.testing.assert_allclose(
+            poses[tag][:3,3],
+            [5,2,3],
+            atol=1e-5,
+        )
+
+    def test_04_detected_and_rule_only_components(self):
+        scene = TestScene()
+
+        cam = scene.camera("cam")
+        tag_a = scene.tag("tagA")
+        tag_b = scene.tag("tagB")
+
+        scene.observe(cam, tag_a)
+
+        scene.offset(tag_b, "x", 5)
+        scene.offset(tag_b, "y", 2)
+        scene.offset(tag_b, "z", 3)
+        
+        graph, relative, world, poses = scene.solve_scene()
+        
+        self.assertIn(tag_a, poses)
+        self.assertIn(tag_b, poses)
+
+        np.testing.assert_allclose(
+            poses[tag_b][:3,3],
+            [5,2,3],
+            atol=1e-5,
         )
 
 
