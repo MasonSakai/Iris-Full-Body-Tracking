@@ -22,3 +22,20 @@ User data gathering?
 	all data opt-in and configurable; constant or bad tracking only
 	needs central server of some kind, good for crash logs too
 	if used offline, hold sessions until online
+
+Add a RuleSet or grouping object later
+	Not immediately, but keep it in mind.
+
+	Right now:
+		rules: list[PlacementRule]
+	is fine.
+
+	Eventually you may want:
+		PlacementConstraintSet
+	because users may want:
+		Camera Mount:
+			Facing wall
+			Offset from floor
+			Offset from origin
+	with a shared confidence or enabled/disabled state.
+	Not needed now.

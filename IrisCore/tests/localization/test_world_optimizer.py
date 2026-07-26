@@ -176,6 +176,68 @@ class TestWorldOptimizer(unittest.TestCase):
             atol=1e-5,
         )
 
+    def test_05_multiple_world_components(self):
+
+        scene = TestScene()
+
+        cam_a = scene.camera("camA")
+        tag_a = scene.tag("tagA")
+
+        cam_b = scene.camera("camB")
+        tag_b = scene.tag("tagB")
+
+        scene.observe(cam_a, tag_a)
+        scene.observe(cam_b, tag_b)
+
+        scene.offset(tag_a, "x", 5)
+        scene.offset(tag_a, "y", 2)
+        scene.offset(tag_a, "z", 1)
+
+        scene.offset(tag_b, "x", -3)
+        scene.offset(tag_b, "y", 4)
+        scene.offset(tag_b, "z", 2)
+
+        graph, relative, world, poses = scene.solve_scene()
+
+        self.assertEqual(
+            len(relative),
+            2,
+        )
+
+        np.testing.assert_allclose(
+            poses[tag_a][:3,3],
+            [5,2,1],
+            atol=1e-5,
+        )
+
+        np.testing.assert_allclose(
+            poses[tag_b][:3,3],
+            [-3,4,2],
+            atol=1e-5,
+        )
+
+    def test_06_conflicting_offset_rules_have_cost(self):
+        scene = TestScene()
+
+        tag = scene.tag("tag")
+
+        scene.offset(tag, "x", 1)
+        scene.offset(tag, "x", 5)
+
+        graph, relative, world, poses = scene.solve_scene()
+
+        self.assertGreater(
+            world.final_cost,
+            0,
+        )
+
+        # The least-squares solution should be halfway between them
+        np.testing.assert_allclose(
+            poses[tag][:3,3],
+            [3,0,0],
+            atol=1e-5,
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

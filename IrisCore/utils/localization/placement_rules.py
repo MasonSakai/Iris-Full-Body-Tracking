@@ -23,6 +23,18 @@ class PlacementRule:
     ) -> np.ndarray:
         ...
 
+    def weighted_residual(
+        self,
+        world_pose: np.ndarray,
+    ) -> np.ndarray:
+        residual = self.residual(world_pose)
+
+        return (
+            self.weight
+            / np.sqrt(len(residual))
+            * residual
+        )
+
     def constrained_dofs(self) -> set[str]:
         ...
 
@@ -39,7 +51,7 @@ class PlacementRule_Facing(PlacementRule):
     def residual(self, world_pose):
         facing = world_pose[:3, :3] @ np.array([0., 0., 1.])
         facing /= np.linalg.norm(facing)
-        return self.weight * (facing - self.direction)
+        return facing - self.direction
 
     def constrained_dofs(self) -> set[str]:
         return { 'pitch', 'yaw' }
@@ -75,9 +87,7 @@ class PlacementRule_Offset(PlacementRule):
         position = world_pose[:3, 3]
         projection: float = np.dot(position, direction)
 
-        return np.asarray([
-            self.weight * (projection - self.distance)
-        ])
+        return np.asarray([ projection - self.distance ])
 
     def constrained_dofs(self) -> set[str]:
         return {f'translation_{ self.axis }'}

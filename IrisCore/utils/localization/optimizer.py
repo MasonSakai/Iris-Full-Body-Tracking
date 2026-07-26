@@ -112,6 +112,9 @@ def optimize_relative_component(graph: Graph, component: ConnectedComponent, det
         #
 
         for det in detections:
+            if det.camera not in poses or det.tag not in poses:
+                continue
+
             cam = poses[det.camera]
             tag = poses[det.tag]
 
@@ -186,12 +189,11 @@ def optimize_relative(
     """
 
     results = {}
-
     for component in traversal.components:
 
         if not component.has_detections:
             continue
-
+        
         results[component.id] = optimize_relative_component(graph, component, detections)
 
     return results
@@ -278,17 +280,12 @@ def optimize_world(
 
     def residual(x: np.ndarray):
         world_poses = get_world_poses(state, x, traversal)
-
-        errors = []
-
-        for rule in rules:
-            errors.extend(
-                rule.residual(
-                    world_poses[rule.target]
-                )
+        return np.concatenate([
+            rule.weighted_residual(
+                world_poses[rule.target]
             )
-
-        return np.asarray(errors)
+            for rule in rules
+        ])
     
     initial_residual = residual(state.x0)
     initial_cost = 0.5 * np.dot(initial_residual, initial_residual)
