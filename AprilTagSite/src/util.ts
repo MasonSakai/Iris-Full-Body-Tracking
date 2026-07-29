@@ -55,3 +55,13 @@ export function yawPitchToOpenCVVector(yaw: number, pitch: number) {
         cp * cy   // Z forward
     );
 }
+
+export function mapRecord<K extends string | number | symbol, V, NewV>(
+    record: Record<K, V>,
+    callback: (value: V, key: K) => NewV
+): Record<K, NewV> {
+    return Object.entries(record).reduce((acc, [key, value]) => {
+        acc[key as K] = callback(value as V, key as K);
+        return acc;
+    }, {} as Record<K, NewV>);
+}

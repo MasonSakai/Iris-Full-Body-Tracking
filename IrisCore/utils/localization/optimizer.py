@@ -13,10 +13,14 @@ class ConstraintAnalysis:
     component_id: int
 
     # Number of independent constrained directions
-    rank: int
+    total_rank: int
+    translation_rank: int
+    rotation_rank: int
 
     # Number of remaining freedoms
-    degrees_of_freedom: int
+    total_dof: int
+    translation_dof: int
+    rotation_dof: int
 
     # Columns are unconstrained motions in:
     # [tx,ty,tz,rx,ry,rz]
@@ -26,11 +30,19 @@ class ConstraintAnalysis:
     translation_nullspace: np.ndarray
     rotation_nullspace: np.ndarray
 
+    def jsonify(self):
+        return {
+            'component_id': self.component_id,
+            'total_rank': self.total_rank,
+            'translation_rank': self.translation_rank,
+            'rotation_rank': self.rotation_rank
+        }
+
 @dataclass
 class OptimizationResult:
     success: bool
 
-    function_evaluations: int
+    iterations: int
 
     initial_cost: float
     final_cost: float
@@ -41,6 +53,18 @@ class OptimizationResult:
     constraint_analysis: dict[int, ConstraintAnalysis]
 
     scipy_result: OptimizeResult | None
+
+    
+    def jsonify(self):
+        return {
+            'success': self.success,
+            'iterations': self.iterations,
+            'initial_cost': self.initial_cost,
+            'final_cost': self.final_cost,
+            'initial_residual_norm': self.initial_residual_norm,
+            'final_residual_norm': self.final_residual_norm,
+            'constraint_analysis': { i: analy.jsonify() for i, analy in self.constraint_analysis.items() }
+        }
 
 
 @dataclass
@@ -186,7 +210,7 @@ def optimize_relative_component(graph: Graph, component: ConnectedComponent, det
 
     return OptimizationResult(
         success=result.success,
-        function_evaluations=result.nfev,
+        iterations=result.nfev,
 
         initial_cost=initial_cost,
         final_cost=result.cost,
@@ -269,12 +293,32 @@ def analyze_constraints(
             s > tolerance
         )
 
+        translation_jacobian = component_jacobian[:, :3]
+        rotation_jacobian = component_jacobian[:, 3:]
+
+        translation_rank = np.linalg.matrix_rank(
+            translation_jacobian,
+            tol=tolerance,
+        )
+
+        rotation_rank = np.linalg.matrix_rank(
+            rotation_jacobian,
+            tol=tolerance,
+        )
+
         nullspace = vh[rank:].T
 
         analyses[component_id] = ConstraintAnalysis(
             component_id=component_id,
-            rank=int(rank),
-            degrees_of_freedom=6 - int(rank),
+
+            total_rank=int(rank),
+            translation_rank=int(translation_rank),
+            rotation_rank=int(rotation_rank),
+
+            total_dof=6 - int(rank),
+            translation_dof=3 - int(translation_rank),
+            rotation_dof=3 - int(rotation_rank),
+
             nullspace=nullspace,
             translation_nullspace=nullspace[:3],
             rotation_nullspace=nullspace[3:],
@@ -347,7 +391,7 @@ def get_world_poses(
 def empty_world_optimization_result(traversal: TraverseResult) -> OptimizationResult:
     return OptimizationResult(
         success=True,
-        function_evaluations=0,
+        iterations=0,
         initial_cost=0.0,
         final_cost=0.0,
         initial_residual_norm=0.0,
@@ -356,8 +400,15 @@ def empty_world_optimization_result(traversal: TraverseResult) -> OptimizationRe
         constraint_analysis={
             component.id: ConstraintAnalysis(
                 component_id=component.id,
-                rank=0,
-                degrees_of_freedom=6,
+
+                total_rank=0,
+                translation_rank=0,
+                rotation_rank=0,
+
+                total_dof=6,
+                translation_dof=3,
+                rotation_dof=3,
+
                 nullspace=np.eye(6),
                 translation_nullspace=np.eye(6)[:3],
                 rotation_nullspace=np.eye(6)[3:],
@@ -405,7 +456,7 @@ def optimize_world(
 
     return OptimizationResult(
         success=result.success,
-        function_evaluations=result.nfev,
+        iterations=result.nfev,
 
         initial_cost=initial_cost,
         final_cost=result.cost,

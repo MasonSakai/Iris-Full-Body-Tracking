@@ -13,6 +13,7 @@ export class CardHolder {
 		throw new Error("Method not implemented.");
 	}
 
+	has_confirm = true;
 	confirm: () => boolean = () => true;
 
 	dismiss = () => { };

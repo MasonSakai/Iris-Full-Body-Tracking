@@ -55,11 +55,11 @@ class TestWorldOptimizer(unittest.TestCase):
         dof: int,
     ):
         self.assertEqual(
-            analysis.rank,
+            analysis.total_rank,
             rank,
         )
         self.assertEqual(
-            analysis.degrees_of_freedom,
+            analysis.total_dof,
             dof,
         )
 
@@ -378,7 +378,7 @@ class TestWorldOptimizer(unittest.TestCase):
             rank=0,
             dof=6,
         )
-        self.assertEqual(world.function_evaluations, 0)
+        self.assertEqual(world.iterations, 0)
         self.assertEqual(world.final_cost, 0)
 
 if __name__ == '__main__':

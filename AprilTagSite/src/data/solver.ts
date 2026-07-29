@@ -6,7 +6,7 @@ import { jsonifyMatrix } from '@app/util';
 import { Selectable } from '@app/ui/object_selector';
 import { RuleHandler } from '@app/ui/placement_rules';
 
-type SolverIdent = [string, 'camera' | 'tag' | 'found' | 'pinned'];
+export type SolverIdent = [string, 'camera' | 'tag' | 'found' | 'pinned'];
 
 type SolverObject = { ident: SolverIdent, previous_pose: number[][] | null, static: boolean };
 
@@ -60,6 +60,43 @@ function jsonify_Detection(tag: SolverIdent, cam: CameraId, det: TagDetection): 
 	}
 }
 
+export type resp_ConnectedComponent = {
+	'id': number,
+	'members': number[],
+	'root': number,
+	'has_detection': boolean,
+	'has_rules': boolean,
+	'relative_solved': boolean
+}
+
+export type ConstraintAnalysis = {
+	'component_id': number,
+	'total_rank': number,
+	'translation_rank': number,
+	'rotation_rank': number,
+}
+
+export type resp_OptimizationResult = {
+	'success': boolean,
+	'iterations': number,
+	'initial_cost': number,
+	'final_cost': number,
+	'initial_residual_norm': number,
+	'final_residual_norm': number,
+	'constraint_analysis': Record<number, ConstraintAnalysis>
+}
+
+export type resp_SolverResponse = {
+	objects: Record<number, SolverIdent>,
+	traversal: {
+		roots: number[],
+		components: Record<number, resp_ConnectedComponent>,
+		path_costs: Record<number, number>
+	},
+	relative: Record<number, resp_OptimizationResult>,
+	world: resp_OptimizationResult,
+	poses: Record<number, number[][]>
+}
 
 export async function RequestLocalization() {
 
@@ -80,7 +117,7 @@ export async function RequestLocalization() {
 
 	let rules = RuleHandler.jsonify();
 
-	let resp = await (await fetch('localizer', {
+	let resp: resp_SolverResponse = await (await fetch('localizer', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
@@ -88,5 +125,5 @@ export async function RequestLocalization() {
 		body: JSON.stringify({ detections: detections, objects: objects, rules: rules })
 	})).json();
 
-	console.log(resp);
+	return resp;
 }

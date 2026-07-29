@@ -44,12 +44,30 @@ class ConnectedComponent:
 
     relative_solved: bool = False
     
+    def jsonify(self, ids: dict[SolverIdent, int]):
+        return {
+            'id': self.id,
+            'members': [ ids[ident] for ident in self.members ],
+            'root': ids[self.root],
+            'has_detection': self.has_detections,
+            'has_rules': self.has_rules,
+            'relative_solved': self.relative_solved
+        }
+    
 
 @dataclass
 class TraverseResult:
     roots: set[SolverIdent] = field(default_factory=set)
     components: list[ConnectedComponent] = field(default_factory=list)
     path_costs: dict[SolverIdent, float] = field(default_factory=dict)
+
+    def jsonify(self, ids: dict[SolverIdent, int]):
+        return {
+            'roots': [ ids[ident] for ident in self.roots ],
+            'components': { comp.id: comp.jsonify(ids) for comp in self.components },
+            'path_costs': { ids[ident]: cost for ident, cost in self.path_costs.items() }
+        }
+
 
 type Graph = dict[SolverIdent, GraphNode]
 
