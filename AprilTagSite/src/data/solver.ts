@@ -6,11 +6,11 @@ import { jsonifyMatrix } from '@app/util';
 import { Selectable } from '@app/ui/object_selector';
 import { RuleHandler } from '@app/ui/placement_rules';
 
-export type SolverIdent = [string, 'camera' | 'tag' | 'found' | 'pinned'];
+export type SolverIdent = [string, 'camera' | 'tag' | 'found']; // | 'pinned'];
 
 type SolverObject = { ident: SolverIdent, previous_pose: number[][] | null, static: boolean };
 
-export function jsonify_Ident(obj: Selectable): SolverIdent {
+export function CreateIdent(obj: Selectable): SolverIdent {
 	switch (true) {
 		case obj instanceof CameraObject:
 			return [obj.id, 'camera'];
@@ -22,11 +22,23 @@ export function jsonify_Ident(obj: Selectable): SolverIdent {
 			obj satisfies never;
 	}
 }
+export function ParseIdent(ident: SolverIdent): Selectable {
+	switch (ident[1]) {
+		case 'camera':
+			return camera_list.get(ident[0]);
+		case 'tag':
+			return tag_list.get(ident[0]);
+		case 'found':
+			return found_tag_list.get(ident[0]);
+		default:
+			ident[1] satisfies never;
+	}
+}
 
 function jsonify_SolverObject(obj: Selectable) {
 
 	let ret: SolverObject = {
-		ident: jsonify_Ident(obj),
+		ident: CreateIdent(obj),
 		previous_pose: null,
 		static: false
 	};

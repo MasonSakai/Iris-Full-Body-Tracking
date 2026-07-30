@@ -28,6 +28,8 @@ export class CardHandler {
 	protected static txt_rename: HTMLInputElement;
 	protected static icn_rename: HTMLSpanElement;
 
+	protected static btn_confirm: HTMLButtonElement;
+
 	protected static active_holder: CardHolder = null;
 
 	public static init() {
@@ -38,7 +40,8 @@ export class CardHandler {
 		CardHandler.txt_rename = CardHandler.card_overlay.querySelector('input#card-rename');
 		CardHandler.btn_rename = CardHandler.card_overlay.querySelector('button#card-rename');
 
-		document.getElementById('card-confirm').addEventListener('click', CardHandler.Confirm);
+		CardHandler.btn_confirm = document.getElementById('card-confirm') as HTMLButtonElement;
+		CardHandler.btn_confirm.addEventListener('click', CardHandler.Confirm);
 		document.getElementById('card-dismiss').addEventListener('click', CardHandler.Dismiss);
 	}
 
@@ -52,6 +55,7 @@ export class CardHandler {
 	}
 
 	public static UpdateName() {
+		CardHandler.btn_confirm.hidden = !CardHandler.active_holder.has_confirm;
 		CardHandler.btn_rename.hidden = !CardHandler.active_holder.can_rename;
 		CardHandler.txt_rename.disabled = !CardHandler.active_holder.can_rename;
 		CardHandler.txt_rename.value = CardHandler.active_holder.card_name;

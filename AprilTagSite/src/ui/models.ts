@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { ATagObject } from '@app/data/objects'
 import { scene } from '@app/apriltag';
+import { CreateMatrix } from '@app/util';
 
 THREE.Cache.enabled = true;
 let texLoader = new THREE.TextureLoader()
@@ -14,28 +15,44 @@ window.addEventListener('load', () => {
 })
 
 export async function LoadTagModel(tag: ATagObject): Promise<THREE.Object3D> {
-	var geom = new THREE.PlaneGeometry(1)
+	var geom = new THREE.PlaneGeometry(1);
 
-	var tex = texLoader.load(`tags/image/${tag.ident}.png`)
-	tex.magFilter = THREE.NearestFilter
-	tex.flipY = false
+	var tex = texLoader.load(`tags/image/${tag.ident}.png`);
+	tex.magFilter = THREE.NearestFilter;
+	tex.flipY = false;
 
-	var mat = new THREE.MeshBasicMaterial({ map: tex })
-	mat.side = THREE.DoubleSide
+	var mat = new THREE.MeshBasicMaterial({ map: tex });
+	mat.side = THREE.DoubleSide;
 
-	var model = new THREE.Mesh(geom, mat)
-	model.add(new THREE.AxesHelper(1))
-	return model
+	var model = new THREE.Mesh(geom, mat);
+
+	let ax = new THREE.AxesHelper(1);
+	ax.matrixAutoUpdate = false;
+	ax.matrix.copy(CreateMatrix([
+		1, 0, 0, 0,
+		0, -1, 0, 0,
+		0, 0, -1, 0,
+		0, 0, 0, 1
+	]));
+	model.add(ax);
+	return model;
 }
 
 export async function LoadCamModel(): Promise<THREE.Object3D> {
-	var geom = new THREE.BoxGeometry(0.2, 0.2, 0.1)
+	var geom = new THREE.BoxGeometry(0.15, 0.15, 0.075);
+	var mat = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+	var model = new THREE.Mesh(geom, mat);
 
-	var mat = new THREE.MeshBasicMaterial({ color: 0xFF0000 })
-
-	var model = new THREE.Mesh(geom, mat)
-	model.add(new THREE.AxesHelper(0.3))
-	return model
+	let ax = new THREE.AxesHelper(0.2);
+	ax.matrixAutoUpdate = false;
+	ax.matrix.copy(CreateMatrix([
+		-1, 0, 0, 0,
+		0, -1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	]));
+	model.add(ax);
+	return model;
 }
 
 async function LoadPoseModel(): Promise<THREE.Object3D> {

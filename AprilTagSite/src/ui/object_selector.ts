@@ -1,6 +1,7 @@
 import { CameraObject, FoundTagObject, TagObject } from "@app/data/objects";
 import { PickHelper } from "@app/PickHelper";
 import { RuleHandler } from "@app/ui/placement_rules";
+import { LatestSolverResult } from "@app/ui/solver";
 
 
 type SelectSource = 'list' | '3D';
@@ -26,6 +27,8 @@ export class ObjectSelector {
 		this.selected = cam;
 		cam.list_el.classList.toggle("active", true);
 		let obj = await cam.get_obj();
+
+		LatestSolverResult?.on_select(cam);
 	}
 
 	static async select_tag(ev: PointerEvent | MouseEvent, tag: TagObject, source: SelectSource) {
@@ -38,6 +41,8 @@ export class ObjectSelector {
 		
 		this.selected = tag;
 		tag.list_el.classList.toggle("active", true);
+
+		LatestSolverResult?.on_select(tag);
 	}
 
 	static async select_found_tag(ev: PointerEvent | MouseEvent, tag: FoundTagObject, source: SelectSource) {
@@ -50,6 +55,8 @@ export class ObjectSelector {
 		
 		this.selected = tag;
 		tag.list_el.classList.toggle("active", true);
+
+		LatestSolverResult?.on_select(tag);
 	}
 
 	static async deselect(ev: PointerEvent | MouseEvent, source: SelectSource | 'delete' | 'select') {
@@ -58,6 +65,8 @@ export class ObjectSelector {
 		}
 		if (source == 'select') return;
 		console.log(ev, this.selected, source)
+
+		LatestSolverResult?.on_deselect(this.selected);
 		this.selected = null;
 	}
 }

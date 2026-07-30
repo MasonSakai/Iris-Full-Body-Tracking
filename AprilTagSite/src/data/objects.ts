@@ -56,12 +56,12 @@ export class CameraObject {
 		return this.obj;
 	}
 
-	set_transform(mat: Matrix4) {
-		this.transform = mat;
+	set_transform(mat: Matrix4, set: boolean = true) {
+		if (set) this.transform = mat;
 
 		this.obj.visible = mat != null;
 		if (mat != null) {
-			mat.decompose(this.obj.position, this.obj.quaternion, new Vector3());
+			CorrectMatrix(mat).decompose(this.obj.position, this.obj.quaternion, new Vector3());
 			this.obj.updateMatrix();
 		}
 	}
@@ -117,10 +117,11 @@ export class ATagObject {
 		return this.obj;
 	}
 
-	set_transform(mat: Matrix4) {
+	set_transform(mat: Matrix4, set: boolean = true, size: number = 0.1) {
 		this.obj.visible = mat != null;
 		if (mat != null) {
 			CorrectMatrix(mat).decompose(this.obj.position, this.obj.quaternion, new Vector3());
+			this.obj.scale.setScalar(size);
 			this.obj.updateMatrix();
 		}
 	}
@@ -166,9 +167,9 @@ export class TagObject extends ATagObject {
 		this.set_static(d_tag.static);
 	}
 
-	set_transform(mat: Matrix4) {
-		this.transform = mat;
-		super.set_transform(mat);
+	set_transform(mat: Matrix4, set: boolean = true, size: number = this.size) {
+		if (set) this.transform = mat;
+		super.set_transform(mat, set, size);
 	}
 
 	set_static(is_static: boolean) {

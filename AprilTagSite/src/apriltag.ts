@@ -16,9 +16,9 @@ export let scene = new THREE.Scene()
 var ax = new THREE.AxesHelper(1)
 ax.matrixAutoUpdate = false
 ax.matrix.copy(CreateMatrix([
-	1, 0, 0, 0,
+	-1, 0, 0, 0,
 	0, 1, 0, 0,
-	0, 0, 1, 0,
+	0, 0, -1, 0,
 	0, 0, 0, 1
 ]))
 scene.add(ax)

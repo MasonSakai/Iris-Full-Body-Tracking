@@ -3,7 +3,12 @@ import { get_name, ObjectSelector, Selectable } from "@app/ui/object_selector";
 import { RuleHandler } from "@app/ui/placement_rules";
 import { Vector3 } from "three";
 import { DEG_TO_RAD, yawPitchToOpenCVVector } from "@app/util";
-import { jsonify_Ident } from "@app/data/solver";
+import { CreateIdent } from "@app/data/solver";
+import { CameraObject } from "@app/data/objects";
+
+export function FacingCorrection(obj: Selectable) {
+	return (obj instanceof CameraObject) ? 1 : -1;
+}
 
 export class PlacementRule extends CardHolder {
 
@@ -41,10 +46,9 @@ export class PlacementRule extends CardHolder {
 	public get_target() { return this.target; }
 
 	public jsonify(): any {
-		return { target: jsonify_Ident(this.target), weight: this.weight }
+		return { target: CreateIdent(this.target), weight: this.weight }
 	}
 }
-
 
 type NormMode = 'axis' | 'angle';
 type NormMode_Axis = '+x' | '-x' | '+y' | '-y' | '+z' | '-z';
@@ -318,7 +322,184 @@ export class PlacementRule_Norm extends PlacementRule {
 	public jsonify() {
 		return {
 			rule_type: 'facing',
-			direction: this.get_direction().toArray(),
+			direction: this.get_direction().multiplyScalar(FacingCorrection(this.target)).toArray(),
+			...super.jsonify()
+		}
+	}
+}
+
+
+type OffsetAxis = 'x' | 'y' | 'z' | 'normal';
+
+export class PlacementRule_Offset extends PlacementRule {
+
+	private axis: OffsetAxis;
+	private distance: number = 0;
+
+	constructor() {
+		super();
+		this.card_icon = 'bi-arrow-bar-up';
+	}
+
+	write_card(card_overlay: HTMLElement, { ...kwargs }: { [key: string]: any } = {}) {
+		let selected: Selectable;
+
+		switch (kwargs['source']) {
+			case 'new':
+				selected = ObjectSelector.get_selected();
+				if (selected) this.card_name = `Offset (${get_name(selected)})`;
+				else this.card_name = 'Offset';
+				break;
+			default:
+				selected = this.target;
+				break;
+		}
+
+		{
+			let div_target = document.createElement('div');
+			div_target.className = 'form-floating';
+
+			let txt_target = document.createElement('input');
+			txt_target.className = 'form-control';
+			txt_target.readOnly = true;
+			txt_target.type = 'text';
+			txt_target.id = 'norm-target';
+			txt_target.placeholder = '';
+
+			if (selected) txt_target.value = get_name(selected);
+
+			txt_target.addEventListener('focus', () => {
+				this.on_select = (ev, obj) => {
+					selected = obj;
+					txt_target.value = get_name(selected);
+					this.card_name = `Offset (${get_name(selected)})`;
+					CardHandler.UpdateName();
+					return true;
+				}
+			});
+			txt_target.addEventListener('blur', (ev) => {
+				let related = ev.relatedTarget;
+				if (related instanceof HTMLElement && related.hasAttribute('keepfocus')) {
+					ev.preventDefault();
+					txt_target.focus();
+					return;
+				}
+				this.on_select = () => false;
+			});
+
+			let lbl_target = document.createElement('label');
+			lbl_target.htmlFor = 'norm-target';
+			lbl_target.innerText = 'Select Target';
+
+			div_target.appendChild(txt_target);
+			div_target.appendChild(lbl_target);
+			card_overlay.appendChild(div_target);
+
+			if (!selected) txt_target.focus();
+		}
+
+		card_overlay.appendChild(document.createElement('hr'));
+
+		let sel_axis: HTMLSelectElement;
+		{
+			let div_axis = document.createElement('div');
+			div_axis.className = 'form-floating mt-3';
+
+			sel_axis = document.createElement('select');
+			sel_axis.className = 'form-select';
+			sel_axis.id = 'offset-axis';
+
+			{
+				let option_up = document.createElement('option');
+				option_up.value = 'y';
+				option_up.text = 'Up';
+				option_up.selected = this.axis == 'y';
+				sel_axis.appendChild(option_up);
+
+				let option_forward = document.createElement('option');
+				option_forward.value = 'z';
+				option_forward.text = 'Forward';
+				option_forward.selected = this.axis == 'z';
+				sel_axis.appendChild(option_forward);
+
+				let option_left = document.createElement('option');
+				option_left.value = 'x';
+				option_left.text = 'Left';
+				option_left.selected = this.axis == 'x';
+				sel_axis.appendChild(option_left);
+
+				let option_facing = document.createElement('option');
+				option_facing.value = 'normal';
+				option_facing.text = 'Facing';
+				option_facing.selected = this.axis == 'normal';
+				sel_axis.appendChild(option_facing);
+			}
+
+			let lbl_axis = document.createElement('label');
+			lbl_axis.htmlFor = 'offset-dist';
+			lbl_axis.innerText = 'Offset Direction';
+
+			div_axis.appendChild(sel_axis);
+			div_axis.appendChild(lbl_axis);
+			card_overlay.appendChild(div_axis);
+		}
+
+		let num_dist: HTMLInputElement;
+		{
+			let div_dist = document.createElement('div');
+			div_dist.className = 'form-floating mt-3';
+
+			num_dist = document.createElement('input');
+			num_dist.className = 'form-control';
+			num_dist.id = 'offset-dist';
+			num_dist.type = 'number';
+			num_dist.valueAsNumber = this.distance;
+			num_dist.step = 'any';
+
+			let lbl_dist = document.createElement('label');
+			lbl_dist.htmlFor = 'offset-dist';
+			lbl_dist.innerText = 'Distance';
+
+			div_dist.appendChild(num_dist);
+			div_dist.appendChild(lbl_dist);
+			card_overlay.appendChild(div_dist);
+		}
+
+		this.confirm = () => {
+			if (!selected) {
+				return false;
+			}
+
+			this.target = selected;
+			this.axis = sel_axis.value as OffsetAxis;
+			this.distance = num_dist.valueAsNumber;
+
+			// add to placement rules if new
+			if (kwargs['source'] == 'new') {
+				RuleHandler.add_rule(this);
+			}
+
+			this.write_list();
+			return true;
+		}
+	}
+
+	public jsonify() {
+		let cor: number;
+		switch (this.axis) {
+			case 'y':
+				cor = -1;
+				break;
+			case 'normal':
+				cor = FacingCorrection(this.target);
+				break;
+			default:
+				cor = 1;
+		}
+		return {
+			rule_type: 'offset',
+			axis: this.axis,
+			distance: this.distance * cor,
 			...super.jsonify()
 		}
 	}

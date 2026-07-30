@@ -1,6 +1,6 @@
 import { CardHandler } from "@app/ui/card_handler";
 import { Selectable } from "@app/ui/object_selector";
-import { PlacementRule, PlacementRule_Norm } from "@app/ui/placement_rule_classes";
+import { PlacementRule, PlacementRule_Norm, PlacementRule_Offset } from "@app/ui/placement_rule_classes";
 
 export class RuleHandler {
 
@@ -17,6 +17,10 @@ export class RuleHandler {
 			CardHandler.RequestElement(RuleHandler.selected_rule, { source: 'new' });
 		});
 
+		document.getElementById('tool-offset').addEventListener('click', () => {
+			RuleHandler.selected_rule = new PlacementRule_Offset();
+			CardHandler.RequestElement(RuleHandler.selected_rule, { source: 'new' });
+		});
 	}
 
 

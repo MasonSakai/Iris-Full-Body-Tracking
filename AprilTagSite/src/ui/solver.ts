@@ -1,10 +1,19 @@
 
-import { Matrix4 } from 'three';
-import { ConstraintAnalysis, RequestLocalization, resp_ConnectedComponent, resp_OptimizationResult, resp_SolverResponse, SolverIdent } from '@app/data/solver'
+import { Matrix4, Object3D } from 'three';
+import { ConstraintAnalysis, CreateIdent, ParseIdent, RequestLocalization, resp_ConnectedComponent, resp_OptimizationResult, resp_SolverResponse, SolverIdent } from '@app/data/solver'
 import { CreateMatrix, mapRecord } from '@app/util';
 import { CardHandler, CardHolder } from '@app/ui/card_handler';
+import { Selectable } from '@app/ui/object_selector';
 
 let div_localizer_result: HTMLElement = null;
+
+let line_parent: Object3D;
+let lines: Record<number, Object3D[]> = {};
+
+function clearLines() {
+	Object.entries(lines).forEach(([id, objs]) => line_parent.remove(...objs));
+	lines = {};
+}
 
 class ConnectedComponent {
 	id: number
@@ -80,12 +89,36 @@ class SolverResult extends CardHolder {
 			Object.entries(data.poses)
 				.map(([key, value]) => [data.objects[key], CreateMatrix(value)])
 		);
+
+		this.poses.forEach((pose, ident) => {
+			ParseIdent(ident).set_transform(pose, false);
+		});
 	}
 
 	write_card(card_overlay: HTMLElement, { ...kwargs }: { [key: string]: any } = {}) {
 
 
 
+	}
+
+
+	on_select(obj: Selectable) {
+		clearLines();
+
+		let ident = CreateIdent(obj);
+		let comp: ConnectedComponent = null;
+		for (const [cid, component] of Object.entries(this.traversal.components)) {
+			if (component.members.includes(ident)) {
+				comp = component;
+				break;
+			}
+		}
+		if (!comp) return;
+
+	}
+
+	on_deselect(obj: Selectable) {
+		clearLines();
 	}
 }
 
@@ -105,10 +138,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	document.getElementById('localize').addEventListener('click', async () => {
 		let response = new SolverResult(await RequestLocalization());
+		// verify?
 
 		console.log(response);
 
 		write_result(response);
 		CardHandler.RequestElement(response);
+		LatestSolverResult = response;
 	})
 });
