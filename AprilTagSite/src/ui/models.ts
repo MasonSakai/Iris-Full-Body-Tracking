@@ -39,11 +39,11 @@ export async function LoadTagModel(tag: ATagObject): Promise<THREE.Object3D> {
 }
 
 export async function LoadCamModel(): Promise<THREE.Object3D> {
-	var geom = new THREE.BoxGeometry(0.15, 0.15, 0.075);
+	var geom = new THREE.BoxGeometry(0.1, 0.1, 0.05);
 	var mat = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
 	var model = new THREE.Mesh(geom, mat);
 
-	let ax = new THREE.AxesHelper(0.2);
+	let ax = new THREE.AxesHelper(0.15);
 	ax.matrixAutoUpdate = false;
 	ax.matrix.copy(CreateMatrix([
 		-1, 0, 0, 0,

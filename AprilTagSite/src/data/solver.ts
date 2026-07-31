@@ -100,6 +100,7 @@ export type resp_OptimizationResult = {
 
 export type resp_SolverResponse = {
 	objects: Record<number, SolverIdent>,
+	graph: Record<number, number[]>,
 	traversal: {
 		roots: number[],
 		components: Record<number, resp_ConnectedComponent>,

@@ -22,8 +22,6 @@ export class ObjectSelector {
 		if (this.is_selected(cam)) return;
 		this.deselect(ev, 'select');
 
-		console.log(ev, cam, source)
-
 		this.selected = cam;
 		cam.list_el.classList.toggle("active", true);
 		let obj = await cam.get_obj();
@@ -36,8 +34,6 @@ export class ObjectSelector {
 
 		if (this.is_selected(tag)) return;
 		this.deselect(ev, 'select');
-
-		console.log(ev, tag, source)
 		
 		this.selected = tag;
 		tag.list_el.classList.toggle("active", true);
@@ -50,8 +46,6 @@ export class ObjectSelector {
 
 		if (this.is_selected(tag)) return;
 		this.deselect(ev, 'select');
-
-		console.log(ev, tag, source)
 		
 		this.selected = tag;
 		tag.list_el.classList.toggle("active", true);
@@ -64,7 +58,6 @@ export class ObjectSelector {
 			this.selected.list_el.classList.toggle("active", false);
 		}
 		if (source == 'select') return;
-		console.log(ev, this.selected, source)
 
 		LatestSolverResult?.on_deselect(this.selected);
 		this.selected = null;

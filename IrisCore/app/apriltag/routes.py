@@ -270,6 +270,7 @@ def localize():
 	ids = { ident: i for i, ident in enumerate(graph)}
 	return jsonify({
 		'objects': { i: ident for ident, i in ids.items() },
+		'graph': { ids[ident]: [ ids[edge.target] for edge in node.edges ] for ident, node in graph.items() },
 		'traversal': traversal.jsonify(ids),
 		'relative': { comp: res.jsonify() for comp, res in relative.items() },
 		'world': world.jsonify(),

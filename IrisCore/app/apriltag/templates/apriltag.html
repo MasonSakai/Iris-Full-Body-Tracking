@@ -4,18 +4,24 @@
 
 <div class="row border-top border-2">
 	<div class="col-auto border-end border-2 tag-list d-flex flex-column" style="--tag-list-width: 200px">
-		<div class="h-50 border-bottom border-2 list-group list-group-flush">
+		<div class="flex-fill border-bottom border-2 list-group list-group-flush">
 			<div class="list-group-item list-group-item-light" id="list-rules"
 				 data-bs-toggle="tooltip" data-bs-title="The constraints used to place objects, applied in order where applicable">Placement Rules</div>
 			<div class="list-group-item list-group-item-light" id="list-pins" hidden
 				 data-bs-toggle="tooltip" data-bs-title="Pins a tag's detected position, useful for marking the floor with a temporary tag">Pinned Tags <span class="bi bi-pin-fill"></span></div>
 			<div class="list-group-item list-group-item-light p-0"></div>
 		</div>
-		<div class="flex-fill list-group list-group-flush">
+		<div class="list-group list-group-flush">
 			<button class="btn btn-outline-secondary list-group-item list-group-item-light" id="localize"
-					data-bs-toggle="tooltip" data-bs-title="Attempts to solve for tag and camera positions using detections and placement rules">Localize</button>
-			<div class="list-group-item list-group list-group-flush p-0" id="localizer-result"></div>
-			<div class="list-group-item list-group-item-light p-0"></div>
+					data-bs-toggle="tooltip" data-bs-title="Attempts to solve for tag and camera positions using detections and placement rules">
+				Localize
+			</button>
+			<div class="list-group list-group-flush p-0 invisible" id="localizer-result">
+				<div class="btn-group btn-group-sm">
+					<button class="rounded-0 btn btn-danger" id="localize-clear">Clear</button>
+					<button class="rounded-0 btn btn-success" id="localize-apply">Apply</button>
+				</div>
+			</div>
 		</div>
 	</div>
 

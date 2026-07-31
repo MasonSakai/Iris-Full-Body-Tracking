@@ -1,5 +1,3 @@
-import { Matrix4 } from 'three'
-import { scene, socket } from '@app/apriltag'
 import { camera_list, CameraObject, found_tag_list, FoundTagObject, tag_list, TagObject } from '@app/data/objects'
 import { PickHelper } from '@app/PickHelper'
 import { CamRecord, FoundTagRecord, ScanResults, TagIdent, TagRecord } from '@app/data/network_objects'

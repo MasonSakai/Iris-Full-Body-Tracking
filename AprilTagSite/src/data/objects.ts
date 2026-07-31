@@ -1,21 +1,42 @@
-import { Object3D, Matrix4, Vector3, Quaternion } from 'three'
+import { Object3D, Matrix4, Vector3 } from 'three'
 import { TagIdent, CameraId, TagID, CamRecord, TagRecord, FoundTagRecord } from '@app/data/network_objects'
 import { cams_obj, LoadCamModel, LoadTagModel } from '@app/ui/models'
 import { CreateMatrix, CorrectMatrix } from '@app/util'
 import { PickHelper } from '@app/PickHelper'
 import { ObjectSelector } from '@app/ui/object_selector'
 
-export class CameraObject {
+export class DisplayObject {
 	obj: Object3D
 	list_el: HTMLButtonElement
 	num_el: HTMLSpanElement
 
+	protected showing_preview: boolean = false;
+	transform: Matrix4;
+
+	set_transform(mat: Matrix4, preview: boolean = false, size: number = 1) {
+		if (!preview) this.transform = mat;
+		if (this.showing_preview && !preview) return;
+		this.showing_preview = preview;
+		this.obj.visible = mat != null;
+		if (mat != null) {
+			CorrectMatrix(mat).decompose(this.obj.position, this.obj.quaternion, new Vector3());
+			this.obj.scale.setScalar(size);
+			this.obj.updateMatrix();
+		}
+	}
+
+	clear_preview() {
+		this.showing_preview = false;
+		this.set_transform(this.transform);
+	}
+
+}
+
+export class CameraObject extends DisplayObject {
 	name: string
 	id: CameraId
 
 	active: string | false
-
-	transform: Matrix4
 
 	tags = {
 		known: new Set<TagID>(),
@@ -56,16 +77,6 @@ export class CameraObject {
 		return this.obj;
 	}
 
-	set_transform(mat: Matrix4, set: boolean = true) {
-		if (set) this.transform = mat;
-
-		this.obj.visible = mat != null;
-		if (mat != null) {
-			CorrectMatrix(mat).decompose(this.obj.position, this.obj.quaternion, new Vector3());
-			this.obj.updateMatrix();
-		}
-	}
-
 	set_active(active: string | false) {
 		this.active = active;
 
@@ -100,14 +111,12 @@ export class FoundTagDetection extends TagDetection {
 	size: number
 };
 
-export class ATagObject {
-	obj: Object3D
-	list_el: HTMLButtonElement
-	num_el: HTMLSpanElement
-
+export class ATagObject extends DisplayObject {
 	ident: TagIdent
 
 	detections: Map<CameraId, any>
+
+	size: number = 0.1;
 
 	async get_obj() {
 		if (this.obj == null) {
@@ -117,13 +126,8 @@ export class ATagObject {
 		return this.obj;
 	}
 
-	set_transform(mat: Matrix4, set: boolean = true, size: number = 0.1) {
-		this.obj.visible = mat != null;
-		if (mat != null) {
-			CorrectMatrix(mat).decompose(this.obj.position, this.obj.quaternion, new Vector3());
-			this.obj.scale.setScalar(size);
-			this.obj.updateMatrix();
-		}
+	set_transform(mat: Matrix4, preview: boolean = false, size: number = this.size) {
+		return super.set_transform(mat, preview, size);
 	}
 
 	update_count() {
@@ -136,9 +140,6 @@ export class TagObject extends ATagObject {
 	id: TagID
 
 	static: boolean
-	size: number
-
-	transform: Matrix4
 
 	detections: Map<CameraId, TagDetection> = new Map()
 
@@ -165,11 +166,6 @@ export class TagObject extends ATagObject {
 		await this.get_obj();
 		this.set_transform(CreateMatrix(d_tag.transform));
 		this.set_static(d_tag.static);
-	}
-
-	set_transform(mat: Matrix4, set: boolean = true, size: number = this.size) {
-		if (set) this.transform = mat;
-		super.set_transform(mat, set, size);
 	}
 
 	set_static(is_static: boolean) {
@@ -202,6 +198,8 @@ export class FoundTagObject extends ATagObject {
 		this.ident = ident;
 		this.detections.clear();
 
+		let sizes: Record<number, number> = {};
+
 		for (const [id, d] of Object.entries(d_tag)) {
 			var det = new FoundTagDetection();
 			det.num = d.num;
@@ -210,7 +208,10 @@ export class FoundTagObject extends ATagObject {
 			det.v_mar = d.v_mar;
 			det.size = d.size;
 			this.detections.set(id, det);
+			sizes[d.size] = (sizes[d.size] || 0) + 1;
 		}
+
+		this.size = Number(Object.keys(sizes).reduce((a, b) => sizes[a] > sizes[b] ? a : b) || this.size);
 
 		await this.get_obj();
 		this.set_transform(null);
