@@ -30,6 +30,8 @@ export class DisplayObject {
 		this.set_transform(this.transform);
 	}
 
+	get_name() { throw new Error("Method not implemented."); }
+
 }
 
 export class CameraObject extends DisplayObject {
@@ -99,6 +101,8 @@ export class CameraObject extends DisplayObject {
 		if (ObjectSelector.is_selected(this)) ObjectSelector.deselect(null, 'delete');
 		camera_list.delete(this.id)
 	}
+
+	get_name() { return this.name; }
 }
 
 export class TagDetection {
@@ -185,6 +189,8 @@ export class TagObject extends ATagObject {
 		if (ObjectSelector.is_selected(this)) ObjectSelector.deselect(null, 'delete');
 		tag_list.delete(this.id)
 	}
+
+	get_name() { return this.name; }
 }
 
 export class FoundTagObject extends ATagObject {
@@ -226,6 +232,8 @@ export class FoundTagObject extends ATagObject {
 		if (ObjectSelector.is_selected(this)) ObjectSelector.deselect(null, 'delete');
 		found_tag_list.delete(this.ident)
 	}
+
+	get_name() { return this.ident; }
 }
 
 export let tag_list = new Map<TagID, TagObject>()

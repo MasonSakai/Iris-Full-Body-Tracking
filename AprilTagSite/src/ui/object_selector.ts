@@ -7,8 +7,6 @@ import { LatestSolverResult } from "@app/ui/solver";
 type SelectSource = 'list' | '3D';
 export type Selectable = CameraObject | TagObject | FoundTagObject;
 
-export function get_name(obj: Selectable) { return obj instanceof FoundTagObject ? obj.ident : obj.name; }
-
 export class ObjectSelector {
 	
 	private static selected: Selectable = null

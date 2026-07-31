@@ -16,7 +16,13 @@
 					data-bs-toggle="tooltip" data-bs-title="Attempts to solve for tag and camera positions using detections and placement rules">
 				Localize
 			</button>
-			<div class="list-group list-group-flush p-0 invisible" id="localizer-result">
+			<div class="list-group list-group-flush p-0 dropend invisible" id="localize-result">
+				<button type="button" class="btn btn-outline-secondary list-group-item text-start dropdown-toggle"
+						data-bs-toggle="dropdown" aria-expanded="false">
+					Relative Optimization
+				</button>
+				<ul class="dropdown-menu" id="localize-relative"></ul>
+				<button class="btn btn-outline-secondary list-group-item text-start" id="localize-world">World Optimization</button>
 				<div class="btn-group btn-group-sm">
 					<button class="rounded-0 btn btn-danger" id="localize-clear">Clear</button>
 					<button class="rounded-0 btn btn-success" id="localize-apply">Apply</button>

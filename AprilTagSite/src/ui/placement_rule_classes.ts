@@ -1,5 +1,5 @@
 import { CardHandler, CardHolder } from "@app/ui/card_handler";
-import { get_name, ObjectSelector, Selectable } from "@app/ui/object_selector";
+import { ObjectSelector, Selectable } from "@app/ui/object_selector";
 import { RuleHandler } from "@app/ui/placement_rules";
 import { Vector3 } from "three";
 import { DEG_TO_RAD, yawPitchToOpenCVVector } from "@app/util";
@@ -71,7 +71,7 @@ export class PlacementRule_Norm extends PlacementRule {
 		switch (kwargs['source']) {
 			case 'new':
 				selected = ObjectSelector.get_selected();
-				if (selected) this.card_name = `Facing (${get_name(selected)})`;
+				if (selected) this.card_name = `Facing (${selected.get_name()})`;
 				else this.card_name = 'Facing';
 				break;
 			default:
@@ -90,13 +90,13 @@ export class PlacementRule_Norm extends PlacementRule {
 			txt_target.id = 'norm-target';
 			txt_target.placeholder = '';
 
-			if (selected) txt_target.value = get_name(selected);
+			if (selected) txt_target.value = selected.get_name();
 
 			txt_target.addEventListener('focus', () => {
 				this.on_select = (ev, obj) => {
 					selected = obj;
-					txt_target.value = get_name(selected);
-					this.card_name = `Facing (${get_name(selected)})`;
+					txt_target.value = selected.get_name();
+					this.card_name = `Facing (${selected.get_name()})`;
 					CardHandler.UpdateName();
 					return true;
 				}
@@ -347,7 +347,7 @@ export class PlacementRule_Offset extends PlacementRule {
 		switch (kwargs['source']) {
 			case 'new':
 				selected = ObjectSelector.get_selected();
-				if (selected) this.card_name = `Offset (${get_name(selected)})`;
+				if (selected) this.card_name = `Offset (${selected.get_name()})`;
 				else this.card_name = 'Offset';
 				break;
 			default:
@@ -366,13 +366,13 @@ export class PlacementRule_Offset extends PlacementRule {
 			txt_target.id = 'norm-target';
 			txt_target.placeholder = '';
 
-			if (selected) txt_target.value = get_name(selected);
+			if (selected) txt_target.value = selected.get_name();
 
 			txt_target.addEventListener('focus', () => {
 				this.on_select = (ev, obj) => {
 					selected = obj;
-					txt_target.value = get_name(selected);
-					this.card_name = `Offset (${get_name(selected)})`;
+					txt_target.value = selected.get_name();
+					this.card_name = `Offset (${selected.get_name()})`;
 					CardHandler.UpdateName();
 					return true;
 				}

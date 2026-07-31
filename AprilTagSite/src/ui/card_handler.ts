@@ -59,7 +59,8 @@ export class CardHandler {
 		CardHandler.btn_rename.hidden = !CardHandler.active_holder.can_rename;
 		CardHandler.txt_rename.disabled = !CardHandler.active_holder.can_rename;
 		CardHandler.txt_rename.value = CardHandler.active_holder.card_name;
-		CardHandler.icn_rename.classList = CardHandler.active_holder.card_icon ? `input-group-text bi ${CardHandler.active_holder.card_icon}` : 'input-group-text';
+		CardHandler.icn_rename.classList = `input-group-text bi ${CardHandler.active_holder.card_icon}`;
+		CardHandler.icn_rename.hidden = !CardHandler.active_holder.card_icon;
 	}
 
 	public static Confirm() {

@@ -64,10 +64,16 @@ class SolverSet {
 	has(key: SolverIdent): boolean {
 		return this.internalSet.has(this.toKey(key));
 	}
+
+	size() {
+		return this.internalSet.size;
+	}
 }
 
 
-let div_localizer_result: HTMLElement = null;
+let div_result: HTMLDivElement;
+let div_relative: HTMLDivElement;
+let btn_world: HTMLButtonElement;
 
 let line_parent = new Object3D();
 let lines: Record<number, THREE.Line[]> = {};
@@ -81,7 +87,10 @@ function clearLines() {
 	lines = {};
 }
 
-class ConnectedComponent {
+class ConnectedComponent extends CardHolder {
+	result: SolverResult
+	el_btn: HTMLButtonElement
+
 	id: number
 	members: SolverSet
 	root: SolverIdent
@@ -89,17 +98,78 @@ class ConnectedComponent {
 	has_rules: boolean
 	relative_solved: boolean
 
-	constructor(data: resp_ConnectedComponent, idents: Record<number, SolverIdent>) {
+	constructor(result: SolverResult, data: resp_ConnectedComponent, idents: Record<number, SolverIdent>) {
+		super()
+
+		this.result = result;
+
 		this.id = data.id;
 		this.members = new SolverSet(data.members.map((i) => idents[i]));
 		this.root = idents[data.root];
 		this.has_detection = data.has_detection;
 		this.has_rules = data.has_rules;
 		this.relative_solved = data.relative_solved;
+
+		this.has_confirm = false;
+		this.card_name = `Optimization Result - ${this.get_name()}`;
+	}
+
+	get_name() {
+		let root = ParseIdent(this.root);
+		let n_members = this.members.size() - 1;
+		return root.get_name() + (n_members ? ` (+${n_members})` : '');
+	}
+
+	write_dropdown() {
+		let el_li = document.createElement('li');
+		let btn = document.createElement('button');
+		btn.className = 'dropdown-item';
+		btn.type = 'button';
+		btn.innerText = this.get_name();
+		btn.setAttribute('comp-id', this.id.toString());
+
+		btn.addEventListener('click', () => {
+			this.el_btn.classList.toggle('active', true);
+			CardHandler.RequestElement(this);
+		});
+
+		this.el_btn = btn;
+		el_li.appendChild(btn)
+		return el_li;
+	}
+
+	dismiss = () => this.el_btn.classList.toggle('active', false);
+
+	write_card(card_overlay: HTMLElement, { ...kwargs }: { [key: string]: any } = {}) {
+
+
+
+		card_overlay.appendChild(document.createElement('hr'));
+		{
+			let constraint = this.result.world.constraint_analysis[this.id];
+
+			let div_rank = document.createElement('p');
+			div_rank.innerText = `Total constraints: ${constraint.total_rank}/6
+			Translation: ${constraint.translation_rank}/3
+			Rotation: ${constraint.rotation_rank}/3`;
+			card_overlay.appendChild(div_rank);
+		}
+
+		card_overlay.appendChild(document.createElement('hr'));
+		if (this.relative_solved)
+			this.result.relative[this.id].write_card(card_overlay, kwargs);
+		else {
+			let div_rel = document.createElement('i');
+			div_rel.innerText = 'No relative optimization';
+			card_overlay.appendChild(div_rel);
+		}
+
 	}
 }
 
 class OptimizationResult extends CardHolder {
+	result: SolverResult;
+
 	success: boolean
 	iterations: number
 	initial_cost: number
@@ -108,8 +178,12 @@ class OptimizationResult extends CardHolder {
 	final_residual_norm: number
 	constraint_analysis: Record<number, ConstraintAnalysis>
 
-	constructor(data: resp_OptimizationResult) {
+	constructor(result: SolverResult, data: resp_OptimizationResult) {
 		super();
+		this.has_confirm = false;
+		this.card_name = 'Optimization Result';
+
+		this.result = result;
 
 		this.success = data.success;
 		this.iterations = data.iterations;
@@ -118,6 +192,15 @@ class OptimizationResult extends CardHolder {
 		this.initial_residual_norm = data.initial_residual_norm;
 		this.final_residual_norm = data.final_residual_norm;
 		this.constraint_analysis = data.constraint_analysis;
+	}
+
+	write_card(card_overlay: HTMLElement, { ...kwargs }: { [key: string]: any } = {}) {
+		if (kwargs['element']) {
+			kwargs['element'].classList.toggle('active', true);
+			this.dismiss = () => kwargs['element'].classList.toggle('active', false);
+		}
+
+
 	}
 }
 
@@ -139,7 +222,7 @@ class SolverResult {
 		this.traversal = {
 			roots: data.traversal.roots.map((i) => data.objects[i]),
 			components: mapRecord(data.traversal.components,
-				(conn) => new ConnectedComponent(conn, data.objects)),
+				(conn) => new ConnectedComponent(this, conn, data.objects)),
 			path_costs: new SolverMap(
 				Object.entries(data.traversal.path_costs)
 					.map(([key, value]) => [data.objects[key], value])
@@ -147,10 +230,10 @@ class SolverResult {
 		};
 
 		this.relative = mapRecord(data.relative,
-			(resp) => new OptimizationResult(resp)
+			(resp) => new OptimizationResult(this, resp)
 		);
 
-		this.world = new OptimizationResult(data.world);
+		this.world = new OptimizationResult(this, data.world);
 
 		this.poses = new SolverMap(
 			Object.entries(data.poses)
@@ -198,18 +281,24 @@ class SolverResult {
 export let LatestSolverResult: SolverResult = null;
 
 function write_result(res: SolverResult) {
-	div_localizer_result.classList.toggle('invisible', false);
+	div_result.classList.toggle('invisible', false);
+	div_relative.replaceChildren(...Object.entries(res.traversal.components)
+		.sort(([a_i, a_c], [b_i, b_c]) => (b_c.members.size() - a_c.members.size()) * 100 - (a_c.id - b_c.id))
+		.map(([i, comp]) => comp.write_dropdown()));
 
-	LatestSolverResult.poses.forEach((pose, ident) => {
+	res.poses.forEach((pose, ident) => {
 		ParseIdent(ident).set_transform(pose, true);
 	});
 }
 
 function clear_result() {
-	div_localizer_result.classList.toggle('invisible', true);
+	if (btn_world.classList.contains('active')) CardHandler.Dismiss();
+	else if (div_relative.querySelector('.active')) CardHandler.Dismiss();
+
+	div_result.classList.toggle('invisible', true);
+	div_relative.replaceChildren();
 	clearLines();
 
-	//clear card
 	LatestSolverResult = null;
 
 	camera_list.forEach((obj) => obj.clear_preview());
@@ -221,7 +310,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	scene.add(line_parent);
 
-	div_localizer_result = document.getElementById('localizer-result');
+	div_result = document.getElementById('localize-result') as HTMLDivElement;
+	div_relative = document.getElementById('localize-relative') as HTMLDivElement;
+	btn_world = document.getElementById('localize-world') as HTMLButtonElement;
 
 	document.getElementById('localize').addEventListener('click', async () => {
 		let response = new SolverResult(await RequestLocalization());
@@ -236,6 +327,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		let selected = ObjectSelector.get_selected();
 		if (selected) response.on_select(selected);
+	});
+
+	btn_world.addEventListener('click', () => {
+		if (!LatestSolverResult) return;
+		CardHandler.RequestElement(LatestSolverResult.world, { element: btn_world });
 	});
 
 	document.getElementById('localize-apply').addEventListener('click', () => {
