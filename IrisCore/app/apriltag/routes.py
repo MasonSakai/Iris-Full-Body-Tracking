@@ -265,10 +265,11 @@ def localize():
 
 	rules = [ parseRule(rule) for rule in data['rules'] ]
 
-	graph, traversal, relative, world, poses = Solve(objects, detections, rules)
+	graph, traversal, relative, world, poses, run_time = Solve(objects, detections, rules)
 
 	ids = { ident: i for i, ident in enumerate(graph)}
 	return jsonify({
+		'time': run_time,
 		'objects': { i: ident for ident, i in ids.items() },
 		'graph': { ids[ident]: [ ids[edge.target] for edge in node.edges ] for ident, node in graph.items() },
 		'traversal': traversal.jsonify(ids),

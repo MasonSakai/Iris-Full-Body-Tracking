@@ -10,6 +10,9 @@ base_exp = {
         alias: {
             '@app': path.resolve(__dirname, 'build/')
         }
+    },
+    externals: {
+        bootstrap: 'bootstrap'
     }
 }
 

@@ -16,6 +16,7 @@
 	<link rel="stylesheet" href="{{ url_for('main.static', filename='css/bootstrap-icons.css') }}">
 
 	{% block javascript %}
+	<script src="{{ url_for('main.static', filename='js/bootstrap.bundle.js') }}"></script>
 	<script src="{{ url_for('main.static', filename='js/modal.js') }}"></script>
 	{% endblock %}
 	{% block stylesheets %}
@@ -41,22 +42,40 @@
 	</nav>
 
 	<div id="body-container" class="container-fluid mt-3">
-		<!-- NEED TO MOVE THESE -->
-		{% with messages = get_flashed_messages() %}
-		{% if messages %}
-		{% for message in messages %}
-		<div class="alert alert-info" role="alert">{{ message }}</div>
-		{% endfor %}
-		{% endif %}
-		{% endwith %}
-		<!-- NEED TO MOVE THESE -->
 		{% block content %}{% endblock %}
 	</div>
 
-	<script src="{{ url_for('main.static', filename='js/bootstrap.bundle.js') }}"></script>
+	<div class="toast-container position-fixed bottom-0 end-0 m-1 p-1" id="toasts">
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+		{% for message in messages %}
+		<div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+			<div class="d-flex">
+				<div class="toast-body">
+					{{ message }}
+				</div>
+				<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+			</div>
+		</div>
+		{% endfor %}
+		{% endif %}
+		{% endwith %}
+	</div>
+
 	<script>
 		const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 		const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+		const toastElList = document.querySelectorAll('#toasts .toast')
+		const toastList = [...toastElList].map(toastEl => {
+			let toast = new bootstrap.Toast(toastEl, { autohide: false });
+			toastEl.addEventListener('hidden.bs.toast', () => {
+				toast.dispose();
+				toastEl.remove();
+			});
+			toast.show();
+			return toast;
+		})
 	</script>
 </body>
 </html>

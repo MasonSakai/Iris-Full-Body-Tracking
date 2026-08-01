@@ -5,6 +5,7 @@ import { CameraObject, TagDetection, TagObject, FoundTagObject, camera_list, tag
 import { jsonifyMatrix } from '@app/util';
 import { Selectable } from '@app/ui/object_selector';
 import { RuleHandler } from '@app/ui/placement_rules';
+import { Toasts } from '@app/toasts';
 
 export type SolverIdent = [string, 'camera' | 'tag' | 'found']; // | 'pinned'];
 
@@ -73,29 +74,30 @@ function jsonify_Detection(tag: SolverIdent, cam: CameraId, det: TagDetection): 
 }
 
 export type resp_ConnectedComponent = {
-	'id': number,
-	'members': number[],
-	'root': number,
-	'has_detection': boolean,
-	'has_rules': boolean,
-	'relative_solved': boolean
+	id: number,
+	members: number[],
+	root: number,
+	has_detection: boolean,
+	has_rules: boolean,
+	relative_solved: boolean
 }
 
 export type ConstraintAnalysis = {
-	'component_id': number,
-	'total_rank': number,
-	'translation_rank': number,
-	'rotation_rank': number,
+	component_id: number,
+	total_rank: number,
+	translation_rank: number,
+	rotation_rank: number,
 }
 
 export type resp_OptimizationResult = {
-	'success': boolean,
-	'iterations': number,
-	'initial_cost': number,
-	'final_cost': number,
-	'initial_residual_norm': number,
-	'final_residual_norm': number,
-	'constraint_analysis': Record<number, ConstraintAnalysis>
+	success: boolean,
+	iterations: number,
+	time: number,
+	initial_cost: number,
+	final_cost: number,
+	initial_residual_norm: number,
+	final_residual_norm: number,
+	constraint_analysis: Record<number, ConstraintAnalysis>
 }
 
 export type resp_SolverResponse = {
@@ -108,10 +110,19 @@ export type resp_SolverResponse = {
 	},
 	relative: Record<number, resp_OptimizationResult>,
 	world: resp_OptimizationResult,
-	poses: Record<number, number[][]>
+	poses: Record<number, number[][]>,
+	time: number
 }
 
+let timeout = null;
 export async function RequestLocalization() {
+
+	if (timeout) clearTimeout(timeout);
+	let toast = Toasts.GetReusableToast('RequestLocalization') ??
+		Toasts.CreateReusableToast('RequestLocalization', null, { autohide: false, show: false });
+
+	toast.el_body.innerText = 'Requesting Localization...';
+	toast.toast.show();
 
 	let detections: Detection[] = [];
 	let objects: SolverObject[] = [];
@@ -137,6 +148,9 @@ export async function RequestLocalization() {
 		},
 		body: JSON.stringify({ detections: detections, objects: objects, rules: rules })
 	})).json();
+
+	toast.el_body.innerText = `Localization Complete in ${(resp.time * 1000).toPrecision(3)}ms`;
+	timeout = setTimeout(() => toast.toast.hide(), 2500);
 
 	return resp;
 }

@@ -2,6 +2,7 @@ import { camera_list, CameraObject, found_tag_list, FoundTagObject, tag_list, Ta
 import { PickHelper } from '@app/PickHelper'
 import { CamRecord, FoundTagRecord, ScanResults, TagIdent, TagRecord } from '@app/data/network_objects'
 import { ObjectSelector } from '@app/ui/object_selector'
+import { Toasts } from '@app/toasts';
 
 let el_list: HTMLElement = null;
 
@@ -218,8 +219,20 @@ function RefreshCamCounts() {
 	for (const cam of camera_list.values()) cam.fetch_tags();
 }
 
+let timeout = null;
 export function Scan() {
+
+	if (timeout) clearTimeout(timeout);
+	let toast = Toasts.GetReusableToast('Scan') ??
+		Toasts.CreateReusableToast('Scan', null, { autohide: false, show: false });
+
+	toast.el_body.innerText = 'Running Scan...';
+	toast.toast.show();
+
 	fetch('tags/scan?noreturn').then(() => {
+		toast.el_body.innerText = 'Scan Complete';
+		timeout = setTimeout(() => toast.toast.hide(), 2500);
+
 		FetchTags();
 		FetchFoundTags();
 	}).catch(() => { });

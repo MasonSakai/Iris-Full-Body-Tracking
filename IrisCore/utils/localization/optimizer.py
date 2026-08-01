@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import time
 import numpy as np
 from scipy.spatial.transform import Rotation
 from scipy.optimize import least_squares, OptimizeResult
@@ -41,8 +42,8 @@ class ConstraintAnalysis:
 @dataclass
 class OptimizationResult:
     success: bool
-
     iterations: int
+    time: float
 
     initial_cost: float
     final_cost: float
@@ -59,6 +60,7 @@ class OptimizationResult:
         return {
             'success': self.success,
             'iterations': self.iterations,
+            'time': self.time,
             'initial_cost': self.initial_cost,
             'final_cost': self.final_cost,
             'initial_residual_norm': self.initial_residual_norm,
@@ -145,6 +147,7 @@ def unpack_all(state: OptimizationState, x: np.ndarray):
     }
 
 def optimize_relative_component(graph: Graph, component: ConnectedComponent, detections: list[Detection]):
+    start_time = time.perf_counter()
     state = pack_variables(graph, component)
     state.validate()
 
@@ -207,10 +210,12 @@ def optimize_relative_component(graph: Graph, component: ConnectedComponent, det
         graph[ident].relative_pose = pose
 
     component.relative_solved = True
-
+    
+    run_time = time.perf_counter() - start_time
     return OptimizationResult(
         success=result.success,
         iterations=result.nfev,
+        time=run_time,
 
         initial_cost=initial_cost,
         final_cost=result.cost,
@@ -392,6 +397,7 @@ def empty_world_optimization_result(traversal: TraverseResult) -> OptimizationRe
     return OptimizationResult(
         success=True,
         iterations=0,
+        time=0,
         initial_cost=0.0,
         final_cost=0.0,
         initial_residual_norm=0.0,
@@ -422,6 +428,7 @@ def optimize_world(
     traversal: TraverseResult,
     rules: list[PlacementRule]
 ):
+    start_time = time.perf_counter()
 
     state = pack_world_variables(graph, traversal)
 
@@ -454,9 +461,11 @@ def optimize_world(
         traversal,
     )
 
+    run_time = time.perf_counter() - start_time
     return OptimizationResult(
         success=result.success,
         iterations=result.nfev,
+        time=run_time,
 
         initial_cost=initial_cost,
         final_cost=result.cost,

@@ -172,6 +172,7 @@ class OptimizationResult extends CardHolder {
 
 	success: boolean
 	iterations: number
+	time: number
 	initial_cost: number
 	final_cost: number
 	initial_residual_norm: number
@@ -187,6 +188,7 @@ class OptimizationResult extends CardHolder {
 
 		this.success = data.success;
 		this.iterations = data.iterations;
+		this.time = data.time;
 		this.initial_cost = data.initial_cost;
 		this.final_cost = data.final_cost;
 		this.initial_residual_norm = data.initial_residual_norm;
@@ -200,7 +202,11 @@ class OptimizationResult extends CardHolder {
 			this.dismiss = () => kwargs['element'].classList.toggle('active', false);
 		}
 
-
+		let div_success = document.createElement('div');
+		div_success.innerText =
+			`${this.success ? 'Solved' : 'Failed'} in ${(this.time * 1000).toPrecision(3)}ms
+			Using ${this.iterations} iterations`;
+		card_overlay.appendChild(div_success);
 	}
 }
 
@@ -214,6 +220,7 @@ class SolverResult {
 	relative: Record<number, OptimizationResult>
 	world: OptimizationResult
 	poses: SolverMap<Matrix4>
+	time: number
 
 	constructor(data: resp_SolverResponse) {
 
@@ -239,6 +246,8 @@ class SolverResult {
 			Object.entries(data.poses)
 				.map(([key, value]) => [data.objects[key], CreateMatrix(value)])
 		);
+
+		this.time = data.time;
 	}
 
 	async on_select(obj: Selectable) {
@@ -319,8 +328,6 @@ window.addEventListener('DOMContentLoaded', () => {
 		// verify?
 
 		if (LatestSolverResult) clear_result();
-
-		console.log(response);
 
 		LatestSolverResult = response;
 		write_result(response);
