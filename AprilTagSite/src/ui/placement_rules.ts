@@ -3,14 +3,15 @@ import { Selectable } from "@app/ui/object_selector";
 import { PlacementRule, PlacementRule_Norm, PlacementRule_Offset } from "@app/ui/placement_rule_classes";
 
 export class RuleHandler {
+	private static rules: PlacementRule[] = [];
 
-	public static rules: PlacementRule[] = [];
-	protected static lbl_rules: HTMLElement;
+	public static getRules(): readonly PlacementRule[] {
+		return this.rules;
+	}
 
 	protected static selected_rule: PlacementRule = null;
 
 	public static init() {
-		RuleHandler.lbl_rules = document.getElementById('list-rules');
 
 		document.getElementById('tool-norm').addEventListener('click', () => {
 			RuleHandler.selected_rule = new PlacementRule_Norm();
@@ -28,15 +29,21 @@ export class RuleHandler {
 		return this.selected_rule?.on_select(ev, obj) ?? false;
 	}
 
-	static add_rule(rule: PlacementRule) {
-		RuleHandler.rules.push(rule);
-		RuleHandler.refresh_list();
+
+	private static listeners = new Set<() => void>();
+
+	static subscribe(listener: () => void) {
+		this.listeners.add(listener);
+		return () => { this.listeners.delete(listener) };
 	}
 
-	static refresh_list() {
-		RuleHandler.lbl_rules.parentElement.querySelectorAll('placement-rule').forEach((el) => el.remove());
+	public static notify() {
+		this.listeners.forEach(l => l());
+	}
 
-		RuleHandler.lbl_rules.after(...RuleHandler.rules.map((rule) => rule.write_list()));
+	static add_rule(rule: PlacementRule) {
+		RuleHandler.rules.push(rule);
+		RuleHandler.notify();
 	}
 
 	public static jsonify() {
@@ -44,4 +51,4 @@ export class RuleHandler {
 	}
 }
 
-window.addEventListener('load', RuleHandler.init);
+window.addEventListener('DOMContentLoaded', RuleHandler.init);

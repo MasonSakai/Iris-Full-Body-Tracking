@@ -14,32 +14,9 @@ export class PlacementRule extends CardHolder {
 
 	protected target: Selectable;
 
-	protected list_el: HTMLElement;
-	protected list_lbl: Text;
-	protected list_icon: HTMLSpanElement;
-
 	protected weight: number = 1.0;
 
 	can_rename = false;
-
-	write_list() {
-		if (!this.list_el) {
-			this.list_el = document.createElement('button');
-			this.list_el.className = 'btn btn-outline-secondary list-group-item text-start placement-rule';
-
-			this.list_el.addEventListener('click', () => CardHandler.RequestElement(this, { source: 'list' }));
-
-			this.list_icon = document.createElement('span');
-			this.list_icon.className = `bi ${this.card_icon} me-2`;
-
-			this.list_lbl = document.createTextNode('null');
-
-			this.list_el.appendChild(this.list_icon);
-			this.list_el.appendChild(this.list_lbl);
-		}
-		this.list_lbl.textContent = this.card_name;
-		return this.list_el;
-	}
 
 	on_select: (ev: PointerEvent | MouseEvent, obj: Selectable) => boolean = () => false;
 
@@ -292,7 +269,7 @@ export class PlacementRule_Norm extends PlacementRule {
 				RuleHandler.add_rule(this);
 			}
 
-			this.write_list();
+			RuleHandler.notify();
 			return true;
 		}
 	}
@@ -479,7 +456,7 @@ export class PlacementRule_Offset extends PlacementRule {
 				RuleHandler.add_rule(this);
 			}
 
-			this.write_list();
+			RuleHandler.notify();
 			return true;
 		}
 	}

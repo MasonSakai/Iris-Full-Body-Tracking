@@ -21,6 +21,8 @@
         ],
         "esModuleInterop": true,
 
+        "jsx": "react-jsx",
+
         "baseUrl": ".",
         "paths": {
             "@app/*": [ "src/*" ]

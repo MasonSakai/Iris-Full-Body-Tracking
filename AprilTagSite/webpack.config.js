@@ -9,7 +9,8 @@ base_exp = {
     resolve: {
         alias: {
             '@app': path.resolve(__dirname, 'build/')
-        }
+        },
+        extensions: [".tsx", ".ts", ".js"]
     },
     externals: {
         bootstrap: 'bootstrap'
