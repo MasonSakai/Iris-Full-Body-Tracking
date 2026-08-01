@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import '@app/ui/object_list';
 import '@app/ui/react/RuleList';
-import "@app/ui/solver";
+import "@app/ui/react/LocalizerResult";
 import { CreateMatrix } from '@app/util'
 import { PickHelper } from '@app/PickHelper'
 

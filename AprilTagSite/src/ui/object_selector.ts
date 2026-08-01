@@ -1,13 +1,17 @@
 import { CameraObject, FoundTagObject, TagObject } from "@app/data/objects";
 import { PickHelper } from "@app/PickHelper";
 import { RuleHandler } from "@app/ui/placement_rules";
-import { LatestSolverResult } from "@app/ui/solver";
+import { EventDispatcher } from "@app/EventDispatcher";
 
 
 type SelectSource = 'list' | '3D';
+type DeselectSource = SelectSource | 'delete' | 'select';
 export type Selectable = CameraObject | TagObject | FoundTagObject;
+type SelectEvent = { select: boolean, selected: Selectable, source: SelectSource | DeselectSource };
 
 export class ObjectSelector {
+
+	public static readonly ChangeListener = new EventDispatcher<SelectEvent>();
 	
 	private static selected: Selectable = null
 
@@ -24,7 +28,7 @@ export class ObjectSelector {
 		cam.list_el.classList.toggle("active", true);
 		let obj = await cam.get_obj();
 
-		LatestSolverResult?.on_select(cam);
+		ObjectSelector.ChangeListener.dispatch({ select: true, selected: cam, source: source });
 	}
 
 	static async select_tag(ev: PointerEvent | MouseEvent, tag: TagObject, source: SelectSource) {
@@ -36,7 +40,7 @@ export class ObjectSelector {
 		this.selected = tag;
 		tag.list_el.classList.toggle("active", true);
 
-		LatestSolverResult?.on_select(tag);
+		ObjectSelector.ChangeListener.dispatch({ select: true, selected: tag, source: source });
 	}
 
 	static async select_found_tag(ev: PointerEvent | MouseEvent, tag: FoundTagObject, source: SelectSource) {
@@ -48,16 +52,16 @@ export class ObjectSelector {
 		this.selected = tag;
 		tag.list_el.classList.toggle("active", true);
 
-		LatestSolverResult?.on_select(tag);
+		ObjectSelector.ChangeListener.dispatch({ select: true, selected: tag, source: source });
 	}
 
-	static async deselect(ev: PointerEvent | MouseEvent, source: SelectSource | 'delete' | 'select') {
+	static async deselect(ev: PointerEvent | MouseEvent, source: DeselectSource) {
 		if (this.selected) {
 			this.selected.list_el.classList.toggle("active", false);
 		}
 		if (source == 'select') return;
 
-		LatestSolverResult?.on_deselect(this.selected);
+		ObjectSelector.ChangeListener.dispatch({ select: false, selected: this.selected, source: source });
 		this.selected = null;
 	}
 }

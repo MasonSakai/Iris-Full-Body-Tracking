@@ -1,3 +1,4 @@
+import { EventDispatcher } from "@app/EventDispatcher";
 
 export class CardHolder {
 
@@ -21,6 +22,8 @@ export class CardHolder {
 
 export class CardHandler {
 
+	public static readonly ChangeListener = new EventDispatcher();
+
 	protected static card_overlay: HTMLElement;
 	protected static card_body: HTMLElement;
 
@@ -31,6 +34,10 @@ export class CardHandler {
 	protected static btn_confirm: HTMLButtonElement;
 
 	protected static active_holder: CardHolder = null;
+
+	public static IsHolder(holder: CardHolder) {
+		return holder === CardHandler.active_holder;
+	}
 
 	public static init() {
 		CardHandler.card_overlay = document.getElementById('card-overlay');
@@ -51,6 +58,7 @@ export class CardHandler {
 		CardHandler.active_holder = holder;
 		holder.write_card(CardHandler.card_body, { ...kwargs });
 		CardHandler.UpdateName();
+		CardHandler.ChangeListener.dispatch();
 		return CardHandler.card_body;
 	}
 
@@ -61,19 +69,24 @@ export class CardHandler {
 		CardHandler.txt_rename.value = CardHandler.active_holder.card_name;
 		CardHandler.icn_rename.classList = `input-group-text bi ${CardHandler.active_holder.card_icon}`;
 		CardHandler.icn_rename.hidden = !CardHandler.active_holder.card_icon;
+		CardHandler.ChangeListener.dispatch();
 	}
 
 	public static Confirm() {
 		if (!CardHandler.active_holder || CardHandler.active_holder.confirm()) {
 			CardHandler.card_overlay.hidden = true;
 			CardHandler.card_body.innerHTML = '';
+			CardHandler.ChangeListener.dispatch();
 		}
 	}
 	public static Dismiss() {
 		if (CardHandler.active_holder) CardHandler.active_holder.dismiss();
 		CardHandler.card_overlay.hidden = true;
 		CardHandler.card_body.innerHTML = '';
+		CardHandler.ChangeListener.dispatch();
 	}
+
+
 }
 
 window.addEventListener('load', CardHandler.init);

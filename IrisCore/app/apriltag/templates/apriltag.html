@@ -12,27 +12,7 @@
 				 data-bs-toggle="tooltip" data-bs-title="Pins a tag's detected position, useful for marking the floor with a temporary tag">Pinned Tags <span class="bi bi-pin-fill"></span></li>
 			<li class="list-group-item p-0"></li>
 		</ul>
-		<ul class="list-group list-group-flush">
-			<li class="btn btn-outline-secondary list-group-item list-group-item-light" id="localize"
-				tabindex="0" role="button"
-				data-bs-toggle="tooltip" data-bs-title="Attempts to solve for tag and camera positions using detections and placement rules">
-				Localize
-			</li>
-			<li class="list-group-item p-0 invisible" id="localize-result">
-				<div class="list-group list-group-flush dropend">
-					<button type="button" class="btn btn-outline-secondary list-group-item text-start dropdown-toggle"
-							data-bs-toggle="dropdown" aria-expanded="false">
-						Relative Optimization
-					</button>
-					<ul class="dropdown-menu" id="localize-relative"></ul>
-					<button class="btn btn-outline-secondary list-group-item text-start" id="localize-world">World Optimization</button>
-					<div class="btn-group btn-group-sm">
-						<button class="rounded-0 btn btn-danger" id="localize-clear">Clear</button>
-						<button class="rounded-0 btn btn-success" id="localize-apply">Apply</button>
-					</div>
-				</div>
-			</li>
-		</ul>
+		<ul class="list-group list-group-flush" id="localize-result"></ul>
 	</div>
 
 	<div class="col d-flex flex-column">

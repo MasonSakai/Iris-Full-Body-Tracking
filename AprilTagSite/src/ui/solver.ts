@@ -1,12 +1,13 @@
 
 import * as THREE from 'three'
 import { Matrix4, Object3D } from 'three';
-import { ConstraintAnalysis, CreateIdent, ParseIdent, RequestLocalization, resp_ConnectedComponent, resp_OptimizationResult, resp_SolverResponse, SolverIdent } from '@app/data/solver'
+import { ConstraintAnalysis, CreateIdent, ParseIdent, RequestLocalization as FetchLocalization, resp_ConnectedComponent, resp_OptimizationResult, resp_SolverResponse, SolverIdent } from '@app/data/solver'
 import { CreateMatrix, mapRecord } from '@app/util';
 import { CardHandler, CardHolder } from '@app/ui/card_handler';
 import { ObjectSelector, Selectable } from '@app/ui/object_selector';
 import { scene } from '@app/apriltag';
 import { camera_list, found_tag_list, tag_list } from '@app/data/objects';
+import { EventDispatcher } from '@app/EventDispatcher';
 
 class SolverMap<T> {
 	private internalMap: Map<string, T>;
@@ -71,25 +72,12 @@ class SolverSet {
 }
 
 
-let div_result: HTMLDivElement;
-let div_relative: HTMLDivElement;
-let btn_world: HTMLButtonElement;
-
 let line_parent = new Object3D();
 let lines: Record<number, THREE.Line[]> = {};
 let line_material = new THREE.LineBasicMaterial({ color: 0xffff00 });
 
-function clearLines() {
-	Object.entries(lines).forEach(([id, objs]) => {
-		line_parent.remove(...objs);
-		objs.forEach((obj) => obj.geometry.dispose());
-	});
-	lines = {};
-}
-
-class ConnectedComponent extends CardHolder {
+export class ConnectedComponent extends CardHolder {
 	result: SolverResult
-	el_btn: HTMLButtonElement
 
 	id: number
 	members: SolverSet
@@ -120,26 +108,6 @@ class ConnectedComponent extends CardHolder {
 		return root.get_name() + (n_members ? ` (+${n_members})` : '');
 	}
 
-	write_dropdown() {
-		let el_li = document.createElement('li');
-		let btn = document.createElement('button');
-		btn.className = 'dropdown-item';
-		btn.type = 'button';
-		btn.innerText = this.get_name();
-		btn.setAttribute('comp-id', this.id.toString());
-
-		btn.addEventListener('click', () => {
-			this.el_btn.classList.toggle('active', true);
-			CardHandler.RequestElement(this);
-		});
-
-		this.el_btn = btn;
-		el_li.appendChild(btn)
-		return el_li;
-	}
-
-	dismiss = () => this.el_btn.classList.toggle('active', false);
-
 	write_card(card_overlay: HTMLElement, { ...kwargs }: { [key: string]: any } = {}) {
 
 
@@ -167,7 +135,7 @@ class ConnectedComponent extends CardHolder {
 	}
 }
 
-class OptimizationResult extends CardHolder {
+export class OptimizationResult extends CardHolder {
 	result: SolverResult;
 
 	success: boolean
@@ -210,7 +178,7 @@ class OptimizationResult extends CardHolder {
 	}
 }
 
-class SolverResult {
+export class SolverResult {
 	graph: SolverMap<SolverIdent[]>
 	traversal: {
 		roots: SolverIdent[],
@@ -251,7 +219,7 @@ class SolverResult {
 	}
 
 	async on_select(obj: Selectable) {
-		clearLines();
+		LocalizationResults.clearLines();
 
 		let ident = CreateIdent(obj);
 		if (!this.graph.has(ident)) return;
@@ -283,70 +251,71 @@ class SolverResult {
 	}
 
 	on_deselect(obj: Selectable) {
-		clearLines();
+		LocalizationResults.clearLines();
 	}
 }
 
-export let LatestSolverResult: SolverResult = null;
+export class LocalizationResults {
+	
+	public static LatestResult: SolverResult = null;
+	public static readonly ResultListener = new EventDispatcher();
 
-function write_result(res: SolverResult) {
-	div_result.classList.toggle('invisible', false);
-	div_relative.replaceChildren(...Object.entries(res.traversal.components)
-		.sort(([a_i, a_c], [b_i, b_c]) => (b_c.members.size() - a_c.members.size()) * 100 - (a_c.id - b_c.id))
-		.map(([i, comp]) => comp.write_dropdown()));
+	static init() {
+		scene.add(line_parent);
+		ObjectSelector.ChangeListener.subscribe((ev) => {
+			if (this.LatestResult) {
+				if (ev.select) this.LatestResult.on_select(ev.selected);
+				else this.LatestResult.on_deselect(ev.selected);
+			}
+		})
+	}
 
-	res.poses.forEach((pose, ident) => {
-		ParseIdent(ident).set_transform(pose, true);
-	});
-}
-
-function clear_result() {
-	if (btn_world.classList.contains('active')) CardHandler.Dismiss();
-	else if (div_relative.querySelector('.active')) CardHandler.Dismiss();
-
-	div_result.classList.toggle('invisible', true);
-	div_relative.replaceChildren();
-	clearLines();
-
-	LatestSolverResult = null;
-
-	camera_list.forEach((obj) => obj.clear_preview());
-	tag_list.forEach((obj) => obj.clear_preview());
-	found_tag_list.forEach((obj) => obj.clear_preview());
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-
-	scene.add(line_parent);
-
-	div_result = document.getElementById('localize-result') as HTMLDivElement;
-	div_relative = document.getElementById('localize-relative') as HTMLDivElement;
-	btn_world = document.getElementById('localize-world') as HTMLButtonElement;
-
-	document.getElementById('localize').addEventListener('click', async () => {
-		let response = new SolverResult(await RequestLocalization());
+	public static clearLines() {
+		Object.entries(lines).forEach(([id, objs]) => {
+			line_parent.remove(...objs);
+			objs.forEach((obj) => obj.geometry.dispose());
+		});
+		lines = {};
+	}
+	
+	public static async RequestLocalization() {
+		let res = new SolverResult(await FetchLocalization());
 		// verify?
 
-		if (LatestSolverResult) clear_result();
+		if (this.LatestResult) this.clear_result();
 
-		LatestSolverResult = response;
-		write_result(response);
+		res.poses.forEach((pose, ident) => {
+			ParseIdent(ident).set_transform(pose, true);
+		});
+
+		this.LatestResult = res;
 
 		let selected = ObjectSelector.get_selected();
-		if (selected) response.on_select(selected);
-	});
+		if (selected) res.on_select(selected);
 
-	btn_world.addEventListener('click', () => {
-		if (!LatestSolverResult) return;
-		CardHandler.RequestElement(LatestSolverResult.world, { element: btn_world });
-	});
+		this.ResultListener.dispatch();
+		return res;
+	}
 
-	document.getElementById('localize-apply').addEventListener('click', () => {
-		// send poses to server
-		clear_result();
-	});
+	public static apply_result() {
+		//
 
-	document.getElementById('localize-clear').addEventListener('click', () => {
-		clear_result();
-	});
-});
+		this.clear_result();
+	}
+	public static clear_result() {
+		for (const comp of Object.values(this.LatestResult?.traversal.components ?? {}))
+			if (CardHandler.IsHolder(comp)) CardHandler.Dismiss();
+		if (CardHandler.IsHolder(this.LatestResult?.world)) CardHandler.Dismiss();
+
+		this.clearLines();
+		this.LatestResult = null;
+
+		camera_list.forEach((obj) => obj.clear_preview());
+		tag_list.forEach((obj) => obj.clear_preview());
+		found_tag_list.forEach((obj) => obj.clear_preview());
+		this.ResultListener.dispatch();
+	}
+}
+
+
+window.addEventListener('DOMContentLoaded', () => LocalizationResults.init());
