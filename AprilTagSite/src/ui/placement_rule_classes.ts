@@ -1,16 +1,20 @@
-import { CardHandler, CardHolder } from "@app/ui/card_handler";
+import { CardHandler } from "@app/ui/card_handler";
 import { ObjectSelector, Selectable } from "@app/ui/object_selector";
 import { RuleHandler } from "@app/ui/placement_rules";
 import { Vector3 } from "three";
 import { DEG_TO_RAD, yawPitchToOpenCVVector } from "@app/util";
 import { CreateIdent } from "@app/data/solver";
 import { CameraObject } from "@app/data/objects";
+import { ReactNode } from "react";
 
 export function FacingCorrection(obj: Selectable) {
 	return (obj instanceof CameraObject) ? 1 : -1;
 }
 
-export class PlacementRule extends CardHolder {
+export class PlacementRule {
+
+	public icon: string = null;
+	public name: string;
 
 	protected target: Selectable;
 
@@ -25,6 +29,10 @@ export class PlacementRule extends CardHolder {
 	public jsonify(): any {
 		return { target: CreateIdent(this.target), weight: this.weight }
 	}
+
+	public render({ ...kwargs }: { [key: string]: any } = {}): ReactNode {
+		return null;
+	}
 }
 
 type NormMode = 'axis' | 'angle';
@@ -37,10 +45,7 @@ export class PlacementRule_Norm extends PlacementRule {
 	private pitch: number = 0;
 	private yaw: number = 0;
 
-	constructor() {
-		super();
-		this.card_icon = 'bi-box-arrow-up-right';
-	}
+	icon = 'bi-box-arrow-up-right';
 
 	write_card(card_overlay: HTMLElement, { ...kwargs }: { [key: string]: any } = {}) {
 		let selected: Selectable;
@@ -48,8 +53,8 @@ export class PlacementRule_Norm extends PlacementRule {
 		switch (kwargs['source']) {
 			case 'new':
 				selected = ObjectSelector.get_selected();
-				if (selected) this.card_name = `Facing (${selected.get_name()})`;
-				else this.card_name = 'Facing';
+				if (selected) this.name = `Facing (${selected.get_name()})`;
+				else this.name = 'Facing';
 				break;
 			default:
 				selected = this.target;
@@ -73,8 +78,7 @@ export class PlacementRule_Norm extends PlacementRule {
 				this.on_select = (ev, obj) => {
 					selected = obj;
 					txt_target.value = selected.get_name();
-					this.card_name = `Facing (${selected.get_name()})`;
-					CardHandler.UpdateName();
+					this.name = `Facing (${selected.get_name()})`;
 					return true;
 				}
 			});
@@ -246,7 +250,7 @@ export class PlacementRule_Norm extends PlacementRule {
 		}
 
 
-		this.confirm = () => {
+		let confirm = () => {
 			if (!selected) {
 
 				return false;
@@ -313,10 +317,7 @@ export class PlacementRule_Offset extends PlacementRule {
 	private axis: OffsetAxis;
 	private distance: number = 0;
 
-	constructor() {
-		super();
-		this.card_icon = 'bi-arrow-bar-up';
-	}
+	icon = 'bi-arrow-bar-up';
 
 	write_card(card_overlay: HTMLElement, { ...kwargs }: { [key: string]: any } = {}) {
 		let selected: Selectable;
@@ -324,8 +325,8 @@ export class PlacementRule_Offset extends PlacementRule {
 		switch (kwargs['source']) {
 			case 'new':
 				selected = ObjectSelector.get_selected();
-				if (selected) this.card_name = `Offset (${selected.get_name()})`;
-				else this.card_name = 'Offset';
+				if (selected) this.name = `Offset (${selected.get_name()})`;
+				else this.name = 'Offset';
 				break;
 			default:
 				selected = this.target;
@@ -349,8 +350,7 @@ export class PlacementRule_Offset extends PlacementRule {
 				this.on_select = (ev, obj) => {
 					selected = obj;
 					txt_target.value = selected.get_name();
-					this.card_name = `Offset (${selected.get_name()})`;
-					CardHandler.UpdateName();
+					this.name = `Offset (${selected.get_name()})`;
 					return true;
 				}
 			});
@@ -442,7 +442,7 @@ export class PlacementRule_Offset extends PlacementRule {
 			card_overlay.appendChild(div_dist);
 		}
 
-		this.confirm = () => {
+		let confirm = () => {
 			if (!selected) {
 				return false;
 			}

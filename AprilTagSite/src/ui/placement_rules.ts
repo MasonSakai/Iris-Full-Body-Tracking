@@ -13,15 +13,15 @@ export class RuleHandler {
 
 	public static init() {
 
-		document.getElementById('tool-norm').addEventListener('click', () => {
-			RuleHandler.selected_rule = new PlacementRule_Norm();
-			CardHandler.RequestElement(RuleHandler.selected_rule, { source: 'new' });
-		});
+		//document.getElementById('tool-norm').addEventListener('click', () => {
+		//	RuleHandler.selected_rule = new PlacementRule_Norm();
+		//	CardHandler.RequestElement(RuleHandler.selected_rule, { source: 'new' });
+		//});
 
-		document.getElementById('tool-offset').addEventListener('click', () => {
-			RuleHandler.selected_rule = new PlacementRule_Offset();
-			CardHandler.RequestElement(RuleHandler.selected_rule, { source: 'new' });
-		});
+		//document.getElementById('tool-offset').addEventListener('click', () => {
+		//	RuleHandler.selected_rule = new PlacementRule_Offset();
+		//	CardHandler.RequestElement(RuleHandler.selected_rule, { source: 'new' });
+		//});
 	}
 
 

@@ -12,10 +12,16 @@ function RuleButton({
     return (
         <button
             className="btn btn-outline-secondary list-group-item text-start"
-            onClick={() => CardHandler.RequestElement(rule, { source: 'list' })}
+            onClick={() => CardHandler.open({
+                icon: rule.icon, title: rule.name,
+                onRename: null, onDismiss: null,
+                onConfirm: null,
+                content: null,
+                source: rule
+            })} //rule, { source: 'list' }
         >
-            <span className={`bi ${rule.card_icon} me-2`} />
-            {rule.card_name}
+            <span className={`bi ${rule.icon} me-2`} />
+            {rule.name}
         </button>
     );
 }

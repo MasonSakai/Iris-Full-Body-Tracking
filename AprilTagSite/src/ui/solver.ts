@@ -3,11 +3,11 @@ import * as THREE from 'three'
 import { Matrix4, Object3D } from 'three';
 import { ConstraintAnalysis, CreateIdent, ParseIdent, RequestLocalization as FetchLocalization, resp_ConnectedComponent, resp_OptimizationResult, resp_SolverResponse, SolverIdent } from '@app/data/solver'
 import { CreateMatrix, mapRecord } from '@app/util';
-import { CardHandler, CardHolder } from '@app/ui/card_handler';
 import { ObjectSelector, Selectable } from '@app/ui/object_selector';
 import { scene } from '@app/apriltag';
 import { camera_list, found_tag_list, tag_list } from '@app/data/objects';
 import { EventDispatcher } from '@app/EventDispatcher';
+import { CardHandler } from './card_handler';
 
 class SolverMap<T> {
 	private internalMap: Map<string, T>;
@@ -76,7 +76,7 @@ let line_parent = new Object3D();
 let lines: Record<number, THREE.Line[]> = {};
 let line_material = new THREE.LineBasicMaterial({ color: 0xffff00 });
 
-export class ConnectedComponent extends CardHolder {
+export class ConnectedComponent {
 	result: SolverResult
 
 	id: number
@@ -87,8 +87,6 @@ export class ConnectedComponent extends CardHolder {
 	relative_solved: boolean
 
 	constructor(result: SolverResult, data: resp_ConnectedComponent, idents: Record<number, SolverIdent>) {
-		super()
-
 		this.result = result;
 
 		this.id = data.id;
@@ -97,9 +95,6 @@ export class ConnectedComponent extends CardHolder {
 		this.has_detection = data.has_detection;
 		this.has_rules = data.has_rules;
 		this.relative_solved = data.relative_solved;
-
-		this.has_confirm = false;
-		this.card_name = `Optimization Result - ${this.get_name()}`;
 	}
 
 	get_name() {
@@ -135,7 +130,7 @@ export class ConnectedComponent extends CardHolder {
 	}
 }
 
-export class OptimizationResult extends CardHolder {
+export class OptimizationResult {
 	result: SolverResult;
 
 	success: boolean
@@ -148,10 +143,6 @@ export class OptimizationResult extends CardHolder {
 	constraint_analysis: Record<number, ConstraintAnalysis>
 
 	constructor(result: SolverResult, data: resp_OptimizationResult) {
-		super();
-		this.has_confirm = false;
-		this.card_name = 'Optimization Result';
-
 		this.result = result;
 
 		this.success = data.success;
@@ -165,10 +156,6 @@ export class OptimizationResult extends CardHolder {
 	}
 
 	write_card(card_overlay: HTMLElement, { ...kwargs }: { [key: string]: any } = {}) {
-		if (kwargs['element']) {
-			kwargs['element'].classList.toggle('active', true);
-			this.dismiss = () => kwargs['element'].classList.toggle('active', false);
-		}
 
 		let div_success = document.createElement('div');
 		div_success.innerText =
@@ -304,8 +291,8 @@ export class LocalizationResults {
 	}
 	public static clear_result() {
 		for (const comp of Object.values(this.LatestResult?.traversal.components ?? {}))
-			if (CardHandler.IsHolder(comp)) CardHandler.Dismiss();
-		if (CardHandler.IsHolder(this.LatestResult?.world)) CardHandler.Dismiss();
+			if (CardHandler.isShowing(comp)) CardHandler.dismiss();
+		if (CardHandler.isShowing(this.LatestResult?.world)) CardHandler.dismiss();
 
 		this.clearLines();
 		this.LatestResult = null;

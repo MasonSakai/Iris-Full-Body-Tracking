@@ -10,8 +10,12 @@ function ComponentList({
 }) {
     return (
         <li>
-            <button className={`dropdown-item ${CardHandler.IsHolder(comp) ? 'active' : ''}`} type="button"
-                onClick={() => CardHandler.RequestElement(comp)}
+            <button className={`dropdown-item ${CardHandler.isShowing(comp) ? 'active' : ''}`} type="button"
+                onClick={() => CardHandler.open({
+                    icon: null, title: `Optimization Result - ${comp.get_name()}`,
+                    onRename: null, onConfirm: null, onDismiss: null,
+                    content: null, source: comp
+                })}
             >
                 {comp.get_name()}
             </button>
@@ -61,9 +65,14 @@ function SolverResults() {
                         <RelativeList />
                     </ul>
 
-                    <button className="btn btn-outline-secondary list-group-item text-start" onClick={(ev) => {
+                    <button className={`btn btn-outline-secondary list-group-item text-start ${CardHandler.isShowing(LocalizationResults.LatestResult?.world) ? 'active' : ''}`}
+                        onClick={() => {
                         if (!LocalizationResults.LatestResult) return;
-                        CardHandler.RequestElement(LocalizationResults.LatestResult.world, { element: ev.currentTarget });
+                            CardHandler.open({
+                                icon: null, title: 'World Optimization Result',
+                                onRename: null, onConfirm: null, onDismiss: null,
+                                source: LocalizationResults.LatestResult.world, content: null
+                            });
                     }}>World Optimization</button>
 
                     <div className="btn-group btn-group-sm">

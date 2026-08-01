@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import '@app/ui/object_list';
 import '@app/ui/react/RuleList';
 import "@app/ui/react/LocalizerResult";
+import '@app/ui/react/CardOverlay';
 import { CreateMatrix } from '@app/util'
 import { PickHelper } from '@app/PickHelper'
 
