@@ -373,3 +373,4 @@ lib/OpenCV/install/*
 *.LICENSE.txt
 /AprilTagSite/build
 IrisCore/images
+!IrisCore/**/debug
