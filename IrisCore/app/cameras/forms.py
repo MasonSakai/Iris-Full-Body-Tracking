@@ -61,23 +61,23 @@ class NewLocalReferenceForm(CameraReferenceForm):
 	def hashname(name: str, ident: str) -> str:
 		return f"{name} ({ hashlib.sha256(ident.encode('utf-8')).hexdigest()[:4] })"
 	
-	def __init__(self, options: list[CameraInfo], *args, **kwargs):
+	def __init__(self, options: list[tuple[CameraIdent, CameraInfo]], *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
 		choices = {}
-		for info in options:
-			ident = f"{info.name}:{info.vid}:{info.pid}"
+		for [ident, info] in options:
+			s_ident = ':'.join([str(v) for v in ident])
 			name = info.name
 			if name in choices:
 				if choices[name] == '':
-					name = NewLocalReferenceForm.hashname(name, ident)
-				elif choices[name] != ident:
+					name = NewLocalReferenceForm.hashname(name, s_ident)
+				elif choices[name] != s_ident:
 					o_ident = choices[name]
 					o_name = NewLocalReferenceForm.hashname(name, o_ident)
 					choices[o_name] = o_ident
 					choices[name] = ''
-					name = NewLocalReferenceForm.hashname(name, ident)
-			choices[name] = ident
+					name = NewLocalReferenceForm.hashname(name, s_ident)
+			choices[name] = s_ident
 
 		self.ident.choices = [('', 'Please Select'), *[(v, k) for k, v in choices.items() if v != '']]
 
@@ -86,4 +86,4 @@ class NewLocalReferenceForm(CameraReferenceForm):
 	submit = SubmitField('Create')
 
 	
-from app.cameras.models import Camera, CameraInfo, CameraReference
+from app.cameras.models import Camera, CameraIdent, CameraInfo, CameraReference

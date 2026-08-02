@@ -71,12 +71,24 @@ class CameraReference(IDataSource, IExposable, ThingName='CameraReference'):
 
 	def RequestImage(self) -> tuple[bool, MatLike]:
 		return False, None
-		
+	
+	
+type CameraIdent = tuple[str, int | None, int | None, str | None]
+def MakeCamIdent(cam: CameraInfo) -> CameraIdent:
+	usb = None
+	if cam.path.startswith(r"\\?\usb#"):
+		try:
+			usb = cam.path.split("#")[2].lower()
+		except IndexError:
+			pass
+	return (cam.name, cam.vid, cam.pid, usb)
+
 class LocalCameraReference(CameraReference):
 
 	name: str
 	vid: int
 	pid: int
+	usb: str
 	
 	cap: cv.VideoCapture
 
@@ -86,16 +98,18 @@ class LocalCameraReference(CameraReference):
 		self.vid = None
 		self.pid = None
 		self.cap = None
+		self.usb = None
 	
 	def ExposeData(self):
 		super().ExposeData()
 		self.name = Scribe_Values.Look(self.name, 'name', str)
 		self.vid = Scribe_Values.Look(self.vid, 'vid', int)
 		self.pid = Scribe_Values.Look(self.pid, 'pid', int)
+		self.usb = Scribe_Values.Look(self.usb, 'usb', str)
 		
 	def RequestStart(self, *args, **kwargs):
 		for cam in enumerate_cameras():
-			if (cam.name, cam.vid, cam.pid) == (self.name, self.vid, self.pid):
+			if MakeCamIdent(cam) == (self.name, self.vid, self.pid, self.usb):
 				break
 		else: cam = None
 		if not cam:
@@ -124,24 +138,22 @@ class LocalCameraReference(CameraReference):
 				ThingDatabase(IDataSource).Remove(self)
 
 	@staticmethod
-	def EnumerateCameras() -> tuple[list[tuple[Camera, CameraInfo]], list[CameraInfo]]:
-		def MakeID(ref: LocalCameraReference | CameraInfo) -> tuple[str, int, int]:
-			return (ref.name, ref.vid, ref.pid)
-
-		known: dict[tuple[str, int, int], Camera] = {}
+	def EnumerateCameras():
+		
+		known: dict[CameraIdent, CameraReference] = {}
 		for cam in ThingDatabase(Camera).AllThingsListForReading():
 			for ref in cam.references:
 				if isinstance(ref, LocalCameraReference):
-					known[MakeID(ref)] = cam
+					known[(ref.name, ref.vid, ref.pid, ref.usb)] = ref
 
-		found: list[tuple[Camera, CameraInfo]] = []
-		new: list[CameraInfo] = []
+		found: list[tuple[CameraReference, CameraInfo]] = []
+		new: list[tuple[CameraIdent, CameraInfo]] = []
 		for cam in enumerate_cameras():
-			ident = MakeID(cam)
+			ident = MakeCamIdent(cam)
 			if ident in known:
 				found.append((known[ident], cam))
 			else:
-				new.append(cam)
+				new.append([ident, cam])
 
 		return found, new
 

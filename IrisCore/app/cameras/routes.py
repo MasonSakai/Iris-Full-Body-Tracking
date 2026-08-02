@@ -68,9 +68,10 @@ def new_lref(cam_id: str):
 		ref.display_name = form.display_name.data
 		ref.autostart = form.autostart.data
 
-		[ref.name, vid, pid] = form.ident.data.split(':')
+		[ref.name, vid, pid, usb] = form.ident.data.split(':')
 		ref.vid = int(vid)
 		ref.pid = int(pid)
+		ref.usb = usb
 		cam.references.append(ref)
 
 		if ref.autostart:
