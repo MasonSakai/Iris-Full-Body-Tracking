@@ -174,7 +174,11 @@ def view_tag(id):
 		form.display_name.data = tag.display_name
 		form.ensure_static.data = tag.ensure_static
 		
-	return render_template('_view_tag.html', form=form, tag=tag)
+	dets = {
+		cam: (num, np.linalg.norm(trans[:3, 3]), v_pos, v_mar)
+		for cam, (num, trans, v_pos, v_mar) in tag.detections.items()
+	}
+	return render_template('_view_tag.html', form=form, tag=tag, dets=dets)
 
 @bp_aptg.route('/tags/<id>/delete')
 def delete_tag(id):
@@ -202,6 +206,10 @@ def clear_found_tags():
 
 @bp_aptg.route('/tags/found/<family>:<id>', methods=['GET', 'POST'])
 def view_found_tag(family, id):
+	def scale(trans: np.ndarray, s: float):
+		trans[:3, 3] *= s
+		return trans
+
 	id = int(id)
 
 	data = found_tags.get((family, id), None)
@@ -218,7 +226,7 @@ def view_found_tag(family, id):
 		tag.tag_size = form.tag_size.data / 100.
 		tag.display_name=form.display_name.data
 
-		tag.detections = { cam: (num, pos * tag.tag_size / size, rot, v_pos * tag.tag_size / size, v_mar) for cam, (num, pos, rot, v_pos, v_mar, size) in data.items() }
+		tag.detections = { cam: (num, scale(trans, tag.tag_size / size), v_pos * tag.tag_size / size, v_mar) for cam, (num, trans, v_pos, v_mar, size) in data.items() }
 
 		ThingDatabase(AprilTag).Add(tag)
 		found_tags.pop((family, id))
@@ -227,9 +235,13 @@ def view_found_tag(family, id):
 	elif request.method == 'GET':
 
 		form.display_name.data = '{}:{}'.format(family, id)
-		form.tag_size.data = mode([v[5] for v in data.values()]) * 100.
+		form.tag_size.data = mode([v[4] for v in data.values()]) * 100.
 
-	return render_template('_add_tag.html', form=form, tag_family=family, tag_id=id, cams=data)
+	dets = {
+		cam: (num, np.linalg.norm(trans[:3, 3]), v_pos, v_mar, size)
+		for cam, (num, trans, v_pos, v_mar, size) in data.items()
+	}
+	return render_template('_add_tag.html', form=form, tag_family=family, tag_id=id, cams=dets)
 
 @bp_aptg.route('/tags/found/<family>:<id>/clear')
 def clear_found_tag(family, id):

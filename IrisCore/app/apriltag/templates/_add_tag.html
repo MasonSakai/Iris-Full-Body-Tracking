@@ -36,11 +36,11 @@
 							</tr>
 						</thead>
 						<tbody>
-							{% for cam, (num, pos, rot, v_pos, v_mar, size) in cams.items() %}
+							{% for cam, (num, dist, v_pos, v_mar, size) in cams.items() %}
 							<tr>
 								<td>{{ cam.display_name }}</td>
 								<td>{{ "%.3g" | format(size*100) }}cm</td>
-								<td>{{ "%.3g" | format(np.linalg.norm(pos)) }}m</td>
+								<td>{{ "%.3g" | format(dist) }}m</td>
 								<td>{{ "%.3g" | format(v_pos * 1000) }}mm</td>
 								<td>{{ "%.3g" | format(v_mar) }}</td>
 							</tr>
