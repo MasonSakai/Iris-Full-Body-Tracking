@@ -1,4 +1,4 @@
-{% import 'bootstrap_wtf.html' as wtf %}
+{% import 'bootstrap_wtf.html' as wtf with context %}
 
 <div class="card popup-form">
 	<div class="card-header text-center">
@@ -10,37 +10,14 @@
 		{{ form.hidden_tag() }}
 
 		<div class="card-body">
-			<div class="mb-3 input-group">
-				{{ form.display_name.label(class='input-group-text') }}
-				{{ form.display_name(class='form-control') }}
-				{%- for error in form.display_name.errors %}
-				<div class="invalid-feedback">{{ error }}</div>
-				{%- endfor %}
-			</div>
-
-			<div class="mb-3 input-group">
-				{{ form.autostart.label(class='input-group-text') }}
-				<div class="input-group-text">
-					{{ form.autostart(class='form-check-input') }}
-				</div>
-				{%- for error in form.autostart.errors %}
-				<div class="invalid-feedback">{{ error }}</div>
-				{%- endfor %}
-				</div>
-
-				<div class="form-floating">
-					{{ form.ident(class='form-select') }}
-					{{ form.ident.label() }}
-					{%- for error in form.ident.errors %}
-					<div class="invalid-feedback">{{ error }}</div>
-					{%- endfor %}
-				</div>
-			</div>
+			{{ wtf.input_group([form.autostart], group_class='mb-3') }}
+			{{ wtf.form_floating(form.ident) }}
+		</div>
 
 		<div class="card-footer">
-			<div class="form-hor">
-				<button type="button" class="btn btn-secondary mb-3" data-modal-close>Cancel</button>
-				{{ form.submit(class="btn btn-primary mb-3") }}
+			<div class="input-group">
+				<button type="button" class="btn btn-secondary form-control" data-modal-close>Cancel</button>
+				{{ form.submit(class="btn btn-primary form-control") }}
 			</div>
 		</div>
 	</form>

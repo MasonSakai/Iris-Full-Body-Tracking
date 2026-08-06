@@ -19,15 +19,16 @@ class CameraReference(IDataSource, IExposable, ThingName='CameraReference'):
 
 	autostart: bool
 	_active: bool
-	display_name: str
 
 	def __init__(self):
 		super().__init__()
 		self.parent = None
 		self.autostart = False
 		self._active = False
-		self.display_name = None
 
+	@property
+	def display_name(self) -> str:
+		return None
 
 	@property
 	def active(self):
@@ -48,7 +49,6 @@ class CameraReference(IDataSource, IExposable, ThingName='CameraReference'):
 
 	def ExposeData(self):
 		super().ExposeData()
-		self.display_name = Scribe_Values.Look(self.display_name, 'display_name', str)
 		self.autostart = Scribe_Values.Look(self.autostart, 'autostart', bool, defaultValue=False)
 
 	def RequestStart(self, *args, **kwargs) -> bool:
@@ -97,8 +97,9 @@ class LocalCameraReference(CameraReference):
 		self.name = None
 		self.vid = None
 		self.pid = None
-		self.cap = None
 		self.usb = None
+
+		self.cap = None
 	
 	def ExposeData(self):
 		super().ExposeData()
@@ -107,6 +108,10 @@ class LocalCameraReference(CameraReference):
 		self.pid = Scribe_Values.Look(self.pid, 'pid', int)
 		self.usb = Scribe_Values.Look(self.usb, 'usb', str)
 		
+	@property
+	def display_name(self):
+		return self.name
+
 	def RequestStart(self, *args, **kwargs):
 		for cam in enumerate_cameras():
 			if MakeCamIdent(cam) == (self.name, self.vid, self.pid, self.usb):
@@ -158,13 +163,11 @@ class LocalCameraReference(CameraReference):
 		return found, new
 
 	def RenderView(self):
-		form = CameraReferenceForm(self.parent, self)
+		form = CameraReferenceForm()
 		if form.validate_on_submit():
-			self.display_name = form.display_name.data
 			self.autostart = form.autostart.data
 			return modal_success()
 		elif request.method == 'GET':
-			form.display_name.data = self.display_name
 			form.autostart.data = self.autostart
 		return render_template('_view_lref.html', ref=self, form=form, other_source_active=((r := self.parent.ActiveReference()) and r != self))
 

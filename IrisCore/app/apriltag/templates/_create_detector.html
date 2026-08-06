@@ -1,4 +1,4 @@
-{% import 'bootstrap_wtf.html' as wtf %}
+{% import 'bootstrap_wtf.html' as wtf with context %}
 
 <div class="card popup-form">
 	<div class="card-header text-center">
@@ -11,24 +11,17 @@
 		{{ form.hidden_tag() }}
 
 		<div class="card-body">
-			{{ wtf.form_field(form.display_name) }}
-			{{ wtf.form_field(form.families) }}
-			<div class="form-hor">
-				{{ wtf.form_field(form.nthreads) }}
-				{{ wtf.form_field(form.decode_sharpening) }}
-			</div>
-			<div class="form-hor">
-				{{ wtf.form_field(form.quad_decimate) }}
-				{{ wtf.form_field(form.quad_sigma) }}
-			</div>
-			{{ wtf.form_field(form.refine_edges) }}
-			{{ wtf.form_field(form.default_tag_size) }}
+			{{ wtf.form_floating([form.display_name, form.families], group_class='mb-3') }}
+
+			{{ wtf.input_group([form.nthreads, form.decode_sharpening], group_class='input-group-sm mb-3') }}
+			{{ wtf.input_group([form.quad_decimate, form.quad_sigma], group_class='input-group-sm mb-3') }}
+			{{ wtf.input_group([form.refine_edges, form.default_tag_size], group_class='input-group-sm') }}
 		</div>
 
 		<div class="card-footer">
-			<div class="form-hor">
-				<button type="button" class="btn btn-secondary mb-3" data-modal-close>Cancel</button>
-				{{ wtf.form_field(form.submit) }}
+			<div class="input-group">
+				<button type="button" class="btn btn-secondary form-control" data-modal-close>Cancel</button>
+				{{ form.submit(class="btn btn-primary form-control") }}
 			</div>
 		</div>
 	</form>

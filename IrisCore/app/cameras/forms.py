@@ -37,24 +37,10 @@ class CalibrationConfigForm(FlaskForm):
 	checkerboard_y = IntegerField('Height', validators=[DataRequired(), NumberRange(min=1)])
 
 class CameraReferenceForm(FlaskForm):
-	
-	def __init__(self, existing_cam: Camera, existing_ref: CameraReference = None, **kwargs):
-		super().__init__(**kwargs)
-		self.existing_cam = existing_cam
-		self.existing_ref = existing_ref
 
-	display_name = StringField('Reference Name', validators=[DataRequired()])
 	autostart = BooleanField('Auto-start')
 
 	submit = SubmitField('Confirm')
-
-	def validate_display_name(self, field: StringField):
-		if self.existing_ref and field.data == self.existing_ref.display_name:
-			return
-
-		for ref in self.existing_cam.references:
-			if field.data == ref.display_name:
-				raise ValidationError('Name matches existing reference for camera')
 
 class NewLocalReferenceForm(CameraReferenceForm):
 
@@ -66,7 +52,7 @@ class NewLocalReferenceForm(CameraReferenceForm):
 
 		choices = {}
 		for [ident, info] in options:
-			s_ident = ':'.join([str(v) for v in ident])
+			s_ident = ':'.join([str(v) if v != None else '' for v in ident])
 			name = info.name
 			if name in choices:
 				if choices[name] == '':

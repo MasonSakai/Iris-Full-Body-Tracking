@@ -1,3 +1,4 @@
+{% import 'bootstrap_wtf.html' as wtf with context %}
 {% from 'np_table.html' import np_table %}
 
 <div class="card popup-form">
@@ -24,11 +25,9 @@
 					{{ file_form.hidden_tag() }}
 					<div class="input-group">
 						{{ file_form.image_files(class='form-control') }}
-						<button class="btn btn-outline-secondary bi bi-upload"></button>
+						<button class="btn btn-outline-secondary bi bi-upload" type="submit"></button>
 					</div>
-					{%- for error in file_form.image_files.errors %}
-					<div class="invalid-feedback" style="display: block;">{{ error }}</div>
-					{%- endfor %}
+					{{ wtf.field_errors(file_form.image_files) }}
 				</form>
 			</div>
 		</div>
@@ -40,12 +39,10 @@
 			<div class="card-body">
 				<form action="{{ url_for('cameras.calibrate', cam_id=camera.ThingID) }}" method="POST" id="config_form">
 					{{ config_form.hidden_tag() }}
-					<div class="input-group mb-1">
-						{{ config_form.checkerboard_x.label(class='input-group-text') }}
-						{{ config_form.checkerboard_x(class='form-control') }}
-						{{ config_form.checkerboard_y.label(class='input-group-text') }}
-						{{ config_form.checkerboard_y(class='form-control') }}
+					<div class="input-group">
+						{{ wtf.input_group([config_form.checkerboard_x, config_form.checkerboard_y], has_validation=False, no_group=True) }}
 						<a class="btn btn-outline-secondary btn-sm" href="{{ url_for('cameras.static', filename='pdf/calibration-checker-board.pdf') }}" download>Checkerboard pdf</a>
+						{{ wtf.field_errors([config_form.checkerboard_x, config_form.checkerboard_y]) }}
 					</div>
 				</form>
 			</div>
@@ -63,11 +60,13 @@
 						{{ np_table(camera.camera_matrix, '', 'mb-0') }}
 						<div class="card-body">
 							<p class="card-text mb-1">Resolution: {{ camera.calib_res_width }}x{{ camera.calib_res_height }}</p>
-							<p class="card-text ">RMS Error: <span class="{{
-															 'text-success' if camera.calib_rms < 0.3 else
-															 'text-danger' if camera.calib_rms > 2 else
-															 'text-warning-emphasis' if camera.calib_rms > 1 else ''
-															 }}">{{ "%.4g" | format(camera.calib_rms) }}px</span></p>
+							<p class="card-text">
+								RMS Error: <span class="{{
+									'text-success' if camera.calib_rms < 0.3 else
+									'text-danger' if camera.calib_rms > 2 else
+									'text-warning-emphasis' if camera.calib_rms > 1 else ''
+								}}">{{ "%.4g" | format(camera.calib_rms) }}px</span>
+							</p>
 						</div>
 					</div>
 					<div class="card">
@@ -92,12 +91,12 @@
 		{% endif %}
 	</div>
 
-<div class="card-footer">
-	<form action="{{ url_for('cameras.calibrate', cam_id=camera.ThingID) }}" method="POST">
-		<div class="form-hor mb-3">
-			<button type="button" class="btn btn-secondary" data-modal-close>Close</button>
-			<button type="submit" class="btn btn-primary" form="config_form">Calibrate</button>
-		</div>
-	</form>
-</div>
+	<div class="card-footer">
+		<form action="{{ url_for('cameras.calibrate', cam_id=camera.ThingID) }}" method="POST">
+			<div class="input-group">
+				<button type="button" class="btn btn-secondary form-control" data-modal-close>Close</button>
+				<button type="submit" class="btn btn-primary form-control" form="config_form">Calibrate</button>
+			</div>
+		</form>
+	</div>
 </div>

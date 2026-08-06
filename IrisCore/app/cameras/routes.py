@@ -60,26 +60,24 @@ def delete_camera(cam_id):
 def new_lref(cam_id: str):
 	cam = ThingDatabase(Camera).Get(cam_id)
 	found_cams, new_cams = LocalCameraReference.EnumerateCameras()
-	form = NewLocalReferenceForm(new_cams, cam)
+	form = NewLocalReferenceForm(new_cams)
 
 	if form.validate_on_submit():
 		ref = LocalCameraReference()
 		ref.parent = cam
-		ref.display_name = form.display_name.data
 		ref.autostart = form.autostart.data
 
 		[ref.name, vid, pid, usb] = form.ident.data.split(':')
-		ref.vid = int(vid)
-		ref.pid = int(pid)
-		ref.usb = usb
+		ref.vid = int(vid) if vid else None
+		ref.pid = int(pid) if pid else None
+		ref.usb = usb if usb else None
 		cam.references.append(ref)
 
 		if ref.autostart:
 			ref.RequestAutoStart()
 
 		return modal_success()
-	elif request.method == 'GET':
-		form.display_name.data = f"Local Reference { len(cam.references) }"
+
 	return render_template('_new_lref.html', form=form, camera=cam)
 
 def get_ref(cam_id: str, ref_id: str) -> tuple[Camera, CameraReference | None]:

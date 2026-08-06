@@ -7,14 +7,23 @@
 	<label>Device Name</label>
 </div>
 
-<div class="mt-3 input-group">
-	<div class="form-floating">
-		<span class="form-control">{{ ref.vid }}</span>
-		<label>Device VID</label>
-	</div>
-	<div class="form-floating">
-		<span class="form-control">{{ ref.pid }}</span>
-		<label>Device PID</label>
-	</div>
+{% if ref.vid or ref.pid %}
+<div class="mt-3 input-group input-group-sm">
+	{% if ref.vid %}
+	<label class="input-group-text">Device VID</label>
+	<span class="form-control">{{ ref.vid }}</span>
+	{% endif %}
+	{% if ref.pid %}
+	<label class="input-group-text">Device PID</label>
+	<span class="form-control">{{ ref.pid }}</span>
+	{% endif %}
 </div>
+{% endif %}
+
+{% if ref.usb %}
+<div class="mt-3 input-group input-group-sm">
+	<label class="input-group-text">Device USB</label>
+	<span class="form-control">{{ ref.usb }}</span>
+</div>
+{% endif %}
 {% endblock %}

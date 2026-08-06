@@ -36,8 +36,23 @@ def initialize_runtime(app: Flask):
     atexit.register(shutdown)
 
     @app.context_processor
-    def inject_numpy():
-        return dict(np=np)
+    def inject_jinja():
+        def form_class(field):
+            match(field.type):
+                case 'BooleanField':
+                    return 'form-check-input'
+                case 'SelectField':
+                    return 'form-select'
+                case _:
+                    return 'form-control'
+
+        return {
+            'np': np,
+            'form_class': form_class,
+            'validate_class': (lambda *fields, has_validation=True: 'has-validation' if has_validation and any([field.errors for field in fields]) else ''),
+            'invalid_class': (lambda field, has_validation=True: 'is-invalid' if has_validation and field.errors else ''),
+            'join_classes': (lambda *classes: ' '.join(classes).strip())
+        }
 
 def start_app(app):
     initialize_runtime(app)
