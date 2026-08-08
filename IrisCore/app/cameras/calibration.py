@@ -110,13 +110,11 @@ def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
         h, w = img.shape[:2]
  
         # Find the chess board corners
-        ret, corners = cv.findChessboardCorners(gray, (config.checkerboard_y, config.checkerboard_x), None)
+        ret, corners = cv.findChessboardCornersSB(gray, (config.checkerboard_y, config.checkerboard_x))
         
         if ret:
             objpoints.append(objp)
- 
-            corners2 = cv.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
-            imgpoints.append(corners2)
+            imgpoints.append(corners)
 
             valid_files.append(file)
         else:
