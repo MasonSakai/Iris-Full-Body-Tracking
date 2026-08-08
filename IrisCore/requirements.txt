@@ -7,7 +7,7 @@ Jinja2==3.1.4
 Werkzeug==3.0.3
 WTForms==3.1.2
 python-dotenv==1.0.1
-opencv-python
+opencv-python>=4.12,<5
 cv2-enumerate-cameras
 vmcp[osc4py3]
 pupil-apriltags

@@ -12,10 +12,8 @@ from utils.registry import ThingDatabase
 
 
 def GetTags(cam: Camera, img: MatLike) -> tuple[list[tuple[float, Detection]], list[tuple[AprilTag, Detection]]]:
-	(camera_matrix, dist_coeffs, fisheye) = cam.get_camera_params()
-
 	#camera_matrix = cam.rescale_camera_matrix(img.shape)
-	img, rect = cam.undistortImage(img, camera_matrix, dist_coeffs, fisheye)
+	img, camera_matrix, rect = cam.undistortImage(img)
 		
 	# scale = 3
 	# if scale > 1 and img.shape == (480, 640):

@@ -6,6 +6,7 @@ import tempfile
 import cv2 as cv
 import numpy as np
 from flask import redirect, render_template, request, url_for
+from packaging.version import Version
 from werkzeug.datastructures import FileStorage
 from app.cameras.forms import CalibrationConfigForm, FileUploadForm
 from app.cameras.models import Camera
@@ -13,29 +14,31 @@ from app.cameras.routes import bp_cam
 from utils.registry import ThingDatabase
 from utils.scribe import IExposable, Scribe_Values
 
+if Version(cv.__version__) >= Version("5.0.0"):
+    raise RuntimeError(
+        f"Unsupported OpenCV version {cv.__version__}. "
+        "This application requires OpenCV 4.x."
+    )
+
 class CalibrationConfig(IExposable):
 
     def __init__(self):
         self.checkerboard_x = 7
         self.checkerboard_y = 9
-        self.checkerboard_w = 0.02
         self.fisheye = False
 
     def ExposeData(self):
         self.checkerboard_x = Scribe_Values.Look(self.checkerboard_x, 'width', int, 7)
         self.checkerboard_y = Scribe_Values.Look(self.checkerboard_y, 'height', int, 9)
-        self.checkerboard_w = Scribe_Values.Look(self.checkerboard_w, 'size', float, 0.02)
 
     def WriteForm(self, form: CalibrationConfigForm, cam: Camera):
         form.checkerboard_x.data = self.checkerboard_x
         form.checkerboard_y.data = self.checkerboard_y
-        form.checkerboard_w.data = self.checkerboard_w * 1000.
         form.fisheye.data = cam.fisheye
 
     def ReadForm(self, form: CalibrationConfigForm):
         self.checkerboard_x = form.checkerboard_x.data
         self.checkerboard_y = form.checkerboard_y.data
-        self.checkerboard_w = form.checkerboard_w.data / 1000.
         self.fisheye = form.fisheye.data
 
 config = CalibrationConfig()

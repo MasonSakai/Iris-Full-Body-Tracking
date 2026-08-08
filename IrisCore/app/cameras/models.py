@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import typing
 import cv2 as cv
 from cv2.typing import MatLike, Rect
 from cv2_enumerate_cameras import enumerate_cameras
@@ -257,11 +258,11 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 		mat[2, 2] = 1
 
 		return mat
-
-	def undistortImage(self, image: MatLike):
-		return self.undistortImage(image, *self.get_camera_params())
+	
+	@typing.overload
+	def undistortImage(self, image: MatLike): ...
 		
-	def undistortImage(self, image: MatLike, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, fisheye: bool) -> tuple[MatLike, Rect]:
+	def undistortImage(self, image: MatLike, camera_matrix: np.ndarray = None, dist_coeffs: np.ndarray = None, fisheye: bool = None) -> tuple[MatLike, Rect]:
 		"""
 		Undistorts an image and gives cropped rectangle
 
@@ -270,27 +271,29 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 		x, y, w, h = roi
 		dst = dst[y:y+h, x:x+w]
 		"""
+		if camera_matrix == None:
+			camera_matrix, dist_coeffs, fisheye = self.get_camera_params()
+
 		h, w = image.shape[:2]
 
 		if fisheye:
 			new_k = cv.fisheye.estimateNewCameraMatrixForUndistortRectify(camera_matrix, dist_coeffs, (w, h), np.eye(3), balance=1)
-			return cv.fisheye.undistortImage(image, camera_matrix, dist_coeffs, Knew=new_k), None # need to figure out rect
+			return cv.fisheye.undistortImage(image, camera_matrix, dist_coeffs, Knew=new_k), new_k, None # need to figure out rect?
 		else:
 			newcameramtx, roi = cv.getOptimalNewCameraMatrix(camera_matrix, dist_coeffs, (w,h), 1, (w,h))
-			return cv.undistort(image, camera_matrix, dist_coeffs, newCameraMatrix=newcameramtx), roi
+			return cv.undistort(image, camera_matrix, dist_coeffs, newCameraMatrix=newcameramtx), newcameramtx, roi
 
 	def UndistortPoints(self, data: np.ndarray):
 		return Camera.UndistortPoints(data, *self.get_camera_params())
 
 	@staticmethod
-	def UndistortPoints(data: np.ndarray, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, fisheye: bool):
-		if data is not np.array:
-			data = np.array(data)
+	def UndistortPoints(data: np.ndarray, new_camera_matrix: np.ndarray, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, fisheye: bool):
+		data = np.array(data)
 
 		if fisheye:
-			return np.squeeze(cv.fisheye.undistortPoints(data, camera_matrix, dist_coeffs))
+			return np.squeeze(cv.fisheye.undistortPoints(data, camera_matrix, dist_coeffs, P=new_camera_matrix))
 		else:
-			return np.squeeze(cv.undistortPoints(data, camera_matrix, dist_coeffs))
+			return np.squeeze(cv.undistortPoints(data, camera_matrix, dist_coeffs, P=new_camera_matrix))
 
 	
 from app.cameras.forms import CameraReferenceForm
