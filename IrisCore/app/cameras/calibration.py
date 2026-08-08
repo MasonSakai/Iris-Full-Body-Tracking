@@ -52,6 +52,39 @@ def GetCameraFileList(camera: Camera, path: str = None) -> list[Path]:
         return []
     return [f for f in Path(path).iterdir() if f.is_file()]
 
+def get_fisheye_reprojection_errors(
+    objpoints,
+    imgpoints,
+    rvecs,
+    tvecs,
+    camera_matrix,
+    dist_coeffs,
+):
+    errors = []
+
+    for i, (objp, imgp, rvec, tvec) in enumerate(
+        zip(objpoints, imgpoints, rvecs, tvecs)
+    ):
+        objp = np.asarray(objp, dtype=np.float64).reshape(-1, 1, 3)
+        imgp = np.asarray(imgp, dtype=np.float64).reshape(-1, 1, 2)
+
+        projected, _ = cv.fisheye.projectPoints(
+            objp,
+            rvec,
+            tvec,
+            camera_matrix,
+            dist_coeffs,
+        )
+
+        projected = projected.reshape(-1, 2)
+        imgp = imgp.reshape(-1, 2)
+
+        point_errors = np.linalg.norm(projected - imgp, axis=1)
+
+        rms = np.sqrt(np.mean(point_errors ** 2))
+        errors.append(rms)
+
+    return errors
 
 def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
     files = GetCameraFileList(camera, path)
@@ -65,6 +98,8 @@ def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
 
     objpoints = [] # 3d point in real world space
     imgpoints = [] # 2d points in image plane.
+    valid_files: list[Path] = []
+    invalid_files: list[Path] = []
 
     w = 0
     h = 0
@@ -77,33 +112,52 @@ def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
         # Find the chess board corners
         ret, corners = cv.findChessboardCorners(gray, (config.checkerboard_y, config.checkerboard_x), None)
         
-        if ret == True:
+        if ret:
             objpoints.append(objp)
  
             corners2 = cv.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
             imgpoints.append(corners2)
+
+            valid_files.append(file)
+        else:
+            invalid_files.append(file)
             
     if len(objpoints) == 0:
-        return False, 'Found no valid checkerboards in {} images'.format(len(files))
+        return False, f'Found no valid checkerboards in {len(files)} images\nPlease clear images and try again'
     
     try:
         if config.fisheye:
             objpoints_fisheye = [np.asarray(objp, dtype=np.float64).reshape(-1, 1, 3) for objp in objpoints]
             imgpoints_fisheye = [np.asarray(corners, dtype=np.float64).reshape(-1, 1, 2) for corners in imgpoints]
-            flags = (
-                cv.fisheye.CALIB_RECOMPUTE_EXTRINSIC |
-                cv.fisheye.CALIB_CHECK_COND |
-                cv.fisheye.CALIB_FIX_SKEW
-            )
+            # flags = (
+            #     cv.fisheye.CALIB_RECOMPUTE_EXTRINSIC |
+            #     cv.fisheye.CALIB_CHECK_COND |
+            #     cv.fisheye.CALIB_FIX_SKEW
+            # )
+            flags = 0
             rms, mtx, dist, rvecs, tvecs = cv.fisheye.calibrate(objpoints_fisheye, imgpoints_fisheye, gray.shape[::-1], None, None, flags=flags)
+
+            if rms > 5:
+                errors = get_fisheye_reprojection_errors(
+                    objpoints_fisheye,
+                    imgpoints_fisheye,
+                    rvecs,
+                    tvecs,
+                    mtx,
+                    dist,
+                )
+
+                print(f'High RMS ({rms}), printing per-file RMS')
+                for file, error in zip(valid_files, errors):
+                    print(f"\t{file.name}: {error:.2f}px")
         else:
             rms, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
     except cv.error as e:
-        return False, f"Calibration failed due to condition check or matrix error: {e}"
+        return False, f"Calibration failed due to condition check or matrix error:\n{e.err}"
     
     camera.set_camera_params(h, w, mtx, dist, rms, config.fisheye)
 
-    return True, f"Successfully calibrated with {len(objpoints)} images"
+    return True, f"Successfully calibrated with {len(objpoints)/len(files)} images"
 
 
 
