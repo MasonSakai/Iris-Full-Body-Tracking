@@ -85,13 +85,21 @@ def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
             
     if len(objpoints) == 0:
         return False, 'Found no valid checkerboards in {} images'.format(len(files))
-
-    if config.fisheye:
-        objpoints_fisheye = [np.asarray(objp, dtype=np.float64).reshape(-1, 1, 3) for objp in objpoints]
-        imgpoints_fisheye = [np.asarray(corners, dtype=np.float64).reshape(-1, 1, 2) for corners in imgpoints]
-        rms, mtx, dist, rvecs, tvecs = cv.fisheye.calibrate(objpoints_fisheye, imgpoints_fisheye, gray.shape[::-1], None, None)
-    else:
-        rms, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+    
+    try:
+        if config.fisheye:
+            objpoints_fisheye = [np.asarray(objp, dtype=np.float64).reshape(-1, 1, 3) for objp in objpoints]
+            imgpoints_fisheye = [np.asarray(corners, dtype=np.float64).reshape(-1, 1, 2) for corners in imgpoints]
+            flags = (
+                cv.fisheye.CALIB_RECOMPUTE_EXTRINSIC |
+                cv.fisheye.CALIB_CHECK_COND |
+                cv.fisheye.CALIB_FIX_SKEW
+            )
+            rms, mtx, dist, rvecs, tvecs = cv.fisheye.calibrate(objpoints_fisheye, imgpoints_fisheye, gray.shape[::-1], None, None, flags=flags)
+        else:
+            rms, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+    except cv.error as e:
+        return False, f"Calibration failed due to condition check or matrix error: {e}"
     
     camera.set_camera_params(h, w, mtx, dist, rms, config.fisheye)
 
