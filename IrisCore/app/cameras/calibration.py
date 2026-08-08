@@ -19,18 +19,24 @@ class CalibrationConfig(IExposable):
         self.checkerboard_x = 7
         self.checkerboard_y = 9
         self.checkerboard_w = 0.02
+        self.fisheye = False
 
     def ExposeData(self):
         self.checkerboard_x = Scribe_Values.Look(self.checkerboard_x, 'width', int, 7)
         self.checkerboard_y = Scribe_Values.Look(self.checkerboard_y, 'height', int, 9)
+        self.checkerboard_w = Scribe_Values.Look(self.checkerboard_w, 'size', float, 0.02)
 
-    def WriteForm(self, form: CalibrationConfigForm):
+    def WriteForm(self, form: CalibrationConfigForm, cam: Camera):
         form.checkerboard_x.data = self.checkerboard_x
         form.checkerboard_y.data = self.checkerboard_y
+        form.checkerboard_w.data = self.checkerboard_w * 1000.
+        form.fisheye.data = cam.fisheye
 
     def ReadForm(self, form: CalibrationConfigForm):
         self.checkerboard_x = form.checkerboard_x.data
         self.checkerboard_y = form.checkerboard_y.data
+        self.checkerboard_w = form.checkerboard_w.data / 1000.
+        self.fisheye = form.fisheye.data
 
 config = CalibrationConfig()
 
@@ -77,9 +83,14 @@ def CalibrateCamera(camera: Camera, path: str = None) -> tuple[bool, str]:
     if len(objpoints) == 0:
         return False, 'Found no valid checkerboards in {} images'.format(len(files))
 
-    rms, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+    if config.fisheye:
+        objpoints_fisheye = [np.asarray(objp, dtype=np.float64).reshape(-1, 1, 3) for objp in objpoints]
+        imgpoints_fisheye = [np.asarray(corners, dtype=np.float64).reshape(-1, 1, 2) for corners in imgpoints]
+        rms, mtx, dist, rvecs, tvecs = cv.fisheye.calibrate(objpoints_fisheye, imgpoints_fisheye, gray.shape[::-1], None, None)
+    else:
+        rms, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
     
-    camera.set_camera_params(h, w, mtx, dist, rms)
+    camera.set_camera_params(h, w, mtx, dist, rms, config.fisheye)
 
     return True, f"Successfully calibrated with {len(objpoints)} images"
 
@@ -96,7 +107,7 @@ def calibrate(cam_id):
         config.ReadForm(config_form)
         success, feedback = CalibrateCamera(cam, path)
     elif request.method == 'GET':
-        config.WriteForm(config_form)
+        config.WriteForm(config_form, cam)
 
     return render_template('_calib_cam.html', file_form=file_form, config_form=config_form, feedback=feedback, camera=cam, files=GetCameraFileList(cam))
 

@@ -39,11 +39,13 @@
 			<div class="card-body">
 				<form action="{{ url_for('cameras.calibrate', cam_id=camera.ThingID) }}" method="POST" id="config_form">
 					{{ config_form.hidden_tag() }}
-					<div class="input-group">
+					<div class="input-group mb-3">
 						{{ wtf.input_group([config_form.checkerboard_x, config_form.checkerboard_y], has_validation=False, no_group=True) }}
 						<a class="btn btn-outline-secondary btn-sm" href="{{ url_for('cameras.static', filename='pdf/calibration-checker-board.pdf') }}" download>Checkerboard pdf</a>
 						{{ wtf.field_errors([config_form.checkerboard_x, config_form.checkerboard_y]) }}
 					</div>
+
+					{{ wtf.input_group([config_form.checkerboard_w, config_form.fisheye]) }}
 				</form>
 			</div>
 		</div>
@@ -58,8 +60,11 @@
 					<div class="card">
 						<div class="card-header">Camera Matrix</div>
 						{{ np_table(camera.camera_matrix, '', 'mb-0') }}
-						<div class="card-body">
+						<div class="card-body p-2">
 							<p class="card-text mb-1">Resolution: {{ camera.calib_res_width }}x{{ camera.calib_res_height }}</p>
+							{% if camera.fisheye%}
+							<p class="card-text mb-1">Is fisheye</p>
+							{% endif %}
 							<p class="card-text">
 								RMS Error: <span class="{{
 									'text-success' if camera.calib_rms < 0.3 else
@@ -71,7 +76,7 @@
 					</div>
 					<div class="card">
 						<div class="card-header">Distortion Coefficients</div>
-						{{ np_table(camera.dist_coeffs, '', 'mb-0') }}
+						{{ np_table(camera.dist_coeffs.reshape(1, -1), '', 'mb-0') }}
 					</div>
 				</div>
 			</div>

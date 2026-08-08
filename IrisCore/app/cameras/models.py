@@ -181,12 +181,13 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 	
 	display_name : str
 	transform: np.ndarray | None
-
+	
 	calib_res_width: int
 	calib_res_height: int
 	camera_matrix: np.ndarray | None
 	dist_coeffs: np.ndarray | None
 	calib_rms: float
+	fisheye: bool
 
 	references: list[CameraReference]
 	_active_reference: CameraReference | None
@@ -200,6 +201,7 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 		self.camera_matrix = None
 		self.dist_coeffs = None
 		self.calib_rms = -1.0
+		self.fisheye = False
 		self.transform = None
 		self.references = []
 		self._active_reference = None
@@ -215,7 +217,8 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 		self.calib_res_height = Scribe_Values.Look(self.calib_res_height, 'CalibResHeight', int, defaultValue=0)
 		self.camera_matrix = Scribe_Values.Look(self.camera_matrix, 'CameraMatrix', np.ndarray)
 		self.dist_coeffs = Scribe_Values.Look(self.dist_coeffs, 'DistCoeffs', np.ndarray)
-		self.calib_rms = Scribe_Values.Look(self.calib_rms, 'CalibRMS', float, -1.0)
+		self.calib_rms = Scribe_Values.Look(self.calib_rms, 'CalibRMS', float, defaultValue=-1.0)
+		self.fisheye = Scribe_Values.Look(self.fisheye, 'fisheye', bool, defaultValue=False)
 
 		self.transform = Scribe_Values.Look(self.transform, 'transform', np.ndarray)
 
@@ -234,15 +237,16 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 		path = os.path.join(lifecycle.app.config["APPDATA_PATH"], 'cameras', self.ThingID, *path_ext)
 		return path, os.path.isdir(path)
 
-	def set_camera_params(self, height: int, width: int, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, rms: float):
+	def set_camera_params(self, height: int, width: int, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, rms: float, fisheye: bool):
 		self.calib_res_width = width
 		self.calib_res_height = height
 		self.camera_matrix = camera_matrix
 		self.dist_coeffs = dist_coeffs
 		self.calib_rms = rms
+		self.fisheye = fisheye
 
 	def get_camera_params(self):
-		return (self.camera_matrix, self.dist_coeffs)
+		return (self.camera_matrix, self.dist_coeffs, self.fisheye)
 
 	def rescale_camera_matrix(self, shape):
 		sy = shape[0] / self.calib_res_height
@@ -257,7 +261,7 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 	def undistortImage(self, image: MatLike):
 		return self.undistortImage(image, *self.get_camera_params())
 		
-	def undistortImage(self, image: MatLike, camera_matrix: np.ndarray, dist_coeffs: np.ndarray) -> tuple[MatLike, Rect]:
+	def undistortImage(self, image: MatLike, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, fisheye: bool) -> tuple[MatLike, Rect]:
 		"""
 		Undistorts an image and gives cropped rectangle
 
@@ -267,18 +271,26 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 		dst = dst[y:y+h, x:x+w]
 		"""
 		h, w = image.shape[:2]
-		newcameramtx, roi = cv.getOptimalNewCameraMatrix(camera_matrix, dist_coeffs, (w,h), 1, (w,h))
-		return cv.undistort(image, camera_matrix, dist_coeffs, None, newcameramtx), roi
+
+		if fisheye:
+			new_k = cv.fisheye.estimateNewCameraMatrixForUndistortRectify(camera_matrix, dist_coeffs, (w, h), np.eye(3), balance=1)
+			return cv.fisheye.undistortImage(image, camera_matrix, dist_coeffs, Knew=new_k)
+		else:
+			newcameramtx, roi = cv.getOptimalNewCameraMatrix(camera_matrix, dist_coeffs, (w,h), 1, (w,h))
+			return cv.undistort(image, camera_matrix, dist_coeffs, new_k=newcameramtx), roi
 
 	def UndistortPoints(self, data: np.ndarray):
 		return Camera.UndistortPoints(data, *self.get_camera_params())
 
 	@staticmethod
-	def UndistortPoints(data: np.ndarray, camera_matrix: np.ndarray, dist_coeffs: np.ndarray):
+	def UndistortPoints(data: np.ndarray, camera_matrix: np.ndarray, dist_coeffs: np.ndarray, fisheye: bool):
 		if data is not np.array:
 			data = np.array(data)
 
-		return np.squeeze(cv.undistortPoints(data, camera_matrix, dist_coeffs))
+		if fisheye:
+			return np.squeeze(cv.fisheye.undistortPoints(data, camera_matrix, dist_coeffs))
+		else:
+			return np.squeeze(cv.undistortPoints(data, camera_matrix, dist_coeffs))
 
 	
 from app.cameras.forms import CameraReferenceForm

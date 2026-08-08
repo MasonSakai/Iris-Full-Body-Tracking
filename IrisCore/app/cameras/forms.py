@@ -35,6 +35,8 @@ class CalibrationConfigForm(FlaskForm):
 	
 	checkerboard_x = IntegerField('Width', validators=[DataRequired(), NumberRange(min=1)])
 	checkerboard_y = IntegerField('Height', validators=[DataRequired(), NumberRange(min=1)])
+	checkerboard_w = FloatField('Square Size (mm)', validators=[DataRequired(), NumberRange(min=0)])
+	fisheye = BooleanField('Use fisheye?')
 
 class CameraReferenceForm(FlaskForm):
 

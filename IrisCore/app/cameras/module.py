@@ -17,6 +17,7 @@ class CameraModule(IrisModule):
 	def load(self):
 		if Scribe.loader.LoadFile(os.path.join(self.app.config['APPDATA_PATH'], 'cameras.xml')):
 			calibration.config = Scribe_Deep.Look(calibration.config, 'calibration', calibration.CalibrationConfig)
+			if calibration.config == None: calibration.config = calibration.CalibrationConfig()
 
 			cameras = Scribe_Collections.LookList(
 				None,
