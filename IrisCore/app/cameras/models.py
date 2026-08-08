@@ -274,10 +274,10 @@ class Camera(IThing, IExposable, ILoadReferenceable, ThingName='Camera'):
 
 		if fisheye:
 			new_k = cv.fisheye.estimateNewCameraMatrixForUndistortRectify(camera_matrix, dist_coeffs, (w, h), np.eye(3), balance=1)
-			return cv.fisheye.undistortImage(image, camera_matrix, dist_coeffs, Knew=new_k)
+			return cv.fisheye.undistortImage(image, camera_matrix, dist_coeffs, Knew=new_k), None # need to figure out rect
 		else:
 			newcameramtx, roi = cv.getOptimalNewCameraMatrix(camera_matrix, dist_coeffs, (w,h), 1, (w,h))
-			return cv.undistort(image, camera_matrix, dist_coeffs, new_k=newcameramtx), roi
+			return cv.undistort(image, camera_matrix, dist_coeffs, newCameraMatrix=newcameramtx), roi
 
 	def UndistortPoints(self, data: np.ndarray):
 		return Camera.UndistortPoints(data, *self.get_camera_params())
